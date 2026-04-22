@@ -16,7 +16,7 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 - [x] `ProfileEntity` with tags, follow graph (ManyToMany)
 - [x] `POST /profiles`, `GET /profiles/:id`, `PATCH /profiles/me`
 - [x] `POST /profiles/:id/follow`, `POST /profiles/:id/unfollow`
-- [ ] Input validation DTOs for profile create/update (use `class-validator`)
+- [x] Input validation DTOs for profile create/update (class-validator)
 - [ ] Profile image upload endpoint (AWS S3 integration)
 
 ### Frontend
@@ -96,7 +96,12 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 - [x] Global rate limiting (ThrottlerModule)
 - [x] CORS configured for frontend origin
 - [x] `.env.example` for both apps
-- [ ] Firebase Admin SDK initialization in `main.ts` (required before `POST /auth/firebase` works)
+- [x] Firebase Admin SDK initialization via FirebaseModule (warns if env vars missing, does not crash)
+- [x] Health endpoint `GET /api/v1/health` — required by Docker health checks
+- [x] Global exception filter — consistent `{ statusCode, message, path, timestamp }` error shape
+- [x] Environment validation on startup (DATABASE_URL + JWT_SECRET required; others optional with defaults)
+- [x] Prettier config (`.prettierrc`) + ESLint configs for API and web
+- [x] Typed request DTOs on all controllers (no more `any`)
 - [ ] AWS S3 upload service (shared upload helper in `apps/api/src/common/`)
 - [ ] Database migration files (replace `synchronize: true` before production)
 - [ ] Jest unit tests for Auth and Profiles services
@@ -110,7 +115,7 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 ## Known Gaps / Decisions Needed
 
 - **Feed scope:** `GET /feed` currently returns all posts. Needs to be scoped to users the caller follows. Requires a join on the follow graph.
-- **Firebase Admin init:** `firebase-admin` must be initialized once at app startup (in `main.ts` or a dedicated Firebase module) before the `/auth/firebase` endpoint is functional.
+- **Firebase Admin init:** ✅ Resolved — FirebaseModule initializes on startup, warns gracefully if env vars missing.
 - **S3 uploads:** No upload service exists yet. Both posts and listings reference `mediaUrls[]` which must be S3 URLs. Need a signed URL or direct upload flow.
 - **Listing limits:** The subscription tier limits (`SUBSCRIPTION_LIMITS` in shared types) are defined but not yet enforced in `ListingsService.create()`.
 - **Comments:** `commentsCount` column exists on `PostEntity` but there is no `CommentEntity` or comments endpoints yet.
