@@ -1,0 +1,32 @@
+{
+  "recommendations": [
+    // TypeScript & Node
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-vscode.vscode-typescript-next",
+
+    // NestJS / Backend
+    "firsttris.vscode-jest-runner",
+    "rangav.vscode-thunder-client",
+
+    // Next.js / Frontend
+    "bradlc.vscode-tailwindcss",
+    "formulahendry.auto-rename-tag",
+    "ms-vscode.vscode-react-native",
+
+    // Database
+    "ckolkman.vscode-postgres",
+
+    // Git
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+
+    // Docker
+    "ms-azuretools.vscode-docker",
+
+    // DX
+    "christian-kohler.path-intellisense",
+    "mikestead.dotenv",
+    "usernamehw.errorlens"
+  ]
+}
