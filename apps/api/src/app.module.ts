@@ -10,6 +10,7 @@ import { EventsModule } from './events/events.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { SearchModule } from './search/search.module';
 import { HealthModule } from './health/health.module';
+import { FirebaseModule } from './firebase/firebase.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { HealthModule } from './health/health.module';
         },
       ],
     }),
+    FirebaseModule,
     AuthModule,
     ProfilesModule,
     PostsModule,
