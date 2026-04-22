@@ -66,7 +66,7 @@ Commit message conventions (follow the existing `git log` style):
 
 Push requires a GitHub remote:
 ```bash
-git remote add origin https://github.com/YOUR_USERNAME/AutoGuildX.git
+git remote add origin https://github.com/Carloskfe/autoguildx.git
 git push -u origin main
 ```
 
