@@ -9,6 +9,7 @@ import { ListingsModule } from './listings/listings.module';
 import { EventsModule } from './events/events.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { SearchModule } from './search/search.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { SearchModule } from './search/search.module';
     EventsModule,
     SubscriptionsModule,
     SearchModule,
+    HealthModule,
   ],
 })
 export class AppModule {}
