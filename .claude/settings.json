@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -z \"$(git status --porcelain 2>/dev/null)\" ]; then exit 0; fi; printf '{\"continue\": false, \"systemMessage\": \"Uncommitted changes detected. Commit all changes with a descriptive message following the recent git log style (include Co-Authored-By trailer), then push to GitHub.\"}'",
+            "statusMessage": "Checking for uncommitted changes..."
+          }
+        ]
+      }
+    ]
+  }
+}
