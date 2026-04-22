@@ -2,102 +2,105 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Overview
+## What This Project Is
 
-AutoGuildX is a professional network + marketplace for specialized automotive experts (mechanics, manufacturers, collectors). It is a **npm workspace monorepo** with three packages:
+AutoGuildX — professional network + marketplace for automotive experts. npm workspace monorepo:
 
-- `apps/web` — Next.js 14 frontend (App Router, Tailwind CSS, dark theme)
-- `apps/api` — NestJS backend (TypeORM + PostgreSQL, JWT + Firebase Auth)
-- `packages/shared` — TypeScript domain types shared between both apps
+- `apps/web` — Next.js 14 (App Router, Tailwind, dark theme), port 3000
+- `apps/api` — NestJS + TypeORM + PostgreSQL, port 3001
+- `packages/shared` — TypeScript domain types imported by both apps
+
+See [`docs/PRD.md`](docs/PRD.md) for product requirements, feature scope, and business rules.
+See [`docs/TASKS.md`](docs/TASKS.md) for what is built, what is pending, and known gaps.
+
+---
 
 ## Commands
 
-### Root (monorepo)
+### Monorepo root
 ```bash
-npm install                  # Install all workspace dependencies
-npm run dev                  # Run web + api concurrently
-npm run build                # Build all packages in dependency order
+npm install          # install all workspaces
+npm run dev          # web + api concurrently
+npm run build        # build shared → api → web in order
 ```
 
 ### API (`apps/api`)
 ```bash
-npm run dev --workspace=apps/api     # NestJS watch mode (port 3001)
-npm run build --workspace=apps/api   # Compile to dist/
-npm run test --workspace=apps/api    # Jest unit tests
-npm run test:e2e --workspace=apps/api
-npm run typeorm -- migration:generate src/migrations/Name  # Generate migration
-npm run typeorm -- migration:run                           # Run migrations
+npm run dev --workspace=apps/api          # NestJS watch mode
+npm run test --workspace=apps/api         # Jest unit tests
+npm run test:e2e --workspace=apps/api     # E2E tests
+# Run a single test file:
+npx jest --testPathPattern=auth.service.spec --workspace=apps/api
+
+npm run typeorm -- migration:generate src/migrations/Name
+npm run typeorm -- migration:run
 ```
 
 ### Web (`apps/web`)
 ```bash
-npm run dev --workspace=apps/web     # Next.js dev server (port 3000)
-npm run build --workspace=apps/web   # Production build
-npm run lint --workspace=apps/web    # ESLint via next lint
+npm run dev --workspace=apps/web          # Next.js dev server
+npm run lint --workspace=apps/web         # ESLint via next lint
+npm run build --workspace=apps/web        # Production build
 ```
 
 ### Infrastructure
 ```bash
-docker-compose up -d postgres        # Start only PostgreSQL locally
-docker-compose up --build            # Full stack (postgres + api + web)
+docker-compose up -d postgres             # PostgreSQL only (local dev)
+docker-compose up --build                 # Full stack
 ```
 
-Swagger docs are available at `http://localhost:3001/api/docs` when the API is running.
+Swagger UI: `http://localhost:3001/api/docs`
 
-## Architecture
+---
 
-### API Module Structure
+## API Architecture
 
-Each domain feature follows NestJS module conventions: `module → controller → service → entity`. All modules are registered in `apps/api/src/app.module.ts`.
+Every domain feature follows the same NestJS pattern: `module → controller → service → entity`. All modules register in `apps/api/src/app.module.ts`.
 
-| Module | Path | Responsibility |
+| Module | Path | Key responsibility |
 |---|---|---|
-| Auth | `src/auth/` | Email/password signup+login, Firebase token exchange, JWT issuance |
-| Profiles | `src/profiles/` | User profiles, follow/unfollow graph |
-| Posts | `src/posts/` | Social feed posts, likes |
-| Listings | `src/listings/` | Marketplace parts/services, featured boost |
-| Events | `src/events/` | Event creation, RSVP |
-| Subscriptions | `src/subscriptions/` | Free/Owner/Company tier management |
-| Search | `src/search/` | Cross-entity full-text search (profiles, listings, events) |
+| Auth | `src/auth/` | Signup/login, Firebase token exchange, JWT issuance |
+| Profiles | `src/profiles/` | Profile CRUD, follow/unfollow graph |
+| Posts | `src/posts/` | Feed posts, likes |
+| Listings | `src/listings/` | Marketplace CRUD, featured boost |
+| Events | `src/events/` | Event CRUD, RSVP |
+| Subscriptions | `src/subscriptions/` | Tier management (Free/Owner/Company) |
+| Search | `src/search/` | Cross-entity ILike search |
 
-**Auth flow:** The `JwtStrategy` (`src/auth/jwt.strategy.ts`) validates Bearer tokens and injects `{ id, email, role }` into the request. Protected routes use `JwtAuthGuard` from `src/common/guards/`. The `@CurrentUser()` decorator (`src/common/decorators/`) extracts the injected user.
+**Auth flow:** `JwtStrategy` (`src/auth/jwt.strategy.ts`) validates Bearer tokens and injects `{ id, email, role }` into `req.user`. Protected routes use `JwtAuthGuard` (`src/common/guards/`). Use `@CurrentUser()` (`src/common/decorators/`) to extract the user in controllers.
 
-**Firebase auth:** Social login (Google) is handled on the frontend via Firebase SDK, then the ID token is sent to `POST /auth/firebase` which verifies it with `firebase-admin` and returns our own JWT.
+**Firebase social login:** Frontend acquires a Firebase ID token → sends it to `POST /auth/firebase` → `firebase-admin` verifies it → API issues its own JWT. `firebase-admin` must be initialized at startup before this endpoint works (see `TASKS.md` — Known Gaps).
 
-**Database:** TypeORM with `synchronize: true` in dev (auto-migrates schema). Set `NODE_ENV=production` to disable and use explicit migrations instead.
+**Database:** `synchronize: true` in dev (schema auto-updates from entities). Always switch to explicit migrations before production (`NODE_ENV=production` disables sync).
 
-### Frontend Structure
+---
 
-Next.js App Router. All authenticated pages use `AppShell` (`src/components/layout/AppShell.tsx`) which provides the sticky header, desktop sidebar nav, and mobile bottom nav.
+## Frontend Architecture
 
-| Route | File | Notes |
-|---|---|---|
-| `/` | `app/page.tsx` | Public landing page |
-| `/login` | `app/login/page.tsx` | Email + Google OAuth |
-| `/signup` | `app/signup/page.tsx` | Email + Google, role selection |
-| `/onboarding` | `app/onboarding/page.tsx` | 2-step profile creation after signup |
-| `/feed` | `app/feed/page.tsx` | Social feed |
-| `/discover` | `app/discover/page.tsx` | Search/directory |
-| `/marketplace` | `app/marketplace/page.tsx` | Listings browse |
-| `/events` | `app/events/page.tsx` | Events browse |
-| `/profile` | `app/profile/page.tsx` | Own profile |
+All authenticated pages wrap their content with `AppShell` (`src/components/layout/AppShell.tsx`), which renders the sticky header, desktop sidebar nav, and mobile bottom nav.
 
-**API client:** `src/lib/api.ts` is an Axios instance that auto-attaches the JWT from `localStorage` and redirects to `/login` on 401.
+| Route | File |
+|---|---|
+| `/` | `app/page.tsx` — public landing |
+| `/login` | `app/login/page.tsx` |
+| `/signup` | `app/signup/page.tsx` |
+| `/onboarding` | `app/onboarding/page.tsx` — 2-step profile creation |
+| `/feed` | `app/feed/page.tsx` |
+| `/discover` | `app/discover/page.tsx` |
+| `/marketplace` | `app/marketplace/page.tsx` |
+| `/events` | `app/events/page.tsx` |
+| `/profile` | `app/profile/page.tsx` |
 
-**Auth state:** Managed by Zustand (`src/hooks/useAuth.ts`) with persistence. The store holds `{ token, userId, isAuthenticated }`.
+**API client:** `src/lib/api.ts` — Axios instance that auto-attaches JWT from `localStorage` and redirects to `/login` on 401.
 
-**Styling conventions:** Tailwind dark theme. Custom colors defined in `tailwind.config.ts`: `brand-*` (orange accent), `surface-*` (dark backgrounds). Reusable utility classes (`btn-primary`, `btn-secondary`, `card`, `input`) are defined as `@layer components` in `globals.css`.
+**Auth state:** Zustand store in `src/hooks/useAuth.ts`, persisted to `localStorage`. Shape: `{ token, userId, isAuthenticated }`.
 
-### Shared Types (`packages/shared`)
+**Styling:** Custom Tailwind tokens in `tailwind.config.ts` — `brand-*` (orange accent) and `surface-*` (dark backgrounds). Reusable component classes (`btn-primary`, `btn-secondary`, `card`, `input`) declared in `globals.css` under `@layer components`. Always use these instead of raw utility strings for interactive elements.
 
-All domain interfaces (`User`, `Profile`, `Post`, `Listing`, `Event`, `Subscription`) live in `packages/shared/src/types/`. Both apps import from `@autoguildx/shared`. The TypeScript path alias `@autoguildx/shared` is configured in each `tsconfig.json` to point directly to `packages/shared/src` (no build step needed in dev).
+---
 
-### Subscription Tiers
+## Shared Types
 
-Business logic constants are defined in `packages/shared/src/types/subscription.ts`:
-- **Free:** 5 listings, $0
-- **Owner:** 15 listings, 1 featured campaign, $9.99/month
-- **Company:** unlimited listings, 5 featured campaigns, $99.99/month
-- Featured listing boost: $5–$20, implemented via `POST /listings/:id/feature`
+All domain interfaces live in `packages/shared/src/types/`. Import as `@autoguildx/shared` from either app. The path alias in each `tsconfig.json` points directly to `packages/shared/src`, so no build step is needed during development.
 
-Payment processing is **not** in scope for MVP — subscription upgrades are recorded in DB but no payment gateway is wired.
+Subscription tier limits and prices are constants exported from `packages/shared/src/types/subscription.ts` (`SUBSCRIPTION_LIMITS`, `SUBSCRIPTION_PRICES`). Use these constants in service-layer enforcement — do not hardcode numbers elsewhere.
