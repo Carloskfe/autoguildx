@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { EventsService } from './events.service';
+import { CreateEventDto } from './dto/create-event.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
@@ -13,7 +14,7 @@ export class EventsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create an event' })
-  create(@CurrentUser() user, @Body() dto: any) {
+  create(@CurrentUser() user, @Body() dto: CreateEventDto) {
     return this.eventsService.create(user.id, dto);
   }
 

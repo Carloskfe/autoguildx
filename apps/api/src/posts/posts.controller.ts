@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { PostsService } from './posts.service';
+import { CreatePostDto } from './dto/create-post.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
@@ -13,13 +14,14 @@ export class PostsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a post' })
-  create(@CurrentUser() user, @Body() dto: any) {
+  create(@CurrentUser() user, @Body() dto: CreatePostDto) {
     return this.postsService.create(user.id, dto);
   }
 
   @Get('feed')
   @ApiOperation({ summary: 'Get social feed (paginated)' })
-  @ApiQuery({ name: 'page', required: false }) @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'limit', required: false })
   getFeed(@Query('page') page: number, @Query('limit') limit: number) {
     return this.postsService.getFeed(page, limit);
   }
