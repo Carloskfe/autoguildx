@@ -45,9 +45,20 @@ npm run build --workspace=apps/web        # Production build
 
 ### Infrastructure
 ```bash
-docker-compose up -d postgres             # PostgreSQL only (local dev)
-docker-compose up --build                 # Full stack
+# Local development — PostgreSQL + pgAdmin only (apps run with npm run dev)
+docker-compose -f docker-compose.dev.yml up -d
+
+# pgAdmin UI at http://localhost:5050 (admin@autoguildx.dev / admin)
+
+# Full production stack (builds all images from monorepo root)
+docker-compose up --build
+
+# Rebuild a single service
+docker-compose build api
+docker-compose build web
 ```
+
+> All Docker builds use `.` (monorepo root) as context so `packages/shared` is accessible during build. Never change the build context to an app subdirectory.
 
 Swagger UI: `http://localhost:3001/api/docs`
 

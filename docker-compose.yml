@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   postgres:
     image: postgres:16-alpine
@@ -12,35 +10,49 @@ services:
       - '5432:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d autoguildx']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   api:
     build:
-      context: ./apps/api
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/api/Dockerfile
     restart: unless-stopped
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ./apps/api/.env
     environment:
       DATABASE_URL: postgresql://postgres:password@postgres:5432/autoguildx
       NODE_ENV: production
     ports:
       - '3001:3001'
-    env_file:
-      - ./apps/api/.env
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:3001/api/v1/health || exit 1']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   web:
     build:
-      context: ./apps/web
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/web/Dockerfile
     restart: unless-stopped
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+    env_file:
+      - ./apps/web/.env
     environment:
       NEXT_PUBLIC_API_URL: http://api:3001/api/v1
     ports:
       - '3000:3000'
-    env_file:
-      - ./apps/web/.env
 
 volumes:
   pgdata:

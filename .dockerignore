@@ -1,0 +1,23 @@
+# Dependencies — Docker installs its own
+**/node_modules
+
+# Build outputs
+**/.next
+**/dist
+
+# Git and editor
+.git
+.gitignore
+.vscode
+.claude
+
+# Sensitive — pass via env_file or environment in compose
+**/.env
+**/.env.local
+**/*.env
+
+# Logs and temp
+**/*.log
+**/npm-debug.log*
+**/.DS_Store
+**/coverage
