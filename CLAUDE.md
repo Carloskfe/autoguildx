@@ -62,6 +62,17 @@ docker-compose build web
 
 Swagger UI: `http://localhost:3001/api/docs`
 
+### CI (GitHub Actions — `.github/workflows/ci.yml`)
+
+Runs on every push and PR to `main`. Two jobs:
+
+| Job | Steps |
+|---|---|
+| **quality** | install → build shared → lint API → lint web → test API |
+| **build** | install → build shared → build API → build web (runs after quality passes) |
+
+`node_modules` is cached via `actions/setup-node`. Concurrent runs on the same ref are cancelled automatically (`concurrency` group). Tests use `--passWithNoTests` so the job doesn't fail before test files exist.
+
 ---
 
 ## Git Workflow
@@ -105,7 +116,7 @@ Every domain feature follows the same NestJS pattern: `module → controller →
 
 **Auth flow:** `JwtStrategy` (`src/auth/jwt.strategy.ts`) validates Bearer tokens and injects `{ id, email, role }` into `req.user`. Protected routes use `JwtAuthGuard` (`src/common/guards/`). Use `@CurrentUser()` (`src/common/decorators/`) to extract the user in controllers.
 
-**Firebase social login:** Frontend acquires a Firebase ID token → sends it to `POST /auth/firebase` → `firebase-admin` verifies it → API issues its own JWT. `firebase-admin` must be initialized at startup before this endpoint works (see `TASKS.md` — Known Gaps).
+**Firebase social login:** Frontend acquires a Firebase ID token → sends it to `POST /auth/firebase` → `firebase-admin` verifies it → API issues its own JWT. `FirebaseModule` initializes the SDK on startup using `FIREBASE_*` env vars; it warns but does not crash if they are absent (safe for local dev without Firebase).
 
 **Database:** `synchronize: true` in dev (schema auto-updates from entities). Always switch to explicit migrations before production (`NODE_ENV=production` disables sync).
 
