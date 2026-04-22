@@ -53,6 +53,31 @@ Swagger UI: `http://localhost:3001/api/docs`
 
 ---
 
+## Git Workflow
+
+**Always commit and push after completing any meaningful unit of work.** Progress must never sit uncommitted.
+
+A Stop hook in `.claude/settings.json` enforces this: if uncommitted changes exist when a session ends, Claude is re-engaged to commit before stopping.
+
+Commit message conventions (follow the existing `git log` style):
+- Use conventional commits: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`
+- One sentence summary on the first line, blank line, then detail if needed
+- Always include the trailer: `Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>`
+
+Push requires a GitHub remote:
+```bash
+git remote add origin https://github.com/YOUR_USERNAME/AutoGuildX.git
+git push -u origin main
+```
+
+---
+
+## Keeping This File Current
+
+**Update `CLAUDE.md` whenever something project-relevant becomes settled:** new architectural decisions, new modules, conventions adopted, constraints discovered, tools added, or workflow rules established. Also keep `docs/TASKS.md` in sync as tasks are completed or new ones are identified.
+
+---
+
 ## API Architecture
 
 Every domain feature follows the same NestJS pattern: `module → controller → service → entity`. All modules register in `apps/api/src/app.module.ts`.
