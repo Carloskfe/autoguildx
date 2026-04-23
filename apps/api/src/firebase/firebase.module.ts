@@ -11,14 +11,14 @@ export class FirebaseModule implements OnModuleInit {
   onModuleInit() {
     if (admin.apps.length > 0) return;
 
-    const projectId   = this.config.get<string>('FIREBASE_PROJECT_ID');
+    const projectId = this.config.get<string>('FIREBASE_PROJECT_ID');
     const clientEmail = this.config.get<string>('FIREBASE_CLIENT_EMAIL');
-    const privateKey  = this.config.get<string>('FIREBASE_PRIVATE_KEY');
+    const privateKey = this.config.get<string>('FIREBASE_PRIVATE_KEY');
 
     if (!projectId || !clientEmail || !privateKey) {
       this.logger.warn(
         'Firebase Admin not initialized — FIREBASE_* env vars missing. ' +
-        'POST /auth/firebase will be unavailable.',
+          'POST /auth/firebase will be unavailable.',
       );
       return;
     }

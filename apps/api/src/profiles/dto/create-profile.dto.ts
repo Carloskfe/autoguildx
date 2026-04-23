@@ -7,8 +7,13 @@ export class CreateProfileDto {
   @ApiProperty({ required: false }) @IsOptional() @IsString() location?: string;
   @ApiProperty({ required: false }) @IsOptional() @IsString() @MaxLength(500) bio?: string;
   @ApiProperty({ enum: ['individual', 'business'], default: 'individual' })
-  @IsOptional() @IsIn(['individual', 'business']) roleType?: string;
+  @IsOptional()
+  @IsIn(['individual', 'business'])
+  roleType?: string;
   @ApiProperty({ type: [String], required: false })
-  @IsOptional() @IsArray() @IsString({ each: true }) tags?: string[];
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
   @ApiProperty({ required: false }) @IsOptional() @IsString() profileImageUrl?: string;
 }

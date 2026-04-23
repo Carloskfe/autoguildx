@@ -12,15 +12,27 @@ export class ListingsService {
     return this.repo.save(listing);
   }
 
-  async findAll(query: { type?: string; category?: string; location?: string; q?: string; page?: number; limit?: number }) {
+  async findAll(query: {
+    type?: string;
+    category?: string;
+    location?: string;
+    q?: string;
+    page?: number;
+    limit?: number;
+  }) {
     const { type, category, location, q, page = 1, limit = 20 } = query;
-    const where: any = { status: 'active' };
+    const where: Record<string, unknown> = { status: 'active' };
     if (type) where.type = type;
     if (category) where.category = category;
     if (location) where.location = ILike(`%${location}%`);
     if (q) where.title = ILike(`%${q}%`);
 
-    return this.repo.find({ where, order: { isFeatured: 'DESC', createdAt: 'DESC' }, skip: (page - 1) * limit, take: limit });
+    return this.repo.find({
+      where,
+      order: { isFeatured: 'DESC', createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
   }
 
   async findById(id: string) {

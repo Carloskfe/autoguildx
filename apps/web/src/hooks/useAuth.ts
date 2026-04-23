@@ -26,7 +26,10 @@ export const useAuth = create<AuthState>()(
         set({ token: null, userId: null, isAuthenticated: false });
       },
     }),
-    { name: 'agx-auth', partialize: (s) => ({ token: s.token, userId: s.userId, isAuthenticated: s.isAuthenticated }) },
+    {
+      name: 'agx-auth',
+      partialize: (s) => ({ token: s.token, userId: s.userId, isAuthenticated: s.isAuthenticated }),
+    },
   ),
 );
 

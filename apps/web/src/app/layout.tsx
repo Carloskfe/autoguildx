@@ -7,7 +7,8 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
   title: 'AutoGuildX – Built for Those Who Build Cars',
-  description: 'The professional network and marketplace for specialized automotive experts, builders, and collectors.',
+  description:
+    'The professional network and marketplace for specialized automotive experts, builders, and collectors.',
   openGraph: {
     title: 'AutoGuildX',
     description: 'Built for those who build cars.',

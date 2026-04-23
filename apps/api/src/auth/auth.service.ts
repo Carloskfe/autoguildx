@@ -19,14 +19,21 @@ export class AuthService {
     if (existing) throw new ConflictException('Email already registered');
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
-    const user = this.userRepo.create({ email: dto.email, passwordHash, role: dto.role || 'enthusiast' });
+    const user = this.userRepo.create({
+      email: dto.email,
+      passwordHash,
+      role: dto.role || 'enthusiast',
+    });
     await this.userRepo.save(user);
 
     return this.issueToken(user);
   }
 
   async login(dto: LoginDto) {
-    const user = await this.userRepo.findOne({ where: { email: dto.email }, select: ['id', 'email', 'passwordHash', 'role'] });
+    const user = await this.userRepo.findOne({
+      where: { email: dto.email },
+      select: ['id', 'email', 'passwordHash', 'role'],
+    });
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
     const valid = await bcrypt.compare(dto.password, user.passwordHash);

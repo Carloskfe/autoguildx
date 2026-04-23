@@ -50,7 +50,10 @@ export class ProfilesService {
   }
 
   async unfollow(followerId: string, targetId: string) {
-    const follower = await this.repo.findOne({ where: { userId: followerId }, relations: ['following'] });
+    const follower = await this.repo.findOne({
+      where: { userId: followerId },
+      relations: ['following'],
+    });
     const target = await this.repo.findOne({ where: { id: targetId } });
     if (!follower || !target) throw new NotFoundException('Profile not found');
 

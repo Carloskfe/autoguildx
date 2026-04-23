@@ -8,7 +8,10 @@ export class SubscriptionsService {
   constructor(@InjectRepository(SubscriptionEntity) private repo: Repository<SubscriptionEntity>) {}
 
   async getCurrent(userId: string) {
-    const sub = await this.repo.findOne({ where: { userId, active: true }, order: { startDate: 'DESC' } });
+    const sub = await this.repo.findOne({
+      where: { userId, active: true },
+      order: { startDate: 'DESC' },
+    });
     return sub || { tier: 'free', active: true };
   }
 

@@ -12,7 +12,9 @@ class EnvironmentVariables {
   @IsOptional()
   NODE_ENV: NodeEnv = NodeEnv.Development;
 
-  @IsInt() @Min(1) @IsOptional()
+  @IsInt()
+  @Min(1)
+  @IsOptional()
   PORT: number = 3001;
 
   @IsString()
@@ -21,7 +23,8 @@ class EnvironmentVariables {
   @IsString()
   JWT_SECRET: string;
 
-  @IsString() @IsOptional()
+  @IsString()
+  @IsOptional()
   JWT_EXPIRES_IN: string = '7d';
 
   // Firebase — optional at startup (FirebaseModule warns if missing)

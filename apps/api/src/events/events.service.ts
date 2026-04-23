@@ -2,13 +2,19 @@ import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/commo
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThanOrEqual } from 'typeorm';
 import { EventEntity } from './entities/event.entity';
+import { CreateEventDto } from './dto/create-event.dto';
 
 @Injectable()
 export class EventsService {
   constructor(@InjectRepository(EventEntity) private repo: Repository<EventEntity>) {}
 
-  async create(organizerId: string, dto: Partial<EventEntity>) {
-    const event = this.repo.create({ ...dto, organizerId });
+  async create(organizerId: string, dto: CreateEventDto) {
+    const event = this.repo.create({
+      ...dto,
+      startDate: new Date(dto.startDate),
+      endDate: dto.endDate ? new Date(dto.endDate) : undefined,
+      organizerId,
+    });
     return this.repo.save(event);
   }
 

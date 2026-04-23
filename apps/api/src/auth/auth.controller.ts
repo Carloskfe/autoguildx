@@ -29,6 +29,10 @@ export class AuthController {
   @ApiOperation({ summary: 'Login/signup via Firebase token (Google, Facebook)' })
   async firebaseAuth(@Body() dto: FirebaseAuthDto) {
     const decoded = await admin.auth().verifyIdToken(dto.idToken);
-    return this.authService.loginWithFirebase(decoded.uid, decoded.email, decoded.firebase.sign_in_provider);
+    return this.authService.loginWithFirebase(
+      decoded.uid,
+      decoded.email,
+      decoded.firebase.sign_in_provider,
+    );
   }
 }

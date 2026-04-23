@@ -1,4 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, CreateDateColumn, ManyToMany, JoinTable } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToOne,
+  JoinColumn,
+  CreateDateColumn,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
 import { UserEntity } from '../../auth/entities/user.entity';
 
 @Entity('profiles')

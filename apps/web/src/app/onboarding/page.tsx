@@ -3,11 +3,29 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 
-const TAGS = ['Classic Cars', 'Performance', 'Off-Road', 'Motorcycles', 'Restoration', 'Fabrication', 'Drag Racing', 'Import', 'Diesel', 'Electric/EV'];
+const TAGS = [
+  'Classic Cars',
+  'Performance',
+  'Off-Road',
+  'Motorcycles',
+  'Restoration',
+  'Fabrication',
+  'Drag Racing',
+  'Import',
+  'Diesel',
+  'Electric/EV',
+];
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState({ name: '', businessName: '', location: '', bio: '', roleType: 'individual', tags: [] as string[] });
+  const [form, setForm] = useState({
+    name: '',
+    businessName: '',
+    location: '',
+    bio: '',
+    roleType: 'individual',
+    tags: [] as string[],
+  });
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -40,15 +58,41 @@ export default function OnboardingPage() {
 
         {step === 1 && (
           <div className="space-y-4">
-            <input className="input" placeholder="Full name *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-            <input className="input" placeholder="Business / shop name (optional)" value={form.businessName} onChange={(e) => setForm({ ...form, businessName: e.target.value })} />
-            <input className="input" placeholder="Location (city, state)" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
-            <textarea className="input h-24 resize-none" placeholder="Short bio" value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} />
-            <select className="input" value={form.roleType} onChange={(e) => setForm({ ...form, roleType: e.target.value })}>
+            <input
+              className="input"
+              placeholder="Full name *"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+            />
+            <input
+              className="input"
+              placeholder="Business / shop name (optional)"
+              value={form.businessName}
+              onChange={(e) => setForm({ ...form, businessName: e.target.value })}
+            />
+            <input
+              className="input"
+              placeholder="Location (city, state)"
+              value={form.location}
+              onChange={(e) => setForm({ ...form, location: e.target.value })}
+            />
+            <textarea
+              className="input h-24 resize-none"
+              placeholder="Short bio"
+              value={form.bio}
+              onChange={(e) => setForm({ ...form, bio: e.target.value })}
+            />
+            <select
+              className="input"
+              value={form.roleType}
+              onChange={(e) => setForm({ ...form, roleType: e.target.value })}
+            >
               <option value="individual">Individual</option>
               <option value="business">Business</option>
             </select>
-            <button className="btn-primary w-full" onClick={() => setStep(2)} disabled={!form.name}>Next</button>
+            <button className="btn-primary w-full" onClick={() => setStep(2)} disabled={!form.name}>
+              Next
+            </button>
           </div>
         )}
 
@@ -67,7 +111,9 @@ export default function OnboardingPage() {
               ))}
             </div>
             <div className="flex gap-3">
-              <button className="btn-secondary flex-1" onClick={() => setStep(1)}>Back</button>
+              <button className="btn-secondary flex-1" onClick={() => setStep(1)}>
+                Back
+              </button>
               <button className="btn-primary flex-1" onClick={handleSubmit} disabled={loading}>
                 {loading ? 'Saving...' : 'Finish Setup'}
               </button>
