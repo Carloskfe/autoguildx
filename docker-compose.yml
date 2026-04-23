@@ -29,7 +29,7 @@ services:
       DATABASE_URL: postgresql://postgres:password@postgres:5432/autoguildx
       NODE_ENV: production
     ports:
-      - '3001:3001'
+      - '3002:3001'
     healthcheck:
       test: ['CMD-SHELL', 'wget -qO- http://localhost:3001/api/v1/health || exit 1']
       interval: 15s
@@ -41,16 +41,16 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3002/api/v1
     restart: unless-stopped
     depends_on:
       api:
         condition: service_healthy
     env_file:
       - ./apps/web/.env
-    environment:
-      NEXT_PUBLIC_API_URL: http://api:3001/api/v1
     ports:
-      - '3000:3000'
+      - '3003:3000'
 
 volumes:
   pgdata:
