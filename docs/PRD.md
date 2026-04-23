@@ -69,6 +69,7 @@ Featured listing boosts: $5–$20 per boost, increases exposure in marketplace a
 Business logic constants live in `packages/shared/src/types/subscription.ts`.
 
 > **MVP constraint:** Subscription tier changes are recorded in the database but no payment gateway is wired. Payment processing is post-MVP.
+> **MVP constraint:** Listing limit enforcement per tier is defined in `SUBSCRIPTION_LIMITS` but not yet applied in `ListingsService.create()` — enforcement is a near-term task before public launch.
 
 ## Non-Goals (MVP)
 

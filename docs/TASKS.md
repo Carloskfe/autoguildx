@@ -32,11 +32,11 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ---
 
-## Phase 2 — Feed + Listings *(scaffold complete, UI pending)*
+## Phase 2 — Feed + Listings *(feed wired, listings shell only)*
 
 ### Backend
 - [x] `PostEntity` with media URLs, likes count
-- [x] `GET /feed` — paginated feed
+- [x] `GET /feed` — paginated feed (with user relation)
 - [x] `POST /posts` — create post
 - [x] `POST /posts/:id/like`
 - [x] `DELETE /posts/:id`
@@ -51,12 +51,10 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 - [ ] Media upload endpoints for posts and listings (AWS S3)
 
 ### Frontend
-- [x] Feed page shell
+- [x] Feed page — create post, like (optimistic), delete own posts, infinite scroll
 - [x] Marketplace page shell with filter tabs
-- [ ] Feed — fetch and render posts from API with infinite scroll
-- [ ] Feed — create post form (text + media upload)
-- [ ] Feed — like button with count
 - [ ] Feed — comment thread
+- [ ] Feed — media upload in create post form
 - [ ] Marketplace — listing card component
 - [ ] Marketplace — listing detail page (`/marketplace/[id]`)
 - [ ] Create listing form (`/marketplace/new`)
@@ -64,7 +62,7 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ---
 
-## Phase 3 — Search + Events + Subscriptions *(scaffold complete, UI pending)*
+## Phase 3 — Search + Events + Subscriptions *(scaffold complete, UI shells only)*
 
 ### Backend
 - [x] `GET /search?q=&type=` — cross-entity full-text search
@@ -90,23 +88,30 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ## Infrastructure & Cross-Cutting
 
-- [x] Docker Compose with PostgreSQL service
-- [x] Dockerfiles for API and Web
+- [x] Docker Compose dev stack (PostgreSQL + pgAdmin on port 5433/5050)
+- [x] Docker Compose production stack (web + api + postgres, no host port for postgres)
+- [x] Dockerfiles for API and Web (multi-stage, standalone Next.js output)
+- [x] `NEXT_PUBLIC_API_URL` wired as Docker build arg so it is baked at compile time
+- [x] Local full-stack ports: Web → 3003, API → 3002 (avoids conflicts with other services)
 - [x] Swagger docs at `/api/docs`
 - [x] Global rate limiting (ThrottlerModule)
 - [x] CORS configured for frontend origin
 - [x] `.env.example` for both apps
 - [x] Firebase Admin SDK initialization via FirebaseModule (warns if env vars missing, does not crash)
+- [x] Firebase client lazy-initialized in `firebase.ts` — SSR-safe, no prerender crash
 - [x] Health endpoint `GET /api/v1/health` — required by Docker health checks
 - [x] Global exception filter — consistent `{ statusCode, message, path, timestamp }` error shape
-- [x] Environment validation on startup (DATABASE_URL + JWT_SECRET required; others optional with defaults)
-- [x] Prettier config (`.prettierrc`) + ESLint configs for API and web
-- [x] Typed request DTOs on all controllers (no more `any`)
+- [x] Environment validation on startup (DATABASE_URL + JWT_SECRET required)
+- [x] Prettier config (`.prettierrc`) in root and copied into each app dir for Docker builds
+- [x] ESLint configs for API and web (including `@typescript-eslint` plugin declared in web)
+- [x] Typed request DTOs on all controllers (no `any`)
+- [x] Jest test runner fixed — `jest`/`ts-jest`/`@types/jest` moved to root devDependencies
+- [x] `jest.config.js` added to API with ts-jest transform
+- [x] CI pipeline (GitHub Actions — lint → test → build on every push/PR to `main`)
 - [ ] AWS S3 upload service (shared upload helper in `apps/api/src/common/`)
 - [ ] Database migration files (replace `synchronize: true` before production)
 - [ ] Jest unit tests for Auth and Profiles services
 - [ ] E2E tests for critical auth + listing flows
-- [ ] CI pipeline (GitHub Actions: lint → test → build)
 - [ ] Vercel deployment config for `apps/web`
 - [ ] AWS deployment config for `apps/api`
 
@@ -115,7 +120,8 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 ## Known Gaps / Decisions Needed
 
 - **Feed scope:** `GET /feed` currently returns all posts. Needs to be scoped to users the caller follows. Requires a join on the follow graph.
-- **Firebase Admin init:** ✅ Resolved — FirebaseModule initializes on startup, warns gracefully if env vars missing.
 - **S3 uploads:** No upload service exists yet. Both posts and listings reference `mediaUrls[]` which must be S3 URLs. Need a signed URL or direct upload flow.
 - **Listing limits:** The subscription tier limits (`SUBSCRIPTION_LIMITS` in shared types) are defined but not yet enforced in `ListingsService.create()`.
 - **Comments:** `commentsCount` column exists on `PostEntity` but there is no `CommentEntity` or comments endpoints yet.
+- **Payment gateway:** Subscription tiers are recorded in DB but no payment processor is wired (post-MVP per PRD).
+- **Profile page:** Shows a shell only — no real data fetched from API yet.
