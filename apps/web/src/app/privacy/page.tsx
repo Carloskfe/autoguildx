@@ -25,8 +25,8 @@ export default function PrivacyPage() {
         <p className="text-gray-300 leading-relaxed">
           AutoGuildX (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) operates the AutoGuildX
           platform (the &quot;Service&quot;). This Privacy Policy explains what information we
-          collect, how we use it, and the rights you have over it. By using the Service you agree
-          to the practices described here.
+          collect, how we use it, and the rights you have over it. By using the Service you agree to
+          the practices described here.
         </p>
 
         <Section title="1. Information We Collect">
@@ -36,8 +36,8 @@ export default function PrivacyPage() {
               password, and role type you provide during registration.
             </li>
             <li>
-              <strong className="text-white">Profile information:</strong> name, business name,
-              bio, location, tags, and profile photo URL you add voluntarily.
+              <strong className="text-white">Profile information:</strong> name, business name, bio,
+              location, tags, and profile photo URL you add voluntarily.
             </li>
             <li>
               <strong className="text-white">User-generated content:</strong> posts, comments,
@@ -50,8 +50,8 @@ export default function PrivacyPage() {
             </li>
             <li>
               <strong className="text-white">Usage data:</strong> IP addresses, browser type, and
-              interaction logs collected automatically by Firebase and our hosting infrastructure for
-              security and service reliability purposes.
+              interaction logs collected automatically by Firebase and our hosting infrastructure
+              for security and service reliability purposes.
             </li>
             <li>
               <strong className="text-white">Media files:</strong> images you upload are stored on
@@ -117,8 +117,9 @@ export default function PrivacyPage() {
               Service may process request logs.
             </li>
             <li>
-              <strong className="text-white">Legal requirements:</strong> we may disclose information
-              if required by law, subpoena, or to protect the rights of AutoGuildX or others.
+              <strong className="text-white">Legal requirements:</strong> we may disclose
+              information if required by law, subpoena, or to protect the rights of AutoGuildX or
+              others.
             </li>
             <li>
               <strong className="text-white">Business transfers:</strong> in the event of a merger
@@ -132,8 +133,8 @@ export default function PrivacyPage() {
             We retain your account data for as long as your account is active. If you delete your
             account, we will delete your personal data within 30 days, except where we are required
             to retain it by law. Server logs are retained for up to 90 days for security purposes.
-            Content you have shared publicly (posts, listings, comments) may remain visible to
-            other users until explicitly deleted by you.
+            Content you have shared publicly (posts, listings, comments) may remain visible to other
+            users until explicitly deleted by you.
           </p>
         </Section>
 
@@ -155,8 +156,8 @@ export default function PrivacyPage() {
               associated personal data.
             </li>
             <li>
-              <strong className="text-white">Portability:</strong> receive your data in a structured,
-              machine-readable format (GDPR Article 20).
+              <strong className="text-white">Portability:</strong> receive your data in a
+              structured, machine-readable format (GDPR Article 20).
             </li>
             <li>
               <strong className="text-white">Opt-out of sale (CCPA):</strong> we do not sell

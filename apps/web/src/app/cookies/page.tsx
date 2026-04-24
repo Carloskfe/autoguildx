@@ -32,8 +32,8 @@ export default function CookiesPage() {
         <Section title="1. What Are Cookies?">
           <p className="text-gray-300 text-sm leading-relaxed">
             Cookies are small text files that a website stores on your device when you visit it.
-            They are widely used to make websites work efficiently, remember preferences, and provide
-            information to site operators. Similar technologies — such as{' '}
+            They are widely used to make websites work efficiently, remember preferences, and
+            provide information to site operators. Similar technologies — such as{' '}
             <code className="text-brand-500">localStorage</code> and{' '}
             <code className="text-brand-500">sessionStorage</code> — serve comparable functions but
             store data differently in your browser.
@@ -87,8 +87,8 @@ export default function CookiesPage() {
 
         <Section title="3. Third-Party Storage — Firebase Authentication">
           <p className="text-gray-300 text-sm leading-relaxed">
-            When you sign in with Google, we use Firebase Authentication (a Google service). Firebase
-            stores its own entries in your browser&apos;s{' '}
+            When you sign in with Google, we use Firebase Authentication (a Google service).
+            Firebase stores its own entries in your browser&apos;s{' '}
             <code className="text-brand-500">localStorage</code> and{' '}
             <code className="text-brand-500">IndexedDB</code> to manage your Google sign-in session.
             These entries are governed exclusively by{' '}
@@ -139,8 +139,8 @@ export default function CookiesPage() {
               Storage, or Settings → Privacy &amp; Security → Clear Data.
             </li>
             <li>
-              <strong className="text-white">Safari:</strong> Develop → Show Web Inspector → Storage,
-              or Settings → Privacy → Manage Website Data.
+              <strong className="text-white">Safari:</strong> Develop → Show Web Inspector →
+              Storage, or Settings → Privacy → Manage Website Data.
             </li>
           </ul>
           <p className="text-gray-300 text-sm leading-relaxed mt-3">

@@ -32,10 +32,10 @@ export default function DisclaimerPage() {
         <Section title="1. No Professional Advice">
           <p className="text-gray-300 text-sm leading-relaxed">
             Content published on AutoGuildX — including posts, profiles, listings, event
-            descriptions, and comments — is provided for general informational purposes only. Nothing
-            on the Service constitutes professional mechanical, engineering, legal, financial, or
-            safety advice. Always consult a qualified professional before acting on any information
-            you find here.
+            descriptions, and comments — is provided for general informational purposes only.
+            Nothing on the Service constitutes professional mechanical, engineering, legal,
+            financial, or safety advice. Always consult a qualified professional before acting on
+            any information you find here.
           </p>
         </Section>
 
@@ -51,12 +51,12 @@ export default function DisclaimerPage() {
 
         <Section title="3. Marketplace Transactions">
           <p className="text-gray-300 text-sm leading-relaxed">
-            AutoGuildX provides a venue for users to advertise automotive parts and services.
-            We are not a party to any transaction between buyers and sellers, do not hold funds, and
-            make no warranties regarding the condition, authenticity, legality, or fitness for
-            purpose of any goods or services listed. We are not responsible for disputes, losses,
-            damages, or liabilities arising from transactions conducted through or facilitated by
-            the Service. Conduct your own due diligence before completing any purchase or sale.
+            AutoGuildX provides a venue for users to advertise automotive parts and services. We are
+            not a party to any transaction between buyers and sellers, do not hold funds, and make
+            no warranties regarding the condition, authenticity, legality, or fitness for purpose of
+            any goods or services listed. We are not responsible for disputes, losses, damages, or
+            liabilities arising from transactions conducted through or facilitated by the Service.
+            Conduct your own due diligence before completing any purchase or sale.
           </p>
         </Section>
 
@@ -94,8 +94,9 @@ export default function DisclaimerPage() {
             To the fullest extent permitted by applicable law, AutoGuildX and its officers,
             employees, and agents shall not be liable for any direct, indirect, incidental, special,
             consequential, or punitive damages arising out of or in connection with your use of or
-            inability to use the Service, any content on the Service, or any transaction entered into
-            through the Service — even if we have been advised of the possibility of such damages.
+            inability to use the Service, any content on the Service, or any transaction entered
+            into through the Service — even if we have been advised of the possibility of such
+            damages.
           </p>
           <p className="text-gray-300 text-sm leading-relaxed mt-3">
             Some jurisdictions do not allow the exclusion or limitation of certain warranties or
@@ -108,18 +109,18 @@ export default function DisclaimerPage() {
           <p className="text-gray-300 text-sm leading-relaxed">
             Automotive repair, modification, and parts installation carry inherent safety risks.
             AutoGuildX does not assume any responsibility for harm, injury, death, or property
-            damage arising from advice, techniques, products, or services discussed or transacted
-            on the platform. Always follow manufacturer guidelines, safety standards, and applicable
+            damage arising from advice, techniques, products, or services discussed or transacted on
+            the platform. Always follow manufacturer guidelines, safety standards, and applicable
             regulations. If in doubt, consult a licensed professional mechanic or engineer.
           </p>
         </Section>
 
         <Section title="9. Changes to This Disclaimer">
           <p className="text-gray-300 text-sm leading-relaxed">
-            We reserve the right to update or modify this Disclaimer at any time. Changes take effect
-            immediately upon posting. The &quot;Last updated&quot; date at the top of this page will
-            reflect the most recent revision. Your continued use of the Service after changes are
-            posted constitutes your acceptance of the updated Disclaimer.
+            We reserve the right to update or modify this Disclaimer at any time. Changes take
+            effect immediately upon posting. The &quot;Last updated&quot; date at the top of this
+            page will reflect the most recent revision. Your continued use of the Service after
+            changes are posted constitutes your acceptance of the updated Disclaimer.
           </p>
         </Section>
 

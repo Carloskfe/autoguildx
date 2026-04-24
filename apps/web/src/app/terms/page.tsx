@@ -100,18 +100,20 @@ export default function TermsPage() {
               export control laws.
             </li>
             <li>
-              Attempt to gain unauthorized access to any part of the Service or another
-              user&apos;s account.
+              Attempt to gain unauthorized access to any part of the Service or another user&apos;s
+              account.
             </li>
             <li>
               Scrape, crawl, or systematically extract data from the Service without written
               permission.
             </li>
             <li>
-              Transmit spam, malware, or any content designed to interfere with the Service or
-              other users&apos; systems.
+              Transmit spam, malware, or any content designed to interfere with the Service or other
+              users&apos; systems.
             </li>
-            <li>Sell, resell, or commercially exploit access to the Service without our consent.</li>
+            <li>
+              Sell, resell, or commercially exploit access to the Service without our consent.
+            </li>
           </ul>
           <p className="text-gray-300 text-sm leading-relaxed mt-3">
             We may remove content, suspend, or terminate accounts that violate these rules at our
@@ -154,11 +156,11 @@ export default function TermsPage() {
 
         <Section title="8. Disclaimers">
           <p className="text-gray-300 text-sm leading-relaxed">
-            The Service is provided &quot;as is&quot; and &quot;as available&quot; without warranties
-            of any kind, express or implied, including but not limited to warranties of
-            merchantability, fitness for a particular purpose, or non-infringement. We do not warrant
-            that the Service will be uninterrupted, error-free, or free of harmful components. See
-            our full{' '}
+            The Service is provided &quot;as is&quot; and &quot;as available&quot; without
+            warranties of any kind, express or implied, including but not limited to warranties of
+            merchantability, fitness for a particular purpose, or non-infringement. We do not
+            warrant that the Service will be uninterrupted, error-free, or free of harmful
+            components. See our full{' '}
             <Link href="/disclaimer" className="text-brand-500 hover:underline">
               Disclaimer
             </Link>{' '}
@@ -201,9 +203,9 @@ export default function TermsPage() {
             These Terms are governed by the laws of the State of Delaware, United States, without
             regard to conflict of law principles. Any dispute arising from these Terms or your use
             of the Service shall be resolved by binding arbitration administered under the rules of
-            the American Arbitration Association, except that either party may seek injunctive relief
-            in a court of competent jurisdiction for claims involving intellectual property or
-            unauthorized access.
+            the American Arbitration Association, except that either party may seek injunctive
+            relief in a court of competent jurisdiction for claims involving intellectual property
+            or unauthorized access.
           </p>
         </Section>
 
