@@ -191,7 +191,7 @@ Runs on every push and PR to `main`. Two jobs:
 | **quality** | install → build shared → lint API → lint web → test API |
 | **build** | install → build shared → build API → build web (runs after quality) |
 
-`node_modules` is cached via `actions/setup-node`. Concurrent runs on the same ref are cancelled automatically. Tests use `--passWithNoTests` so the job passes until test files exist.
+`node_modules` is cached via `actions/setup-node`. Concurrent runs on the same ref are cancelled automatically. Tests are required — the `--passWithNoTests` flag has been removed now that unit tests exist for all services.
 
 ---
 

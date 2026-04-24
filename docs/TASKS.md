@@ -111,17 +111,17 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 **Goal:** Test coverage, safe database schema management, and deployable to real infrastructure.
 
 ### Test infrastructure setup
-- [ ] Update `apps/api/jest.config.js` — change `rootDir` from `'src'` to `'.'` and set `testMatch` to `['<rootDir>/tests/unit/**/*.spec.ts']` (required so Jest discovers the mirrored `tests/unit/` directory)
-- [ ] Remove `--passWithNoTests` flag from `.github/workflows/ci.yml` once the unit test suite is established
+- [x] Update `apps/api/jest.config.js` — change `rootDir` from `'src'` to `'.'` and set `testMatch` to `['<rootDir>/tests/unit/**/*.spec.ts']` (required so Jest discovers the mirrored `tests/unit/` directory)
+- [x] Remove `--passWithNoTests` flag from `.github/workflows/ci.yml` once the unit test suite is established
 
 ### Unit tests — all under `apps/api/tests/unit/`, mirroring `apps/api/src/`
-- [ ] `auth/auth.service.spec.ts` — signup, login, Firebase token exchange, JWT issuance
-- [ ] `profiles/profiles.service.spec.ts` — create, update, follow/unfollow graph
-- [ ] `posts/posts.service.spec.ts` — create, like, delete, feed pagination
-- [ ] `listings/listings.service.spec.ts` — create, update, delete, filter, featured boost, tier limit enforcement
-- [ ] `events/events.service.spec.ts` — create, update, delete, RSVP
-- [ ] `subscriptions/subscriptions.service.spec.ts` — tier lookup, upgrade
-- [ ] `search/search.service.spec.ts` — cross-entity ILike search results
+- [x] `auth/auth.service.spec.ts` — signup, login, Firebase token exchange, JWT issuance
+- [x] `profiles/profiles.service.spec.ts` — create, update, follow/unfollow graph
+- [x] `posts/posts.service.spec.ts` — create, like, delete, feed pagination
+- [x] `listings/listings.service.spec.ts` — create, update, delete, filter, featured boost, tier limit enforcement
+- [x] `events/events.service.spec.ts` — create, update, delete, RSVP
+- [x] `subscriptions/subscriptions.service.spec.ts` — tier lookup, upgrade
+- [x] `search/search.service.spec.ts` — cross-entity ILike search results
 
 ### E2E tests
 - [ ] Full auth flow — signup → onboarding → feed
@@ -146,6 +146,4 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 | S3 uploads | `mediaUrls[]` fields exist but upload flow not built | S5 |
 | Payment gateway | Subscription tier upgrades recorded in DB; no payment processor | Post-MVP |
 | Other user profiles | `/profile/[id]` for viewing other people not built yet | S3 |
-| Test coverage | 0% — no unit tests exist for any service; all 7 services need retroactive tests per testing policy | S6 |
-| Jest config | `rootDir: 'src'` in `jest.config.js` prevents discovery of `tests/unit/`; must be updated before writing any tests | S6 |
-| CI gate | `--passWithNoTests` lets CI pass without tests; must be removed once test suite is in place | S6 |
+| Test coverage | ✅ 100% statement coverage on all 7 services; 70 passing unit tests under `apps/api/tests/unit/` | — |

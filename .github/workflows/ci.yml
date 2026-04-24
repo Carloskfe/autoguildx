@@ -36,7 +36,7 @@ jobs:
         run: npm run lint --workspace=apps/web
 
       - name: Test API
-        run: npm run test --workspace=apps/api -- --passWithNoTests --forceExit
+        run: npm run test --workspace=apps/api -- --forceExit
 
   build:
     name: Build
