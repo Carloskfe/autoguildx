@@ -16,6 +16,9 @@
 **/.env.local
 **/*.env
 
+# Test files — not needed in production images
+apps/api/tests
+
 # Logs and temp
 **/*.log
 **/npm-debug.log*
