@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ImageIcon, X } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import UpgradeModal from '@/components/UpgradeModal';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
+import { uploadFile } from '@/lib/upload';
 
 const CATEGORIES = [
   'Engine & Drivetrain',
@@ -35,10 +36,15 @@ interface ListingForm {
   location: string;
 }
 
+const MAX_IMAGES = 5;
+
 export default function NewListingPage() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [images, setImages] = useState<string[]>([]);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!isAuthenticated) router.replace('/login');
@@ -59,6 +65,19 @@ export default function NewListingPage() {
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
       setForm((f) => ({ ...f, [field]: e.target.value }));
 
+  async function handleImagePick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || images.length >= MAX_IMAGES) return;
+    setUploadingImage(true);
+    try {
+      const url = await uploadFile(file);
+      setImages((prev) => [...prev, url]);
+    } finally {
+      setUploadingImage(false);
+      e.target.value = '';
+    }
+  }
+
   const create = useMutation({
     mutationFn: () =>
       api
@@ -73,6 +92,7 @@ export default function NewListingPage() {
             .map((t) => t.trim())
             .filter(Boolean),
           ...(form.location && { location: form.location.trim() }),
+          ...(images.length > 0 && { mediaUrls: images }),
         })
         .then((r) => r.data),
     onSuccess: (listing) => router.push(`/marketplace/${listing.id}`),
@@ -224,6 +244,54 @@ export default function NewListingPage() {
             />
           </div>
 
+          {/* Images */}
+          <div>
+            <label className="text-sm font-medium text-gray-300 mb-2 block">
+              Photos <span className="text-gray-500">(up to {MAX_IMAGES})</span>
+            </label>
+
+            {images.length > 0 && (
+              <div className="grid grid-cols-3 gap-2 mb-3">
+                {images.map((url, i) => (
+                  <div key={i} className="relative aspect-square">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={url} alt="" className="w-full h-full rounded-lg object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setImages((prev) => prev.filter((_, idx) => idx !== i))}
+                      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 flex items-center justify-center hover:bg-black/90 transition-colors"
+                    >
+                      <X className="w-3 h-3 text-white" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {images.length < MAX_IMAGES && (
+              <button
+                type="button"
+                onClick={() => imageInputRef.current?.click()}
+                disabled={uploadingImage}
+                className="btn-secondary text-sm flex items-center gap-2 px-4 py-2 disabled:opacity-50"
+              >
+                {uploadingImage ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ImageIcon className="w-4 h-4" />
+                )}
+                {uploadingImage ? 'Uploading…' : 'Add Photo'}
+              </button>
+            )}
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              onChange={handleImagePick}
+            />
+          </div>
+
           {create.isError && !showUpgrade && (
             <p className="text-sm text-red-400">Failed to create listing. Please try again.</p>
           )}
@@ -238,7 +306,7 @@ export default function NewListingPage() {
             </button>
             <button
               type="submit"
-              disabled={!canSubmit || create.isPending}
+              disabled={!canSubmit || create.isPending || uploadingImage}
               className="btn-primary flex-1 text-sm py-2.5 flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {create.isPending && <Loader2 className="w-4 h-4 animate-spin" />}

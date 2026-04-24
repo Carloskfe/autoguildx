@@ -146,6 +146,23 @@ export default function ListingDetailPage() {
           )}
         </div>
 
+        {/* Images */}
+        {listing.mediaUrls?.filter(Boolean).length > 0 && (
+          <div
+            className={`grid gap-2 ${listing.mediaUrls.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}
+          >
+            {listing.mediaUrls.filter(Boolean).map((url, i) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={i}
+                src={url}
+                alt=""
+                className={`w-full rounded-xl object-cover ${listing.mediaUrls.length === 1 ? 'max-h-80' : 'aspect-square'}`}
+              />
+            ))}
+          </div>
+        )}
+
         {/* Description */}
         <div className="card space-y-2">
           <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">

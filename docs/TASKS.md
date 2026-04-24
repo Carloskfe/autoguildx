@@ -112,9 +112,12 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 - [ ] Accept `mediaUrls[]` on post and listing create (already in schema, just needs wiring)
 
 ### Frontend
-- [ ] Profile image upload — file picker, upload to S3, save URL to profile
-- [ ] Post create form — attach image via S3 pre-signed URL, preview before submit
-- [ ] Listing create form — attach up to 5 images, preview carousel on detail page
+- [x] `apps/web/src/lib/upload.ts` — shared `uploadFile(file)` helper: presign → PUT → return publicUrl
+- [x] Profile image upload — camera overlay on avatar, file picker → upload → PATCH profileImageUrl
+- [x] Post create form — Photo button, preview thumbnail, submit with mediaUrls
+- [x] Feed post cards — render mediaUrls[0] image below content
+- [x] Listing create form — up to 5 images with preview grid, submit with mediaUrls
+- [x] Listing detail page — image gallery (single full-width or 2-col grid)
 
 ---
 

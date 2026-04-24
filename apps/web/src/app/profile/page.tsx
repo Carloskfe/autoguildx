@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { MapPin, Users, Heart, Edit2, Check, X, Loader2 } from 'lucide-react';
+import { MapPin, Users, Heart, Edit2, Check, X, Loader2, Camera } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
+import { uploadFile } from '@/lib/upload';
 import type { Profile, Post } from '@autoguildx/shared';
 
 interface PostWithUser extends Post {
@@ -30,6 +31,65 @@ const ROLE_LABELS: Record<string, string> = {
   collector: 'Collector',
   enthusiast: 'Enthusiast',
 };
+
+// ─── Avatar with upload ────────────────────────────────────────────────────────
+
+function AvatarUpload({ profile }: { profile: Profile }) {
+  const qc = useQueryClient();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const url = await uploadFile(file);
+      const updated = await api.patch('/profiles/me', { profileImageUrl: url }).then((r) => r.data);
+      qc.setQueryData(['profile', 'me'], updated);
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => inputRef.current?.click()}
+      disabled={uploading}
+      className="relative w-16 h-16 rounded-full shrink-0 group"
+      aria-label="Change profile photo"
+    >
+      {profile.profileImageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={profile.profileImageUrl}
+          alt={profile.name}
+          className="w-16 h-16 rounded-full object-cover"
+        />
+      ) : (
+        <div className="w-16 h-16 rounded-full bg-brand-500 flex items-center justify-center text-xl font-black text-white">
+          {initials(profile.name)}
+        </div>
+      )}
+      <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+        {uploading ? (
+          <Loader2 className="w-5 h-5 animate-spin text-white" />
+        ) : (
+          <Camera className="w-5 h-5 text-white" />
+        )}
+      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="sr-only"
+        onChange={handleFile}
+      />
+    </button>
+  );
+}
 
 // ─── Inline edit form ─────────────────────────────────────────────────────────
 
@@ -126,10 +186,7 @@ function ProfileHeader({ profile }: { profile: Profile }) {
   return (
     <div className="card space-y-4">
       <div className="flex items-start gap-4">
-        {/* Avatar */}
-        <div className="w-16 h-16 rounded-full bg-brand-500 flex items-center justify-center text-xl font-black text-white shrink-0">
-          {initials(profile.name)}
-        </div>
+        <AvatarUpload profile={profile} />
 
         <div className="flex-1 min-w-0">
           {editing ? null : (
@@ -192,7 +249,6 @@ function ProfileHeader({ profile }: { profile: Profile }) {
             </div>
           )}
 
-          {/* Stats */}
           <div className="flex items-center gap-6 pt-1 border-t border-surface-border">
             <div className="flex items-center gap-1.5 text-sm">
               <Users className="w-4 h-4 text-gray-500" />
@@ -210,7 +266,7 @@ function ProfileHeader({ profile }: { profile: Profile }) {
   );
 }
 
-// ─── Post card (own posts, no delete confirm needed — simplified) ──────────────
+// ─── Post card (own posts) ────────────────────────────────────────────────────
 
 function OwnPostCard({ post }: { post: PostWithUser }) {
   const qc = useQueryClient();
@@ -225,6 +281,10 @@ function OwnPostCard({ post }: { post: PostWithUser }) {
       <p className="text-sm text-gray-200 whitespace-pre-wrap break-words leading-relaxed">
         {post.content}
       </p>
+      {post.mediaUrls?.[0] && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={post.mediaUrls[0]} alt="" className="w-full rounded-lg object-cover max-h-64" />
+      )}
       <div className="flex items-center justify-between text-xs text-gray-500">
         <div className="flex items-center gap-1">
           <Heart className="w-3.5 h-3.5" />
@@ -305,7 +365,6 @@ export default function ProfilePage() {
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
         {profile && <ProfileHeader profile={profile} />}
 
-        {/* Posts section */}
         <div className="space-y-3">
           <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide px-1">
             Posts

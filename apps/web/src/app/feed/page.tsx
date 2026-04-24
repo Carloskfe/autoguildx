@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   useInfiniteQuery,
@@ -10,11 +10,22 @@ import {
   type InfiniteData,
 } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { Heart, Trash2, Send, Loader2, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import {
+  Heart,
+  Trash2,
+  Send,
+  Loader2,
+  MessageCircle,
+  ChevronDown,
+  ChevronUp,
+  ImageIcon,
+  X,
+} from 'lucide-react';
 import Link from 'next/link';
 import AppShell from '@/components/layout/AppShell';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
+import { uploadFile } from '@/lib/upload';
 import type { Post, Comment } from '@autoguildx/shared';
 
 interface PostWithUser extends Post {
@@ -182,6 +193,16 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
             {post.content}
           </p>
 
+          {/* Image */}
+          {post.mediaUrls?.[0] && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={post.mediaUrls[0]}
+              alt=""
+              className="mt-2 w-full rounded-lg object-cover max-h-80"
+            />
+          )}
+
           {/* Actions */}
           <div className="mt-3 flex items-center gap-4">
             <button
@@ -232,21 +253,38 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
 
 function CreatePostForm() {
   const [content, setContent] = useState('');
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const qc = useQueryClient();
 
   const create = useMutation({
-    mutationFn: (body: { content: string }) => api.post('/posts', body),
+    mutationFn: (body: { content: string; mediaUrls?: string[] }) => api.post('/posts', body),
     onSuccess: () => {
       setContent('');
+      setImageUrl(null);
       qc.invalidateQueries({ queryKey: ['feed'] });
     },
   });
+
+  async function handleImagePick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const url = await uploadFile(file);
+      setImageUrl(url);
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = content.trim();
     if (!trimmed) return;
-    create.mutate({ content: trimmed });
+    create.mutate({ content: trimmed, ...(imageUrl ? { mediaUrls: [imageUrl] } : {}) });
   };
 
   return (
@@ -258,11 +296,52 @@ function CreatePostForm() {
         onChange={(e) => setContent(e.target.value)}
         maxLength={2000}
       />
+
+      {imageUrl && (
+        <div className="relative">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imageUrl}
+            alt="attachment preview"
+            className="w-full rounded-lg object-cover max-h-48"
+          />
+          <button
+            type="button"
+            onClick={() => setImageUrl(null)}
+            className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/70 flex items-center justify-center hover:bg-black/90 transition-colors"
+          >
+            <X className="w-3.5 h-3.5 text-white" />
+          </button>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
-        <span className="text-xs text-gray-500">{content.length} / 2000</span>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => imageInputRef.current?.click()}
+            disabled={uploading || !!imageUrl}
+            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-brand-500 transition-colors disabled:opacity-40"
+          >
+            {uploading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <ImageIcon className="w-4 h-4" />
+            )}
+            {uploading ? 'Uploading…' : 'Photo'}
+          </button>
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            onChange={handleImagePick}
+          />
+          <span className="text-xs text-gray-500">{content.length} / 2000</span>
+        </div>
         <button
           type="submit"
-          disabled={!content.trim() || create.isPending}
+          disabled={!content.trim() || create.isPending || uploading}
           className="btn-primary text-sm flex items-center gap-2 px-4 py-2 disabled:opacity-50"
         >
           {create.isPending ? (

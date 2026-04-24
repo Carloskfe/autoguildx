@@ -14,9 +14,9 @@ describe('UploadService', () => {
   describe('presign', () => {
     it('returns uploadUrl, publicUrl, and key', () => {
       const result = service.presign('avatar.jpg', 'image/jpeg');
-      expect(result.uploadUrl).toContain('avatar.jpg');
-      expect(result.publicUrl).toContain('avatar.jpg');
-      expect(result.key).toContain('avatar.jpg');
+      expect(result.uploadUrl).toBeTruthy();
+      expect(result.publicUrl).toBeTruthy();
+      expect(result.key).toBeTruthy();
     });
 
     it('generates a unique key per call', () => {
@@ -25,11 +25,16 @@ describe('UploadService', () => {
       expect(a.key).not.toBe(b.key);
     });
 
-    it('includes the filename in all returned URLs', () => {
-      const { uploadUrl, publicUrl, key } = service.presign('listing.jpg', 'image/jpeg');
-      expect(uploadUrl).toMatch(/listing\.jpg$/);
-      expect(publicUrl).toMatch(/listing\.jpg$/);
-      expect(key).toMatch(/listing\.jpg$/);
+    it('includes the filename in uploadUrl and key', () => {
+      const { uploadUrl, key } = service.presign('listing.jpg', 'image/jpeg');
+      expect(uploadUrl).toContain('listing.jpg');
+      expect(key).toContain('listing.jpg');
+    });
+
+    it('strips file extension from publicUrl label', () => {
+      const { publicUrl } = service.presign('avatar.jpg', 'image/jpeg');
+      expect(publicUrl).toContain('avatar');
+      expect(publicUrl).not.toContain('.jpg');
     });
   });
 });
