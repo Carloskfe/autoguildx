@@ -28,14 +28,8 @@ export class PostsController {
   @ApiOperation({ summary: 'Get social feed — scoped to followed users when authenticated' })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
-  async getFeed(
-    @CurrentUser() user,
-    @Query('page') page: number,
-    @Query('limit') limit: number,
-  ) {
-    const followingIds = user
-      ? await this.profilesService.getFollowingUserIds(user.id)
-      : undefined;
+  async getFeed(@CurrentUser() user, @Query('page') page: number, @Query('limit') limit: number) {
+    const followingIds = user ? await this.profilesService.getFollowingUserIds(user.id) : undefined;
     return this.postsService.getFeed(followingIds, page, limit);
   }
 
