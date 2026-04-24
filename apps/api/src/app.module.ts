@@ -10,6 +10,7 @@ import { EventsModule } from './events/events.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { SearchModule } from './search/search.module';
 import { HealthModule } from './health/health.module';
+import { UploadModule } from './upload/upload.module';
 import { FirebaseModule } from './firebase/firebase.module';
 import { validate } from './config/env.validation';
 
@@ -43,6 +44,7 @@ import { validate } from './config/env.validation';
     SubscriptionsModule,
     SearchModule,
     HealthModule,
+    UploadModule,
   ],
 })
 export class AppModule {}

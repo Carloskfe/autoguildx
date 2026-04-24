@@ -106,8 +106,8 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 **Goal:** Posts and listings can have real images; profiles have a photo.
 
 ### Backend
-- [ ] AWS S3 upload service — shared signed-URL helper in `apps/api/src/common/upload/`
-- [ ] `POST /upload/presign` — returns a pre-signed S3 URL for direct browser upload
+- [x] `UploadService` stub in `apps/api/src/upload/` — returns mock `uploadUrl` + `publicUrl` + `key`; swap body for real S3 SDK when credentials are ready
+- [x] `POST /upload/presign` — returns a pre-signed URL for direct browser upload (stubbed)
 - [ ] Profile image upload endpoint (`PATCH /profiles/me` accepts `profileImageUrl`)
 - [ ] Accept `mediaUrls[]` on post and listing create (already in schema, just needs wiring)
 
@@ -158,4 +158,4 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 | S3 uploads | `mediaUrls[]` fields exist but upload flow not built | S5 |
 | Payment gateway | Subscription tier upgrades recorded in DB; no payment processor | Post-MVP |
 | Other user profiles | `/profile/[id]` for viewing other people not built yet | S3 |
-| Test coverage | ✅ 100% statement coverage on all 7 services; 70 passing unit tests under `apps/api/tests/unit/` | — |
+| Test coverage | ✅ 93 passing unit tests across 9 suites under `apps/api/tests/unit/` | — |
