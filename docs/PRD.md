@@ -70,6 +70,7 @@ Business logic constants live in `packages/shared/src/types/subscription.ts`.
 
 > **MVP constraint:** Subscription tier changes are recorded in the database but no payment gateway is wired. Payment processing is post-MVP.
 > **MVP constraint:** Listing limit enforcement per tier is defined in `SUBSCRIPTION_LIMITS` but not yet applied in `ListingsService.create()` — enforcement is a near-term task before public launch.
+> **Pre-launch quality gate:** Unit test coverage ≥ 80% across all API services is required before public launch. See `CLAUDE.md` Testing Requirements for the full policy and `docs/TASKS.md` Sprint 6 for the task list.
 
 ## Non-Goals (MVP)
 
@@ -112,3 +113,4 @@ Business logic constants live in `packages/shared/src/types/subscription.ts`.
 - Low initial supply of listings and profiles
 - Users remain in existing generic platforms (Instagram, eBay, Facebook Marketplace)
 - Trust and quality concerns without reviews/verification
+- Service regression risk: 0% unit test coverage currently; no safety net before public launch — mitigated by Sprint 6 testing policy

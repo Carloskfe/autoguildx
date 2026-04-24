@@ -13,6 +13,7 @@ AutoGuildX is a professional network + marketplace for automotive experts. For f
 5. [API Architecture](#api-architecture)
 6. [Frontend Architecture](#frontend-architecture)
 7. [Shared Types](#shared-types)
+8. [Testing Requirements](#testing-requirements)
 
 ---
 
@@ -191,6 +192,79 @@ Runs on every push and PR to `main`. Two jobs:
 | **build** | install → build shared → build API → build web (runs after quality) |
 
 `node_modules` is cached via `actions/setup-node`. Concurrent runs on the same ref are cancelled automatically. Tests use `--passWithNoTests` so the job passes until test files exist.
+
+---
+
+## Testing Requirements
+
+### Rule: Every service MUST have unit tests
+
+For every service file created or modified, a corresponding unit test file MUST be created or updated in the same task. No service is considered "done" without its tests passing.
+
+### File structure — Mirrored `tests/unit/` directory
+
+All API unit tests live under `apps/api/tests/unit/` and MUST mirror the structure of `apps/api/src/` exactly.
+
+```
+apps/api/
+├── src/
+│   ├── auth/
+│   │   └── auth.service.ts
+│   ├── profiles/
+│   │   └── profiles.service.ts
+│   └── posts/
+│       └── posts.service.ts
+└── tests/
+    └── unit/
+        ├── auth/
+        │   └── auth.service.spec.ts
+        ├── profiles/
+        │   └── profiles.service.spec.ts
+        └── posts/
+            └── posts.service.spec.ts
+```
+
+### Naming convention
+
+- Source file:  `apps/api/src/auth/auth.service.ts`
+- Test file:    `apps/api/tests/unit/auth/auth.service.spec.ts`
+
+The rule is simple: **take the source path, replace `apps/api/src/` with `apps/api/tests/unit/`, and change the `.ts` extension to `.spec.ts`.**
+
+### Non-negotiable behaviors
+
+- NEVER create a service file without also creating its corresponding test file under `apps/api/tests/unit/` following the mirrored structure above.
+- NEVER place test files inside `src/`, `/docs/`, or any other directory.
+- Tests must cover: happy path, edge cases, and error/failure scenarios.
+- Every public method in the service must have at least one test.
+- Mock ALL external dependencies (TypeORM repositories, Firebase Admin, JWT service, external HTTP calls). No test should touch a real database or make a real network call. Use `@nestjs/testing` `Test.createTestingModule()` with jest mocks.
+- Tests must be fully isolated — no shared state between test cases.
+
+### jest.config.js requirement
+
+The default NestJS jest config scopes `rootDir` to `src/`. To pick up tests in `apps/api/tests/unit/`, the config must be updated:
+
+```js
+module.exports = {
+  moduleFileExtensions: ['js', 'json', 'ts'],
+  rootDir: '.',
+  testMatch: ['<rootDir>/tests/unit/**/*.spec.ts'],
+  transform: { '^.+\\.(t|j)s$': 'ts-jest' },
+  collectCoverageFrom: ['src/**/*.(t|j)s'],
+  coverageDirectory: 'coverage',
+  testEnvironment: 'node',
+};
+```
+
+This change is tracked in Sprint 6 of `docs/TASKS.md`.
+
+### Before marking any task complete, verify
+
+- [ ] A test file exists at the correct mirrored path under `apps/api/tests/unit/`
+- [ ] The test file name follows the `.spec.ts` suffix convention
+- [ ] All tests pass: `npm run test --workspace=apps/api`
+- [ ] Coverage for the modified service is above 80%: `npm run test --workspace=apps/api -- --coverage`
+- [ ] No test depends on a real database or external network call
 
 ---
 
