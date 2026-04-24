@@ -60,7 +60,7 @@ export class ListingsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Feature a listing (paid boost)' })
-  feature(@Param('id') id: string, @Body('days') days: number) {
-    return this.listingsService.featureListing(id, days || 7);
+  feature(@Param('id') id: string, @CurrentUser() user, @Body('days') days: number) {
+    return this.listingsService.featureListing(id, user.id, days || 7);
   }
 }

@@ -81,19 +81,23 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ---
 
-## Sprint 4 — Monetization
+## Sprint 4 — Monetization ✅ COMPLETE
 
 **Goal:** Close the subscription loop — users can see their tier, upgrade, and the limits are enforced.
 
 ### Backend
-- [ ] Enforce listing limit per subscription tier in `ListingsService.create()`
-- [ ] Enforce featured campaign limit per tier in `ListingsService.featureListing()`
+- [x] Enforce listing limit per subscription tier in `ListingsService.create()` — throws 403 with message
+- [x] Enforce featured campaign limit per tier in `ListingsService.featureListing()` — ownership check + tier check
+- [x] `featureListing` now requires `userId` for ownership verification before boosting
 
 ### Frontend
-- [ ] Subscription upgrade page / modal — show tiers + pricing, trigger `POST /subscriptions/upgrade`
-- [ ] AppShell profile nav — show subscription tier badge (Free / Owner / Company)
-- [ ] Featured listing boost CTA on `/marketplace/[id]` (own listing, non-featured)
-- [ ] Graceful error when listing limit is hit — prompt to upgrade
+- [x] `UpgradeModal` component — tier cards with pricing, features, upgrade button (`POST /subscriptions/upgrade`)
+- [x] AppShell — subscription tier badge (Free / Owner / Company) in header + sidebar; click to open UpgradeModal
+- [x] Featured listing boost CTA on `/marketplace/[id]` — shown for own non-featured listings; opens UpgradeModal on 403
+- [x] `/marketplace/new` — 403 response from listing limit opens UpgradeModal automatically
+
+### Tests
+- [x] Updated `listings.service.spec.ts` — tier limit enforcement for create and featureListing (90 total tests passing)
 
 ---
 

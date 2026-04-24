@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { ListingsService } from '../../../src/listings/listings.service';
 import { ListingEntity } from '../../../src/listings/entities/listing.entity';
+import { SubscriptionsService } from '../../../src/subscriptions/subscriptions.service';
 
 const mockRepo = () => ({
   findOne: jest.fn(),
@@ -10,28 +11,42 @@ const mockRepo = () => ({
   create: jest.fn(),
   save: jest.fn(),
   remove: jest.fn(),
+  count: jest.fn(),
 });
+
+const mockSubsService = () => ({
+  getCurrent: jest.fn(),
+});
+
+const freeSub = { tier: 'free', active: true };
+const ownerSub = { tier: 'owner', active: true };
+const companySub = { tier: 'company', active: true };
 
 describe('ListingsService', () => {
   let service: ListingsService;
   let repo: ReturnType<typeof mockRepo>;
+  let subsService: ReturnType<typeof mockSubsService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ListingsService,
         { provide: getRepositoryToken(ListingEntity), useFactory: mockRepo },
+        { provide: SubscriptionsService, useFactory: mockSubsService },
       ],
     }).compile();
 
     service = module.get<ListingsService>(ListingsService);
     repo = module.get(getRepositoryToken(ListingEntity));
+    subsService = module.get(SubscriptionsService);
   });
 
   afterEach(() => jest.clearAllMocks());
 
   describe('create', () => {
-    it('saves and returns the new listing', async () => {
+    it('saves and returns the new listing when under tier limit', async () => {
+      subsService.getCurrent.mockResolvedValue(ownerSub);
+      repo.count.mockResolvedValue(5); // 5 of 15 used
       const listing = { id: 'l-1', userId: 'u-1', title: 'Exhaust Kit' };
       repo.create.mockReturnValue(listing);
       repo.save.mockResolvedValue(listing);
@@ -39,6 +54,33 @@ describe('ListingsService', () => {
       const result = await service.create('u-1', { title: 'Exhaust Kit' });
       expect(result).toEqual(listing);
       expect(repo.create).toHaveBeenCalledWith({ title: 'Exhaust Kit', userId: 'u-1' });
+    });
+
+    it('throws ForbiddenException when free tier listing limit (5) is reached', async () => {
+      subsService.getCurrent.mockResolvedValue(freeSub);
+      repo.count.mockResolvedValue(5);
+
+      await expect(service.create('u-1', { title: 'Extra Listing' })).rejects.toThrow(
+        ForbiddenException,
+      );
+      expect(repo.save).not.toHaveBeenCalled();
+    });
+
+    it('throws ForbiddenException when owner tier listing limit (15) is reached', async () => {
+      subsService.getCurrent.mockResolvedValue(ownerSub);
+      repo.count.mockResolvedValue(15);
+
+      await expect(service.create('u-1', {})).rejects.toThrow(ForbiddenException);
+    });
+
+    it('does not check limit for company tier (Infinity)', async () => {
+      subsService.getCurrent.mockResolvedValue(companySub);
+      const listing = { id: 'l-1', userId: 'u-1' };
+      repo.create.mockReturnValue(listing);
+      repo.save.mockResolvedValue(listing);
+
+      await service.create('u-1', {});
+      expect(repo.count).not.toHaveBeenCalled();
     });
   });
 
@@ -138,13 +180,15 @@ describe('ListingsService', () => {
   });
 
   describe('featureListing', () => {
-    it('sets isFeatured to true and calculates featuredUntil', async () => {
-      const listing = { id: 'l-1', isFeatured: false, featuredUntil: null };
+    it('sets isFeatured and calculates featuredUntil when within campaign limit', async () => {
+      const listing = { id: 'l-1', userId: 'u-1', isFeatured: false, featuredUntil: null };
       repo.findOne.mockResolvedValue(listing);
+      subsService.getCurrent.mockResolvedValue(ownerSub); // limit: 1
+      repo.count.mockResolvedValue(0); // 0 currently featured
       repo.save.mockImplementation((l) => Promise.resolve(l));
 
       const before = Date.now();
-      const result = await service.featureListing('l-1', 7);
+      const result = await service.featureListing('l-1', 'u-1', 7);
       const after = Date.now();
 
       expect(result.isFeatured).toBe(true);
@@ -153,9 +197,42 @@ describe('ListingsService', () => {
       expect(until).toBeLessThanOrEqual(after + 7 * 86400000);
     });
 
-    it('throws NotFoundException when listing does not exist', async () => {
+    it('throws ForbiddenException when listing does not exist', async () => {
       repo.findOne.mockResolvedValue(null);
-      await expect(service.featureListing('bad-id', 7)).rejects.toThrow(NotFoundException);
+      await expect(service.featureListing('bad-id', 'u-1', 7)).rejects.toThrow(NotFoundException);
+    });
+
+    it('throws ForbiddenException when user does not own the listing', async () => {
+      repo.findOne.mockResolvedValue({ id: 'l-1', userId: 'u-2' });
+      await expect(service.featureListing('l-1', 'u-1', 7)).rejects.toThrow(ForbiddenException);
+    });
+
+    it('throws ForbiddenException when free tier has zero campaign allowance', async () => {
+      repo.findOne.mockResolvedValue({ id: 'l-1', userId: 'u-1' });
+      subsService.getCurrent.mockResolvedValue(freeSub);
+
+      await expect(service.featureListing('l-1', 'u-1', 7)).rejects.toThrow(ForbiddenException);
+      expect(repo.count).not.toHaveBeenCalled();
+    });
+
+    it('throws ForbiddenException when campaign limit is already reached', async () => {
+      repo.findOne.mockResolvedValue({ id: 'l-1', userId: 'u-1' });
+      subsService.getCurrent.mockResolvedValue(ownerSub); // limit: 1
+      repo.count.mockResolvedValue(1); // already at limit
+
+      await expect(service.featureListing('l-1', 'u-1', 7)).rejects.toThrow(ForbiddenException);
+      expect(repo.save).not.toHaveBeenCalled();
+    });
+
+    it('allows company tier up to 5 featured campaigns', async () => {
+      const listing = { id: 'l-1', userId: 'u-1', isFeatured: false, featuredUntil: null };
+      repo.findOne.mockResolvedValue(listing);
+      subsService.getCurrent.mockResolvedValue(companySub); // limit: 5
+      repo.count.mockResolvedValue(4); // 4 of 5 used
+      repo.save.mockImplementation((l) => Promise.resolve(l));
+
+      const result = await service.featureListing('l-1', 'u-1', 30);
+      expect(result.isFeatured).toBe(true);
     });
   });
 });

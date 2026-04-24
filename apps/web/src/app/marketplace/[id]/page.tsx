@@ -1,14 +1,16 @@
 'use client';
 
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { MapPin, Star, Tag, ArrowLeft, Trash2, Loader2 } from 'lucide-react';
+import { MapPin, Star, Tag, ArrowLeft, Trash2, Loader2, Zap } from 'lucide-react';
 import Link from 'next/link';
 import AppShell from '@/components/layout/AppShell';
+import UpgradeModal from '@/components/UpgradeModal';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
-import type { Listing } from '@autoguildx/shared';
+import type { Listing, SubscriptionTier } from '@autoguildx/shared';
 
 interface ListingWithUser extends Listing {
   user?: { id: string; email: string };
@@ -16,9 +18,11 @@ interface ListingWithUser extends Listing {
 
 export default function ListingDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { userId } = useAuth();
+  const { userId, isAuthenticated } = useAuth();
   const router = useRouter();
   const qc = useQueryClient();
+  const [showUpgrade, setShowUpgrade] = useState(false);
+  const [boostError, setBoostError] = useState<string | null>(null);
 
   const {
     data: listing,
@@ -30,11 +34,30 @@ export default function ListingDetailPage() {
     enabled: !!id,
   });
 
+  const { data: subscription } = useQuery<{ tier: SubscriptionTier }>({
+    queryKey: ['subscription'],
+    queryFn: () => api.get('/subscriptions/me').then((r) => r.data),
+    enabled: isAuthenticated,
+  });
+
   const del = useMutation({
     mutationFn: () => api.delete(`/listings/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['listings'] });
       router.push('/marketplace');
+    },
+  });
+
+  const boost = useMutation({
+    mutationFn: () => api.post(`/listings/${id}/feature`, { days: 7 }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['listing', id] }),
+    onError: (err: unknown) => {
+      const e = err as { response?: { status?: number; data?: { message?: string } } };
+      const msg = e?.response?.data?.message ?? '';
+      if (e?.response?.status === 403) {
+        setBoostError(msg);
+        setShowUpgrade(true);
+      }
     },
   });
 
@@ -138,6 +161,39 @@ export default function ListingDetailPage() {
           {isOwn ? (
             <>
               <p className="text-xs text-gray-500">This is your listing.</p>
+
+              {!listing.isFeatured && (
+                <>
+                  {boostError && (
+                    <p className="text-xs text-amber-400 bg-amber-400/10 border border-amber-400/30 rounded-lg px-3 py-2">
+                      {boostError}
+                    </p>
+                  )}
+                  <button
+                    onClick={() => {
+                      setBoostError(null);
+                      boost.mutate();
+                    }}
+                    disabled={boost.isPending}
+                    className="btn-secondary w-full text-sm py-2.5 flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {boost.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Zap className="w-4 h-4 text-brand-500" />
+                    )}
+                    {boost.isPending ? 'Boosting…' : 'Boost Listing (7 days)'}
+                  </button>
+                </>
+              )}
+
+              {listing.isFeatured && (
+                <p className="text-xs text-brand-500 flex items-center gap-1">
+                  <Star className="w-3.5 h-3.5 fill-brand-500" /> This listing is currently
+                  featured.
+                </p>
+              )}
+
               <button
                 onClick={() => del.mutate()}
                 disabled={del.isPending}
@@ -170,6 +226,10 @@ export default function ListingDetailPage() {
           )}
         </div>
       </div>
+
+      {showUpgrade && (
+        <UpgradeModal currentTier={subscription?.tier} onClose={() => setShowUpgrade(false)} />
+      )}
     </AppShell>
   );
 }

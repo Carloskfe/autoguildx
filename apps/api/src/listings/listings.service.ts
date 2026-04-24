@@ -1,13 +1,31 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike } from 'typeorm';
+import { SUBSCRIPTION_LIMITS, SubscriptionTier } from '@autoguildx/shared';
 import { ListingEntity } from './entities/listing.entity';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 
 @Injectable()
 export class ListingsService {
-  constructor(@InjectRepository(ListingEntity) private repo: Repository<ListingEntity>) {}
+  constructor(
+    @InjectRepository(ListingEntity) private repo: Repository<ListingEntity>,
+    private readonly subsService: SubscriptionsService,
+  ) {}
 
   async create(userId: string, dto: Partial<ListingEntity>) {
+    const sub = await this.subsService.getCurrent(userId);
+    const tier = sub.tier as SubscriptionTier;
+    const maxListings = SUBSCRIPTION_LIMITS[tier].maxListings;
+
+    if (maxListings !== Infinity) {
+      const current = await this.repo.count({ where: { userId, status: 'active' } });
+      if (current >= maxListings) {
+        throw new ForbiddenException(
+          `Listing limit reached for your subscription tier (${maxListings} max). Upgrade to add more.`,
+        );
+      }
+    }
+
     const listing = this.repo.create({ ...dto, userId });
     return this.repo.save(listing);
   }
@@ -57,9 +75,28 @@ export class ListingsService {
     return { deleted: true };
   }
 
-  async featureListing(id: string, daysCount: number) {
+  async featureListing(id: string, userId: string, daysCount: number) {
     const listing = await this.repo.findOne({ where: { id } });
     if (!listing) throw new NotFoundException('Listing not found');
+    if (listing.userId !== userId) throw new ForbiddenException();
+
+    const sub = await this.subsService.getCurrent(userId);
+    const tier = sub.tier as SubscriptionTier;
+    const campaignLimit = SUBSCRIPTION_LIMITS[tier].featuredCampaigns;
+
+    if (campaignLimit === 0) {
+      throw new ForbiddenException(
+        'Featured listings are not available on your subscription tier. Upgrade to boost a listing.',
+      );
+    }
+
+    const activeFeatured = await this.repo.count({ where: { userId, isFeatured: true } });
+    if (activeFeatured >= campaignLimit) {
+      throw new ForbiddenException(
+        `Featured campaign limit reached for your subscription tier (${campaignLimit} max).`,
+      );
+    }
+
     listing.isFeatured = true;
     listing.featuredUntil = new Date(Date.now() + daysCount * 86400000);
     return this.repo.save(listing);

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
+import UpgradeModal from '@/components/UpgradeModal';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
 
@@ -37,6 +38,7 @@ interface ListingForm {
 export default function NewListingPage() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) router.replace('/login');
@@ -74,6 +76,10 @@ export default function NewListingPage() {
         })
         .then((r) => r.data),
     onSuccess: (listing) => router.push(`/marketplace/${listing.id}`),
+    onError: (err: unknown) => {
+      const e = err as { response?: { status?: number } };
+      if (e?.response?.status === 403) setShowUpgrade(true);
+    },
   });
 
   const canSubmit = form.title.trim() && form.description.trim() && form.category;
@@ -218,7 +224,7 @@ export default function NewListingPage() {
             />
           </div>
 
-          {create.isError && (
+          {create.isError && !showUpgrade && (
             <p className="text-sm text-red-400">Failed to create listing. Please try again.</p>
           )}
 
@@ -241,6 +247,8 @@ export default function NewListingPage() {
           </div>
         </form>
       </div>
+
+      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
     </AppShell>
   );
 }
