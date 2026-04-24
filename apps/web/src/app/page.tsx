@@ -63,8 +63,24 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-surface-border px-6 py-6 text-center text-sm text-gray-500">
-        © 2026 AutoGuildX. All rights reserved.
+      <footer className="border-t border-surface-border px-6 py-6 text-center text-sm text-gray-500 space-x-4">
+        <Link href="/terms" className="hover:text-gray-300 transition-colors">
+          Terms of Service
+        </Link>
+        <span>·</span>
+        <Link href="/privacy" className="hover:text-gray-300 transition-colors">
+          Privacy Policy
+        </Link>
+        <span>·</span>
+        <Link href="/cookies" className="hover:text-gray-300 transition-colors">
+          Cookie Policy
+        </Link>
+        <span>·</span>
+        <Link href="/disclaimer" className="hover:text-gray-300 transition-colors">
+          Disclaimer
+        </Link>
+        <span>·</span>
+        <span>© 2026 AutoGuildX. All rights reserved.</span>
       </footer>
     </main>
   );

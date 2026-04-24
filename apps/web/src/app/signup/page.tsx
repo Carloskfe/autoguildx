@@ -91,6 +91,17 @@ export default function SignupPage() {
           <button className="btn-primary w-full" type="submit" disabled={loading}>
             {loading ? 'Creating account...' : 'Create Account'}
           </button>
+          <p className="text-xs text-gray-500 text-center">
+            By creating an account you agree to our{' '}
+            <Link href="/terms" className="text-brand-500 hover:underline">
+              Terms of Service
+            </Link>{' '}
+            and{' '}
+            <Link href="/privacy" className="text-brand-500 hover:underline">
+              Privacy Policy
+            </Link>
+            .
+          </p>
         </form>
 
         <div className="relative text-center">
