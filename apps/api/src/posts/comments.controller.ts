@@ -22,11 +22,7 @@ export class CommentsController {
   @ApiOperation({ summary: 'Get comments for a post (paginated)' })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
-  findByPost(
-    @Param('id') id: string,
-    @Query('page') page: number,
-    @Query('limit') limit: number,
-  ) {
+  findByPost(@Param('id') id: string, @Query('page') page: number, @Query('limit') limit: number) {
     return this.commentsService.findByPost(id, page, limit);
   }
 }
