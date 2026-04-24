@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike } from 'typeorm';
-import { SUBSCRIPTION_LIMITS, SubscriptionTier } from '@autoguildx/shared';
+import { SUBSCRIPTION_LIMITS, SubscriptionTier } from '../common/subscription-limits';
 import { ListingEntity } from './entities/listing.entity';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 
