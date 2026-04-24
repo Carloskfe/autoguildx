@@ -125,6 +125,46 @@ describe('ProfilesService', () => {
     });
   });
 
+  describe('getFollowing', () => {
+    it('returns the following list for a user', async () => {
+      const followed = makeProfile({ id: 'p-2', userId: 'u-2' });
+      const profile = makeProfile({ following: [followed] });
+      repo.findOne.mockResolvedValue(profile);
+
+      const result = await service.getFollowing('u-1');
+      expect(result).toEqual([followed]);
+    });
+
+    it('returns empty array when profile is not found', async () => {
+      repo.findOne.mockResolvedValue(null);
+      const result = await service.getFollowing('u-unknown');
+      expect(result).toEqual([]);
+    });
+
+    it('returns empty array when user follows nobody', async () => {
+      repo.findOne.mockResolvedValue(makeProfile({ following: [] }));
+      const result = await service.getFollowing('u-1');
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getFollowingUserIds', () => {
+    it('returns userId array of followed profiles', async () => {
+      const followed = makeProfile({ id: 'p-2', userId: 'u-2' });
+      const profile = makeProfile({ following: [followed] });
+      repo.findOne.mockResolvedValue(profile);
+
+      const result = await service.getFollowingUserIds('u-1');
+      expect(result).toEqual(['u-2']);
+    });
+
+    it('returns empty array when following nobody', async () => {
+      repo.findOne.mockResolvedValue(makeProfile({ following: [] }));
+      const result = await service.getFollowingUserIds('u-1');
+      expect(result).toEqual([]);
+    });
+  });
+
   describe('unfollow', () => {
     it('removes target from following and decrements both counters', async () => {
       const target = makeProfile({ id: 'p-2', userId: 'u-2', followersCount: 1 });

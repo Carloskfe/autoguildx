@@ -3,12 +3,17 @@ import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger'
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../common/guards/optional-jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { ProfilesService } from '../profiles/profiles.service';
 
 @ApiTags('posts')
 @Controller()
 export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+  constructor(
+    private readonly postsService: PostsService,
+    private readonly profilesService: ProfilesService,
+  ) {}
 
   @Post('posts')
   @UseGuards(JwtAuthGuard)
@@ -19,11 +24,19 @@ export class PostsController {
   }
 
   @Get('feed')
-  @ApiOperation({ summary: 'Get social feed (paginated)' })
+  @UseGuards(OptionalJwtAuthGuard)
+  @ApiOperation({ summary: 'Get social feed — scoped to followed users when authenticated' })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
-  getFeed(@Query('page') page: number, @Query('limit') limit: number) {
-    return this.postsService.getFeed(page, limit);
+  async getFeed(
+    @CurrentUser() user,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    const followingIds = user
+      ? await this.profilesService.getFollowingUserIds(user.id)
+      : undefined;
+    return this.postsService.getFeed(followingIds, page, limit);
   }
 
   @Get('users/:userId/posts')

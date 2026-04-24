@@ -26,6 +26,14 @@ export class ProfilesController {
     return this.profilesService.findByUserId(user.id);
   }
 
+  @Get('me/following')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get profiles the current user follows' })
+  getFollowing(@CurrentUser() user) {
+    return this.profilesService.getFollowing(user.id);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get profile by ID' })
   findOne(@Param('id') id: string) {

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { PostEntity } from './entities/post.entity';
 
 @Injectable()
@@ -12,12 +12,14 @@ export class PostsService {
     return this.repo.save(post);
   }
 
-  async getFeed(page = 1, limit = 20) {
+  async getFeed(followingUserIds?: string[], page = 1, limit = 20) {
+    const where = followingUserIds?.length ? { userId: In(followingUserIds) } : {};
     return this.repo.find({
+      where,
       order: { createdAt: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
-      relations: ['user'],
+      relations: ['user', 'user.profile'],
     });
   }
 

@@ -43,20 +43,37 @@ describe('PostsService', () => {
   });
 
   describe('getFeed', () => {
-    it('returns paginated posts ordered by createdAt desc', async () => {
+    it('returns all posts when no followingUserIds are provided', async () => {
       const posts = [{ id: 'p1' }, { id: 'p2' }];
       repo.find.mockResolvedValue(posts);
 
-      const result = await service.getFeed(1, 20);
+      const result = await service.getFeed(undefined, 1, 20);
       expect(result).toEqual(posts);
       expect(repo.find).toHaveBeenCalledWith(
-        expect.objectContaining({ skip: 0, take: 20, order: { createdAt: 'DESC' } }),
+        expect.objectContaining({ where: {}, skip: 0, take: 20, order: { createdAt: 'DESC' } }),
       );
+    });
+
+    it('filters by followingUserIds when provided', async () => {
+      const posts = [{ id: 'p1', userId: 'u-2' }];
+      repo.find.mockResolvedValue(posts);
+
+      const result = await service.getFeed(['u-2', 'u-3'], 1, 20);
+      expect(result).toEqual(posts);
+      expect(repo.find).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { userId: expect.anything() } }),
+      );
+    });
+
+    it('returns all posts when followingUserIds is an empty array', async () => {
+      repo.find.mockResolvedValue([]);
+      await service.getFeed([], 1, 20);
+      expect(repo.find).toHaveBeenCalledWith(expect.objectContaining({ where: {} }));
     });
 
     it('applies correct pagination offset for page 2', async () => {
       repo.find.mockResolvedValue([]);
-      await service.getFeed(2, 10);
+      await service.getFeed(undefined, 2, 10);
       expect(repo.find).toHaveBeenCalledWith(expect.objectContaining({ skip: 10, take: 10 }));
     });
   });

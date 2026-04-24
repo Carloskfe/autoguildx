@@ -63,4 +63,14 @@ export class ProfilesService {
     await this.repo.save([follower, target]);
     return { unfollowed: true };
   }
+
+  async getFollowing(userId: string): Promise<ProfileEntity[]> {
+    const profile = await this.repo.findOne({ where: { userId }, relations: ['following'] });
+    return profile?.following ?? [];
+  }
+
+  async getFollowingUserIds(userId: string): Promise<string[]> {
+    const following = await this.getFollowing(userId);
+    return following.map((p) => p.userId);
+  }
 }

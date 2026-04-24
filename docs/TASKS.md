@@ -57,19 +57,27 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ---
 
-## Sprint 3 — Social Graph 🔜 NEXT
+## Sprint 3 — Social Graph ✅ COMPLETE
 
 **Goal:** Complete the follow graph loop and add comments so the feed becomes a real social experience.
 
 ### Backend
-- [ ] `GET /feed` — scope to followed users (join on `profile_followers`)
-- [ ] `CommentEntity` + `POST /posts/:id/comments` + `GET /posts/:id/comments`
+- [x] `GET /feed` — scope to followed users (join on `profile_followers`); falls back to all posts if following nobody
+- [x] `CommentEntity` + `POST /posts/:id/comments` + `GET /posts/:id/comments`
+- [x] `GET /profiles/me/following` — returns profiles the current user follows
+- [x] `ProfilesService.getFollowingUserIds()` — used internally for feed scoping
+- [x] `OptionalJwtAuthGuard` on `GET /feed` — feed is scoped when authenticated, public otherwise
+- [x] Feed response includes `user.profile` relation so frontend can link to `/profile/[id]`
 
 ### Frontend
-- [ ] `/profile/[id]` — other users' profiles (name, bio, tags, follower count)
-- [ ] Follow / unfollow button on other users' profiles (optimistic update)
-- [ ] Comment thread on feed posts (show count, expand, add comment)
-- [ ] Feed `commentsCount` badge on each post card
+- [x] `/profile/[id]` — other users' profiles (name, bio, tags, follower count, posts)
+- [x] Follow / unfollow button on other users' profiles (invalidates following cache)
+- [x] Comment thread on feed posts (expand/collapse, load comments, add comment)
+- [x] Feed `commentsCount` badge on each post card
+- [x] Post author names link to `/profile/[id]` on the feed
+
+### Tests
+- [x] `posts/comments.service.spec.ts` — create, findByPost, error cases (83 total tests passing)
 
 ---
 

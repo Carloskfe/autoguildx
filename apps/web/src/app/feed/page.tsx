@@ -4,34 +4,125 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   useInfiniteQuery,
+  useQuery,
   useMutation,
   useQueryClient,
   type InfiniteData,
 } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { Heart, Trash2, Send, Loader2 } from 'lucide-react';
+import { Heart, Trash2, Send, Loader2, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import Link from 'next/link';
 import AppShell from '@/components/layout/AppShell';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
-import type { Post } from '@autoguildx/shared';
+import type { Post, Comment } from '@autoguildx/shared';
 
 interface PostWithUser extends Post {
-  user?: { id: string; email: string; role: string };
+  user?: {
+    id: string;
+    email: string;
+    role: string;
+    profile?: { id: string; name: string };
+  };
+}
+
+interface CommentWithUser extends Comment {
+  user?: { id: string; email: string };
 }
 
 type FeedPage = PostWithUser[];
 
 const PAGE_SIZE = 20;
 
-function initials(email?: string) {
-  return email?.[0]?.toUpperCase() ?? '?';
+function initials(name?: string) {
+  if (!name) return '?';
+  return name[0].toUpperCase();
+}
+
+// ─── Comment thread ────────────────────────────────────────────────────────────
+
+function CommentThread({ postId }: { postId: string }) {
+  const [text, setText] = useState('');
+  const qc = useQueryClient();
+
+  const { data: comments = [], isLoading } = useQuery<CommentWithUser[]>({
+    queryKey: ['comments', postId],
+    queryFn: () => api.get(`/posts/${postId}/comments?limit=50`).then((r) => r.data),
+  });
+
+  const add = useMutation({
+    mutationFn: (content: string) => api.post(`/posts/${postId}/comments`, { content }),
+    onSuccess: () => {
+      setText('');
+      qc.invalidateQueries({ queryKey: ['comments', postId] });
+      qc.invalidateQueries({ queryKey: ['feed'] });
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    add.mutate(trimmed);
+  };
+
+  return (
+    <div className="mt-3 pt-3 border-t border-surface-border space-y-3">
+      {isLoading && (
+        <div className="flex justify-center py-2">
+          <Loader2 className="w-4 h-4 animate-spin text-brand-500" />
+        </div>
+      )}
+
+      {comments.map((c) => (
+        <div key={c.id} className="flex items-start gap-2">
+          <div className="w-6 h-6 rounded-full bg-surface-card border border-surface-border flex items-center justify-center text-xs font-bold text-gray-300 shrink-0">
+            {initials(c.user?.email)}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-gray-400 font-medium">{c.user?.email ?? 'Unknown'}</p>
+            <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap break-words">
+              {c.content}
+            </p>
+            <p className="text-xs text-gray-600 mt-0.5">
+              {formatDistanceToNow(new Date(c.createdAt), { addSuffix: true })}
+            </p>
+          </div>
+        </div>
+      ))}
+
+      <form onSubmit={handleSubmit} className="flex gap-2">
+        <input
+          className="input flex-1 text-sm py-1.5"
+          placeholder="Write a comment…"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          maxLength={1000}
+        />
+        <button
+          type="submit"
+          disabled={!text.trim() || add.isPending}
+          className="btn-primary text-sm px-3 py-1.5 disabled:opacity-50"
+        >
+          {add.isPending ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Send className="w-4 h-4" />
+          )}
+        </button>
+      </form>
+    </div>
+  );
 }
 
 // ─── Post card ────────────────────────────────────────────────────────────────
 
 function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: string | null }) {
+  const [showComments, setShowComments] = useState(false);
   const qc = useQueryClient();
   const isOwn = currentUserId === post.userId;
+  const profileId = post.user?.profile?.id;
+  const displayName = post.user?.profile?.name ?? post.user?.email ?? 'Unknown';
 
   const like = useMutation({
     mutationFn: () => api.post(`/posts/${post.id}/like`),
@@ -65,15 +156,22 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
       <div className="flex items-start gap-3">
         {/* Avatar */}
         <div className="w-9 h-9 rounded-full bg-brand-500 flex items-center justify-center text-sm font-bold text-white shrink-0">
-          {initials(post.user?.email)}
+          {initials(displayName)}
         </div>
 
         <div className="flex-1 min-w-0">
           {/* Header */}
           <div className="flex items-center justify-between gap-2">
-            <span className="text-sm font-medium text-white truncate">
-              {post.user?.email ?? 'Unknown'}
-            </span>
+            {profileId ? (
+              <Link
+                href={`/profile/${profileId}`}
+                className="text-sm font-medium text-white truncate hover:text-brand-500 transition-colors"
+              >
+                {displayName}
+              </Link>
+            ) : (
+              <span className="text-sm font-medium text-white truncate">{displayName}</span>
+            )}
             <span className="text-xs text-gray-500 shrink-0">
               {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
             </span>
@@ -95,6 +193,19 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
               <span>{post.likesCount}</span>
             </button>
 
+            <button
+              onClick={() => setShowComments((v) => !v)}
+              className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-brand-500 transition-colors"
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span>{post.commentsCount}</span>
+              {showComments ? (
+                <ChevronUp className="w-3 h-3" />
+              ) : (
+                <ChevronDown className="w-3 h-3" />
+              )}
+            </button>
+
             {isOwn && (
               <button
                 onClick={() => del.mutate()}
@@ -109,6 +220,8 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
               </button>
             )}
           </div>
+
+          {showComments && <CommentThread postId={post.id} />}
         </div>
       </div>
     </article>
