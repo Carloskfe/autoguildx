@@ -1,5 +1,5 @@
 # Build context: monorepo root
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -22,7 +22,7 @@ COPY apps/web ./apps/web
 RUN npm run build --workspace=packages/shared && \
     npm run build --workspace=apps/web
 
-FROM node:20-alpine AS runner
+FROM node:24-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
