@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -26,7 +27,7 @@ import { validate } from './config/env.validation';
           url: config.get('DATABASE_URL'),
           autoLoadEntities: true,
           synchronize: !isProd,
-          migrations: isProd ? ['dist/migrations/*.js'] : [],
+          migrations: isProd ? [path.join(__dirname, 'migrations/*.js')] : [],
           migrationsRun: isProd,
         };
       },
