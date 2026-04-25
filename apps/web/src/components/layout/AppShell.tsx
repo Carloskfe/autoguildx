@@ -74,7 +74,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {/* Main + sidebar layout */}
       <div className="flex flex-1">
         {/* Desktop sidebar */}
-        <nav className="hidden md:flex flex-col gap-1 w-56 shrink-0 p-4 border-r border-surface-border">
+        <nav className="hidden md:flex flex-col gap-1 w-56 shrink-0 p-4 border-r border-surface-border sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto">
           {NAV.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
@@ -102,6 +102,22 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               {badge.label} Plan
             </button>
           )}
+
+          <div className="mt-auto pt-6 flex flex-col gap-1 text-xs text-gray-600">
+            <Link href="/privacy" className="hover:text-gray-400 transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="hover:text-gray-400 transition-colors">
+              Terms of Service
+            </Link>
+            <Link href="/cookies" className="hover:text-gray-400 transition-colors">
+              Cookie Policy
+            </Link>
+            <Link href="/disclaimer" className="hover:text-gray-400 transition-colors">
+              Disclaimer
+            </Link>
+            <span className="mt-1">© 2026 AutoGuildX</span>
+          </div>
         </nav>
 
         {/* Content */}
