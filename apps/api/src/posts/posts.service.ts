@@ -13,22 +13,26 @@ export class PostsService {
   }
 
   async getFeed(followingUserIds?: string[], page = 1, limit = 20) {
+    const p = Number.isFinite(page) ? page : 1;
+    const l = Number.isFinite(limit) ? limit : 20;
     const where = followingUserIds?.length ? { userId: In(followingUserIds) } : {};
     return this.repo.find({
       where,
       order: { createdAt: 'DESC' },
-      skip: (page - 1) * limit,
-      take: limit,
+      skip: (p - 1) * l,
+      take: l,
       relations: ['user', 'user.profile'],
     });
   }
 
   async getUserPosts(userId: string, page = 1, limit = 20) {
+    const p = Number.isFinite(page) ? page : 1;
+    const l = Number.isFinite(limit) ? limit : 20;
     return this.repo.find({
       where: { userId },
       order: { createdAt: 'DESC' },
-      skip: (page - 1) * limit,
-      take: limit,
+      skip: (p - 1) * l,
+      take: l,
     });
   }
 

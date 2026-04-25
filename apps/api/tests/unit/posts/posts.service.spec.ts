@@ -91,6 +91,12 @@ describe('PostsService', () => {
       await service.getFeed(undefined, 2, 10);
       expect(repo.find).toHaveBeenCalledWith(expect.objectContaining({ skip: 10, take: 10 }));
     });
+
+    it('falls back to page 1 / limit 20 when NaN is passed (transform coercion edge case)', async () => {
+      repo.find.mockResolvedValue([]);
+      await service.getFeed(undefined, NaN, NaN);
+      expect(repo.find).toHaveBeenCalledWith(expect.objectContaining({ skip: 0, take: 20 }));
+    });
   });
 
   describe('getUserPosts', () => {
