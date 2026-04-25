@@ -109,9 +109,7 @@ describe('Listings flow (E2E)', () => {
 
       const listingId = createRes.body.id;
 
-      const getRes = await request(server)
-        .get(`/api/v1/listings/${listingId}`)
-        .expect(200);
+      const getRes = await request(server).get(`/api/v1/listings/${listingId}`).expect(200);
 
       expect(getRes.body.id).toBe(listingId);
       expect(getRes.body.title).toBe(validListing.title);
@@ -138,9 +136,7 @@ describe('Listings flow (E2E)', () => {
       const listingId = createRes.body.id;
 
       // Retrieve
-      const getRes = await request(server)
-        .get(`/api/v1/listings/${listingId}`)
-        .expect(200);
+      const getRes = await request(server).get(`/api/v1/listings/${listingId}`).expect(200);
       expect(getRes.body.title).toBe(validListing.title);
 
       // Delete

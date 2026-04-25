@@ -181,7 +181,9 @@ export class InitialSchema1700000000000 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "subscriptions" DROP CONSTRAINT "FK_subscriptions_userId_users"`);
+    await queryRunner.query(
+      `ALTER TABLE "subscriptions" DROP CONSTRAINT "FK_subscriptions_userId_users"`,
+    );
     await queryRunner.query(`DROP TABLE "subscriptions"`);
     await queryRunner.query(`ALTER TABLE "events" DROP CONSTRAINT "FK_events_organizerId_users"`);
     await queryRunner.query(`DROP TABLE "events"`);
@@ -192,8 +194,12 @@ export class InitialSchema1700000000000 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE "comments"`);
     await queryRunner.query(`ALTER TABLE "posts" DROP CONSTRAINT "FK_posts_userId_users"`);
     await queryRunner.query(`DROP TABLE "posts"`);
-    await queryRunner.query(`ALTER TABLE "profile_followers" DROP CONSTRAINT "FK_profile_followers_followingId"`);
-    await queryRunner.query(`ALTER TABLE "profile_followers" DROP CONSTRAINT "FK_profile_followers_followerId"`);
+    await queryRunner.query(
+      `ALTER TABLE "profile_followers" DROP CONSTRAINT "FK_profile_followers_followingId"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "profile_followers" DROP CONSTRAINT "FK_profile_followers_followerId"`,
+    );
     await queryRunner.query(`DROP INDEX "IDX_profile_followers_followingId"`);
     await queryRunner.query(`DROP INDEX "IDX_profile_followers_followerId"`);
     await queryRunner.query(`DROP TABLE "profile_followers"`);
