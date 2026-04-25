@@ -93,6 +93,22 @@ describe('ProfilesService', () => {
       const result = await service.update('u-1', { name: 'Updated' } as any);
       expect(result.name).toBe('Updated');
     });
+
+    it('persists profileImageUrl when provided', async () => {
+      const p = makeProfile();
+      repo.findOne.mockResolvedValue(p);
+      repo.save.mockImplementation((profile) => Promise.resolve(profile));
+
+      const result = await service.update('u-1', {
+        profileImageUrl: 'https://cdn.example.com/avatar.jpg',
+      } as any);
+      expect(result.profileImageUrl).toBe('https://cdn.example.com/avatar.jpg');
+    });
+
+    it('throws NotFoundException when profile does not exist', async () => {
+      repo.findOne.mockResolvedValue(null);
+      await expect(service.update('u-999', { name: 'X' } as any)).rejects.toThrow(NotFoundException);
+    });
   });
 
   describe('follow', () => {

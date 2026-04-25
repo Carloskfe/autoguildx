@@ -40,6 +40,21 @@ describe('PostsService', () => {
       expect(result).toEqual(post);
       expect(repo.create).toHaveBeenCalledWith({ content: 'Hello', userId: 'u-1' });
     });
+
+    it('includes mediaUrls when provided', async () => {
+      const urls = ['https://cdn.example.com/img1.jpg', 'https://cdn.example.com/img2.jpg'];
+      const post = { id: 'post-1', userId: 'u-1', content: 'With photos', mediaUrls: urls };
+      repo.create.mockReturnValue(post);
+      repo.save.mockResolvedValue(post);
+
+      const result = await service.create('u-1', { content: 'With photos', mediaUrls: urls });
+      expect(result.mediaUrls).toEqual(urls);
+      expect(repo.create).toHaveBeenCalledWith({
+        content: 'With photos',
+        mediaUrls: urls,
+        userId: 'u-1',
+      });
+    });
   });
 
   describe('getFeed', () => {

@@ -56,6 +56,21 @@ describe('ListingsService', () => {
       expect(repo.create).toHaveBeenCalledWith({ title: 'Exhaust Kit', userId: 'u-1' });
     });
 
+    it('includes mediaUrls when provided', async () => {
+      subsService.getCurrent.mockResolvedValue(ownerSub);
+      repo.count.mockResolvedValue(0);
+      const urls = ['https://cdn.example.com/part1.jpg'];
+      const listing = { id: 'l-1', userId: 'u-1', title: 'Brake Pads', mediaUrls: urls };
+      repo.create.mockReturnValue(listing);
+      repo.save.mockResolvedValue(listing);
+
+      const result = await service.create('u-1', { title: 'Brake Pads', mediaUrls: urls } as any);
+      expect(result.mediaUrls).toEqual(urls);
+      expect(repo.create).toHaveBeenCalledWith(
+        expect.objectContaining({ mediaUrls: urls, userId: 'u-1' }),
+      );
+    });
+
     it('throws ForbiddenException when free tier listing limit (5) is reached', async () => {
       subsService.getCurrent.mockResolvedValue(freeSub);
       repo.count.mockResolvedValue(5);
