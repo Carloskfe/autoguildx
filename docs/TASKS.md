@@ -139,15 +139,15 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 - [x] `search/search.service.spec.ts` — cross-entity ILike search results
 
 ### E2E tests
-- [ ] Full auth flow — signup → onboarding → feed
-- [ ] Listing creation and detail view
+- [x] Full auth flow — signup → onboarding → feed (`apps/api/test/auth.e2e-spec.ts`)
+- [x] Listing creation and detail view (`apps/api/test/listings.e2e-spec.ts`)
 
 ### Infrastructure
-- [ ] Replace `synchronize: true` with explicit TypeORM migration files
-- [ ] Vercel deployment config for `apps/web`
-- [ ] AWS deployment config for `apps/api` (ECS task definition or EC2)
-- [ ] Production `.env` secrets management (AWS Secrets Manager or similar)
-- [ ] CORS locked down to production domain
+- [x] Replace `synchronize: true` with explicit TypeORM migration files (`src/migrations/`, `src/data-source.ts`; prod runs migrations automatically, dev keeps sync)
+- [x] Vercel deployment config for `apps/web` (`apps/web/vercel.json`)
+- [x] AWS deployment config for `apps/api` (`deploy/ecs-task-definition.json` — ECS Fargate task definition template)
+- [x] Production `.env` secrets management (all secrets sourced from AWS Secrets Manager via ECS task definition; `.env.example` updated with `FRONTEND_URL`)
+- [x] CORS locked down to production domain (controlled via `FRONTEND_URL` env var in `main.ts`; set to production domain on deploy)
 
 ---
 

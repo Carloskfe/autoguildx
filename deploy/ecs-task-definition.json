@@ -1,0 +1,78 @@
+{
+  "family": "autoguildx-api",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskRole",
+  "containerDefinitions": [
+    {
+      "name": "api",
+      "image": "ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/autoguildx-api:latest",
+      "portMappings": [
+        {
+          "containerPort": 3001,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        { "name": "NODE_ENV", "value": "production" },
+        { "name": "PORT", "value": "3001" }
+      ],
+      "secrets": [
+        {
+          "name": "DATABASE_URL",
+          "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT_ID:secret:autoguildx/prod/DATABASE_URL"
+        },
+        {
+          "name": "JWT_SECRET",
+          "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT_ID:secret:autoguildx/prod/JWT_SECRET"
+        },
+        {
+          "name": "FIREBASE_PROJECT_ID",
+          "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT_ID:secret:autoguildx/prod/FIREBASE_PROJECT_ID"
+        },
+        {
+          "name": "FIREBASE_CLIENT_EMAIL",
+          "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT_ID:secret:autoguildx/prod/FIREBASE_CLIENT_EMAIL"
+        },
+        {
+          "name": "FIREBASE_PRIVATE_KEY",
+          "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT_ID:secret:autoguildx/prod/FIREBASE_PRIVATE_KEY"
+        },
+        {
+          "name": "FRONTEND_URL",
+          "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT_ID:secret:autoguildx/prod/FRONTEND_URL"
+        },
+        {
+          "name": "AWS_REGION",
+          "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT_ID:secret:autoguildx/prod/AWS_REGION"
+        },
+        {
+          "name": "AWS_S3_BUCKET",
+          "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT_ID:secret:autoguildx/prod/AWS_S3_BUCKET"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/autoguildx-api",
+          "awslogs-region": "REGION",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "wget -qO- http://localhost:3001/api/v1/health || exit 1"
+        ],
+        "interval": 15,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 20
+      },
+      "essential": true
+    }
+  ]
+}

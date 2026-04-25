@@ -19,12 +19,17 @@ import { validate } from './config/env.validation';
     ConfigModule.forRoot({ isGlobal: true, validate }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        url: config.get('DATABASE_URL'),
-        autoLoadEntities: true,
-        synchronize: config.get('NODE_ENV') !== 'production',
-      }),
+      useFactory: (config: ConfigService) => {
+        const isProd = config.get('NODE_ENV') === 'production';
+        return {
+          type: 'postgres',
+          url: config.get('DATABASE_URL'),
+          autoLoadEntities: true,
+          synchronize: !isProd,
+          migrations: isProd ? ['dist/migrations/*.js'] : [],
+          migrationsRun: isProd,
+        };
+      },
     }),
     ThrottlerModule.forRootAsync({
       inject: [ConfigService],
