@@ -125,6 +125,40 @@ describe('PostsService', () => {
       await service.create('u-1', { content: 'Build', mediaMode: 'carousel' });
       expect(repo.create).toHaveBeenCalledWith(expect.objectContaining({ mediaMode: 'carousel' }));
     });
+
+    it('saves sharedContentType, sharedContentId, and sharedContent when provided', async () => {
+      const snapshot = JSON.stringify({ type: 'listing', id: 'l-1', title: 'LS3 Engine' });
+      const post = { id: 'p1', userId: 'u-1', content: 'Great deal!', sharedContentType: 'listing', sharedContentId: 'l-1', sharedContent: snapshot };
+      repo.create.mockReturnValue(post);
+      repo.save.mockResolvedValue(post);
+      await service.create('u-1', {
+        content: 'Great deal!',
+        sharedContentType: 'listing',
+        sharedContentId: 'l-1',
+        sharedContent: snapshot,
+      });
+      expect(repo.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sharedContentType: 'listing',
+          sharedContentId: 'l-1',
+          sharedContent: snapshot,
+        }),
+      );
+    });
+
+    it('allows sharing an event to the feed', async () => {
+      const snapshot = JSON.stringify({ type: 'event', id: 'e-1', title: 'Cars & Coffee' });
+      const post = { id: 'p2', userId: 'u-2', content: '', sharedContentType: 'event', sharedContentId: 'e-1' };
+      repo.create.mockReturnValue(post);
+      repo.save.mockResolvedValue(post);
+      await service.create('u-2', {
+        content: '',
+        sharedContentType: 'event',
+        sharedContentId: 'e-1',
+        sharedContent: snapshot,
+      });
+      expect(repo.create).toHaveBeenCalledWith(expect.objectContaining({ sharedContentType: 'event' }));
+    });
   });
 
   // ---------------------------------------------------------------------------

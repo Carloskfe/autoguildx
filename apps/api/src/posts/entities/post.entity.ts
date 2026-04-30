@@ -54,6 +54,16 @@ export class PostEntity {
   @Column({ nullable: true })
   linkPreviewType: string; // youtube | link
 
+  // Shared listing or event content snapshot
+  @Column({ nullable: true })
+  sharedContentType: string; // listing | event
+
+  @Column({ nullable: true })
+  sharedContentId: string;
+
+  @Column({ type: 'text', nullable: true })
+  sharedContent: string; // JSON snapshot: { title, subtitle, price, location, imageUrl, startDate }
+
   @CreateDateColumn()
   createdAt: Date;
 }

@@ -19,4 +19,20 @@ export class CreatePostDto {
   @IsOptional()
   @IsIn(['single', 'multi', 'carousel'])
   mediaMode?: string;
+
+  @ApiProperty({ enum: ['listing', 'event'], required: false })
+  @IsOptional()
+  @IsIn(['listing', 'event'])
+  sharedContentType?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  sharedContentId?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  sharedContent?: string;
 }

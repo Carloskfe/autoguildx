@@ -30,7 +30,15 @@ export class PostsService {
 
   async create(
     userId: string,
-    dto: { content: string; mediaUrls?: string[]; visibility?: string; mediaMode?: string },
+    dto: {
+      content: string;
+      mediaUrls?: string[];
+      visibility?: string;
+      mediaMode?: string;
+      sharedContentType?: string;
+      sharedContentId?: string;
+      sharedContent?: string;
+    },
   ) {
     const { linkUrl, linkPreviewType } = extractLink(dto.content);
     const post = this.repo.create({

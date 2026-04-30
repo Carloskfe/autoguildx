@@ -11,6 +11,9 @@ export interface Post {
   linkUrl?: string;
   linkPreviewType?: string;
   sharedPostId?: string;
+  sharedContentType?: string;
+  sharedContentId?: string;
+  sharedContent?: string;
   createdAt: string;
 }
 
