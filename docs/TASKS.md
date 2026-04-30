@@ -198,65 +198,37 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ---
 
-## Backlog — Next Priorities
+## Sprint 8 — Engagement Polish ✅ COMPLETE
 
-### Quick wins (carry-over)
-| Feature | Notes |
-|---|---|
-| Review summary badges on listing/profile cards | Show ⭐ avg on listing grid tiles and profile cards |
-| Marketplace/event sharing to feed | Embed listing/event link-preview card in a new post |
-| Copy-link share | Client-side clipboard copy for listings, events, profiles |
+**Goal:** Complete backlog carry-overs and close the onboarding loop.
 
----
+### Quick wins
+- [x] Review summary badges on discover profile/listing cards (⭐ avg + total)
+- [x] Marketplace listing share to feed — "Share to Feed" modal with snapshot card on `/marketplace/[id]`
+- [x] Event share to feed — "Share to Feed" modal with snapshot card on `/events/[id]`
+- [x] Copy-link share button on listings, events, and profiles
 
-## Backlog — Sprint 8 Candidates
+### Post media & rich content
+- [x] YouTube link preview — detect URL in content, store `linkUrl` + `linkPreviewType`; render thumbnail card in feed
+- [x] Generic link preview card for non-YouTube URLs
+- [x] Post media modes — `single` / `multi` (grid) / `carousel` (swipeable with dots); toolbar in compose form
+- [x] Links in posts auto-linkified; 1-link-per-post rule enforced on compose
+- [x] Shared listing/event inline preview card in feed (`sharedContentType` / `sharedContentId` / `sharedContent` snapshot)
 
-### Post media — carousel, multiple images, YouTube preview
+### Profile avatar video
+- [x] `profileVideoUrl` column on `ProfileEntity` (nullable)
+- [x] `PATCH /profiles/me` accepts `profileVideoUrl` via DTO
+- [x] `Profile` shared type updated with `profileVideoUrl?: string`
+- [x] Avatar upload on `/profile` detects video vs image by MIME type; PATCHes correct field
+- [x] Feed and `/profile/[id]` render `<video>` when `profileVideoUrl` is set
 
-**YouTube link preview**
-- Detect YouTube URLs in post content on the backend (`PostsService.create`) or client-side on paste
-- Extract video ID from URL; store `linkUrl` + `linkPreviewType: 'youtube'` on `PostEntity`
-- Frontend: render YouTube thumbnail (`https://img.youtube.com/vi/{id}/hqdefault.jpg`) as a clickable preview card below content; clicking opens YouTube in a new tab
-- Only 1 link preview per post (see link rules below)
-
-**Post media modes — single / multiple / carousel**
-- Add `mediaMode` field on `PostEntity`: `single` (default, current behaviour) | `multi` (grid of up to 9 images) | `carousel` (swipeable full-width slides)
-- Compose form: media toolbar with three mode buttons — single photo, photo grid (multi), carousel; selecting carousel or multi allows up to 9 uploads with drag-to-reorder
-- Feed renders:
-  - `single` — one full-width image (existing)
-  - `multi` — 2-col or 3-col image grid (Instagram-style)
-  - `carousel` — swipeable slide strip with dot indicators and prev/next arrows; touch-swipe on mobile
-
-**Links in posts — auto-link + 1 active link rule**
-- Frontend only: parse post content for URLs (regex); render them as `<a target="_blank">` hyperlinks in the feed card
-- Limit compose to 1 URL per post: detect URLs on `onChange`; if a second URL is typed, show inline warning "Only 1 link per post" and disable Post button until resolved
-- Backend: store detected `linkUrl` (first URL found) on `PostEntity`; used for YouTube preview extraction
+### Onboarding & role alignment
+- [x] `/onboarding` — 3-step flow: role picker → profile details → specialty tags
+- [x] `/signup` — no role selection; redirects straight to `/onboarding`
+- [x] `ProfileRoleType` updated to `'mechanic' | 'manufacturer' | 'collector' | 'enthusiast'`
+- [x] DTO `@IsIn` and entity default updated to match
+- [x] 2×2 role picker grid added to `/profile` edit form so users can change role after onboarding
 
 ---
 
-### Profile avatar — video support
-- Allow profile avatar to be a short video (MP4, max 30 s, max 50 MB) instead of a static image
-- Backend: `profileVideoUrl` column on `ProfileEntity` (nullable); `PATCH /profiles/me` accepts it alongside `profileImageUrl`
-- Upload: same presign flow as images; frontend detects file type — image → existing path, video → new path with duration/size guard
-- Feed and profile pages: render `<video autoPlay loop muted playsInline>` when `profileVideoUrl` is set; fall back to image avatar
-- Migration: add `profileVideoUrl` column
-
----
-
-### Onboarding — move role selection out of signup
-
-**Signup simplification**
-- Remove the role-selection step from `apps/web/src/app/signup/page.tsx`
-- Backend: default `role` to `'enthusiast'` on `UserEntity` if not provided (already the default — no schema change needed)
-- API: remove `role` from `SignupDto` validation (make it optional / ignored on signup)
-
-**Profile onboarding — "What best describes you?"**
-- Add a `roleType` question to the 2-step onboarding flow (`/onboarding`) as Step 1 before the existing profile fields
-- UI: 4 large illustrated option cards (full-width on mobile, 2×2 grid on desktop):
-  - 🔧 **Mechanic / Shop** — restoration specialists, tuners, niche experts
-  - 🏭 **Manufacturer** — small-scale parts producers, custom fabrication shops
-  - 🏎️ **Collector** — owners of rare/classic/performance vehicles
-  - 🛠️ **Enthusiast** — DIY builders and general automotive fans
-- Selecting a card highlights it (brand-orange border); user must pick one before continuing
-- On complete: `PATCH /profiles/me` with `roleType` (existing field, already on `ProfileEntity`)
-- Also add a "What describes you?" section to the Edit Profile page (`/profile`) so users can change it later
+## Backlog — Sprint 9 Candidates
