@@ -107,6 +107,17 @@ describe('ProfilesService', () => {
       expect(result.profileImageUrl).toBe('https://cdn.example.com/avatar.jpg');
     });
 
+    it('persists profileVideoUrl when provided', async () => {
+      const p = makeProfile();
+      repo.findOne.mockResolvedValue(p);
+      repo.save.mockImplementation((profile) => Promise.resolve(profile));
+
+      const result = await service.update('u-1', {
+        profileVideoUrl: 'https://cdn.example.com/avatar.mp4',
+      } as any);
+      expect(result.profileVideoUrl).toBe('https://cdn.example.com/avatar.mp4');
+    });
+
     it('throws NotFoundException when profile does not exist', async () => {
       repo.findOne.mockResolvedValue(null);
       await expect(service.update('u-999', { name: 'X' } as any)).rejects.toThrow(NotFoundException);

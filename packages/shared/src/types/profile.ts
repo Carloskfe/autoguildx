@@ -10,6 +10,7 @@ export interface Profile {
   roleType: ProfileRoleType;
   tags: string[];
   profileImageUrl?: string;
+  profileVideoUrl?: string;
   followersCount: number;
   followingCount: number;
   createdAt: string;

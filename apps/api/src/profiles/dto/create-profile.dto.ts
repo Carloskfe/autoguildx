@@ -16,4 +16,5 @@ export class CreateProfileDto {
   @IsString({ each: true })
   tags?: string[];
   @ApiProperty({ required: false }) @IsOptional() @IsString() profileImageUrl?: string;
+  @ApiProperty({ required: false }) @IsOptional() @IsString() profileVideoUrl?: string;
 }
