@@ -8,7 +8,7 @@ process.env.NODE_ENV = 'test';
 
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import * as request from 'supertest';
+import request from 'supertest';
 import { DataSource } from 'typeorm';
 import { getDataSourceToken } from '@nestjs/typeorm';
 import { AppModule } from '../src/app.module';
@@ -17,6 +17,8 @@ import { GlobalExceptionFilter } from '../src/common/filters/http-exception.filt
 async function clearDatabase(ds: DataSource) {
   await ds.query(`
     TRUNCATE TABLE
+      "notifications", "post_reactions", "reviews",
+      "messages", "conversations",
       "profile_followers", "comments", "subscriptions",
       "posts", "listings", "events", "profiles", "users"
     CASCADE
