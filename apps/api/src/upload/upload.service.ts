@@ -37,8 +37,7 @@ export class UploadService {
         secretAccessKey: AWS_SECRET_ACCESS_KEY,
       });
       this.publicBaseUrl =
-        process.env.AWS_S3_PUBLIC_URL ||
-        `https://${AWS_S3_BUCKET}.s3.${region}.amazonaws.com`;
+        process.env.AWS_S3_PUBLIC_URL || `https://${AWS_S3_BUCKET}.s3.${region}.amazonaws.com`;
       this.logger.log(`S3 uploads active — bucket: ${AWS_S3_BUCKET} (${region})`);
     } else {
       this.s3 = null;
