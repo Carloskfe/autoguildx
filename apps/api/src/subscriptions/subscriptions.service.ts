@@ -7,16 +7,21 @@ import { UserEntity } from '../auth/entities/user.entity';
 
 @Injectable()
 export class SubscriptionsService {
-  private readonly stripe;
+  private readonly stripe: InstanceType<typeof Stripe> | null;
   private readonly logger = new Logger(SubscriptionsService.name);
 
   constructor(
     @InjectRepository(SubscriptionEntity) private repo: Repository<SubscriptionEntity>,
     @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>,
   ) {
-    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-      apiVersion: '2026-04-22.dahlia' as any,
-    });
+    this.stripe = process.env.STRIPE_SECRET_KEY
+      ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+          apiVersion: '2026-04-22.dahlia' as any,
+        })
+      : null;
+    if (!this.stripe) {
+      this.logger.warn('STRIPE_SECRET_KEY not set — Stripe features disabled');
+    }
   }
 
   async getCurrent(userId: string) {
@@ -49,7 +54,7 @@ export class SubscriptionsService {
     const priceId =
       tier === 'owner' ? process.env.STRIPE_PRICE_OWNER : process.env.STRIPE_PRICE_COMPANY;
 
-    if (!process.env.STRIPE_SECRET_KEY)
+    if (!this.stripe)
       throw new BadRequestException('Stripe is not configured');
     if (!priceId)
       throw new BadRequestException('Stripe price ID not configured for this tier');
@@ -82,6 +87,8 @@ export class SubscriptionsService {
   }
 
   async handleWebhook(rawBody: Buffer, sig: string) {
+    if (!this.stripe) return { received: true };
+
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
     if (!webhookSecret) {
       this.logger.warn('STRIPE_WEBHOOK_SECRET not set — skipping webhook verification');

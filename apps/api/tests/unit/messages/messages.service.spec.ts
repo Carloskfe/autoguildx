@@ -74,11 +74,12 @@ describe('MessagesService', () => {
 
     it('returns existing conversation when one is found', async () => {
       const qb = qbMock();
-      qb.getOne.mockResolvedValue(conv());
+      const existing = conv();
+      qb.getOne.mockResolvedValue(existing);
       convRepo.createQueryBuilder.mockReturnValue(qb);
 
       const result = await service.getOrCreateConversation('u-1', 'u-2');
-      expect(result).toEqual(conv());
+      expect(result).toBe(existing);
       expect(convRepo.create).not.toHaveBeenCalled();
     });
 

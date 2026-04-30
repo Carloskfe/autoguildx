@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
@@ -58,7 +58,7 @@ function otherParticipant(conv: Conversation, userId: string): Participant {
   return conv.participantAId === userId ? conv.participantB : conv.participantA;
 }
 
-export default function MessagesPage() {
+function MessagesContent() {
   const { isAuthenticated, userId } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -287,5 +287,13 @@ export default function MessagesPage() {
         </section>
       </div>
     </AppShell>
+  );
+}
+
+export default function MessagesPage() {
+  return (
+    <Suspense>
+      <MessagesContent />
+    </Suspense>
   );
 }

@@ -5,6 +5,12 @@ export interface Post {
   mediaUrls: string[];
   likesCount: number;
   commentsCount: number;
+  sharesCount: number;
+  visibility: string;
+  mediaMode: string;
+  linkUrl?: string;
+  linkPreviewType?: string;
+  sharedPostId?: string;
   createdAt: string;
 }
 

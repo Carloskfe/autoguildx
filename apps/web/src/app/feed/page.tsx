@@ -38,11 +38,6 @@ interface PostWithUser extends Post {
     profile?: { id: string; name: string };
   };
   sharedPost?: PostWithUser;
-  sharesCount?: number;
-  visibility?: string;
-  mediaMode?: string;
-  linkUrl?: string;
-  linkPreviewType?: string;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
