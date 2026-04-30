@@ -32,6 +32,19 @@ export class PostEntity {
   @Column({ default: 0 })
   commentsCount: number;
 
+  @Column({ default: 0 })
+  sharesCount: number;
+
+  @Column({ default: 'public' })
+  visibility: string; // public | followers | private
+
+  @Column({ nullable: true })
+  sharedPostId: string;
+
+  @ManyToOne(() => PostEntity, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'sharedPostId' })
+  sharedPost: PostEntity;
+
   @CreateDateColumn()
   createdAt: Date;
 }

@@ -8,6 +8,7 @@ import { MapPin, Star, Tag, ArrowLeft, Trash2, Loader2, Zap, MessageSquare } fro
 import Link from 'next/link';
 import AppShell from '@/components/layout/AppShell';
 import UpgradeModal from '@/components/UpgradeModal';
+import ReviewSection from '@/components/ReviewSection';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
 import type { Listing, SubscriptionTier } from '@autoguildx/shared';
@@ -267,6 +268,13 @@ export default function ListingDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Reviews */}
+      {listing && (
+        <div className="max-w-4xl mx-auto px-4 pb-10">
+          <ReviewSection targetId={listing.id} targetType="listing" />
+        </div>
+      )}
 
       {showUpgrade && (
         <UpgradeModal currentTier={subscription?.tier} onClose={() => setShowUpgrade(false)} />

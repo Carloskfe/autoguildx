@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsArray, IsUrl, MaxLength } from 'class-validator';
+import { IsString, IsOptional, IsArray, IsUrl, MaxLength, IsIn } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreatePostDto {
@@ -8,4 +8,9 @@ export class CreatePostDto {
   @IsArray()
   @IsUrl({}, { each: true })
   mediaUrls?: string[];
+
+  @ApiProperty({ enum: ['public', 'followers', 'private'], required: false })
+  @IsOptional()
+  @IsIn(['public', 'followers', 'private'])
+  visibility?: string;
 }

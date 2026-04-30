@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { MapPin, Users, Heart, UserPlus, UserMinus, Loader2, MessageSquare } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
+import ReviewSection from '@/components/ReviewSection';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
 import type { Profile, Post } from '@autoguildx/shared';
@@ -250,6 +251,13 @@ export default function PublicProfilePage() {
             </article>
           ))}
         </div>
+
+        {/* Reviews */}
+        {!isOwnProfile && profile && (
+          <div className="max-w-2xl mx-auto px-4 pb-10">
+            <ReviewSection targetId={profile.userId} targetType="profile" showDimensions />
+          </div>
+        )}
       </div>
     </AppShell>
   );

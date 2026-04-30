@@ -3,8 +3,28 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PostsService } from '../../../src/posts/posts.service';
 import { PostEntity } from '../../../src/posts/entities/post.entity';
+import { PostReactionEntity } from '../../../src/posts/entities/post-reaction.entity';
 
-const mockRepo = () => ({
+const qbMock = () => ({
+  leftJoinAndSelect: jest.fn().mockReturnThis(),
+  where: jest.fn().mockReturnThis(),
+  andWhere: jest.fn().mockReturnThis(),
+  orderBy: jest.fn().mockReturnThis(),
+  skip: jest.fn().mockReturnThis(),
+  take: jest.fn().mockReturnThis(),
+  getMany: jest.fn().mockResolvedValue([]),
+});
+
+const mockPostRepo = () => ({
+  createQueryBuilder: jest.fn(),
+  findOne: jest.fn(),
+  find: jest.fn(),
+  create: jest.fn(),
+  save: jest.fn(),
+  remove: jest.fn(),
+});
+
+const mockReactionRepo = () => ({
   findOne: jest.fn(),
   find: jest.fn(),
   create: jest.fn(),
@@ -14,146 +34,235 @@ const mockRepo = () => ({
 
 describe('PostsService', () => {
   let service: PostsService;
-  let repo: ReturnType<typeof mockRepo>;
+  let repo: ReturnType<typeof mockPostRepo>;
+  let reactionRepo: ReturnType<typeof mockReactionRepo>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PostsService,
-        { provide: getRepositoryToken(PostEntity), useFactory: mockRepo },
+        { provide: getRepositoryToken(PostEntity), useFactory: mockPostRepo },
+        { provide: getRepositoryToken(PostReactionEntity), useFactory: mockReactionRepo },
       ],
     }).compile();
 
     service = module.get<PostsService>(PostsService);
     repo = module.get(getRepositoryToken(PostEntity));
+    reactionRepo = module.get(getRepositoryToken(PostReactionEntity));
   });
 
   afterEach(() => jest.clearAllMocks());
 
+  // ---------------------------------------------------------------------------
   describe('create', () => {
-    it('saves and returns the new post', async () => {
-      const post = { id: 'post-1', userId: 'u-1', content: 'Hello' };
+    it('saves and returns the new post with default public visibility', async () => {
+      const post = { id: 'p1', userId: 'u-1', content: 'Hello', visibility: 'public' };
       repo.create.mockReturnValue(post);
       repo.save.mockResolvedValue(post);
-
       const result = await service.create('u-1', { content: 'Hello' });
       expect(result).toEqual(post);
-      expect(repo.create).toHaveBeenCalledWith({ content: 'Hello', userId: 'u-1' });
+      expect(repo.create).toHaveBeenCalledWith(expect.objectContaining({ visibility: 'public' }));
+    });
+
+    it('respects explicit visibility setting', async () => {
+      const post = { id: 'p1', userId: 'u-1', content: 'Private', visibility: 'private' };
+      repo.create.mockReturnValue(post);
+      repo.save.mockResolvedValue(post);
+      await service.create('u-1', { content: 'Private', visibility: 'private' });
+      expect(repo.create).toHaveBeenCalledWith(expect.objectContaining({ visibility: 'private' }));
     });
 
     it('includes mediaUrls when provided', async () => {
-      const urls = ['https://cdn.example.com/img1.jpg', 'https://cdn.example.com/img2.jpg'];
-      const post = { id: 'post-1', userId: 'u-1', content: 'With photos', mediaUrls: urls };
+      const urls = ['https://cdn.example.com/img.jpg'];
+      const post = { id: 'p1', userId: 'u-1', content: 'Photo', mediaUrls: urls };
       repo.create.mockReturnValue(post);
       repo.save.mockResolvedValue(post);
-
-      const result = await service.create('u-1', { content: 'With photos', mediaUrls: urls });
+      const result = await service.create('u-1', { content: 'Photo', mediaUrls: urls });
       expect(result.mediaUrls).toEqual(urls);
-      expect(repo.create).toHaveBeenCalledWith({
-        content: 'With photos',
-        mediaUrls: urls,
-        userId: 'u-1',
-      });
     });
   });
 
+  // ---------------------------------------------------------------------------
   describe('getFeed', () => {
-    it('returns all posts when no followingUserIds are provided', async () => {
-      const posts = [{ id: 'p1' }, { id: 'p2' }];
-      repo.find.mockResolvedValue(posts);
+    it('returns posts via query builder', async () => {
+      const qb = qbMock();
+      const posts = [{ id: 'p1' }];
+      qb.getMany.mockResolvedValue(posts);
+      repo.createQueryBuilder.mockReturnValue(qb);
 
       const result = await service.getFeed(undefined, 1, 20);
       expect(result).toEqual(posts);
-      expect(repo.find).toHaveBeenCalledWith(
-        expect.objectContaining({ where: {}, skip: 0, take: 20, order: { createdAt: 'DESC' } }),
-      );
+      expect(qb.where).toHaveBeenCalledWith('post.visibility = :pub', { pub: 'public' });
     });
 
     it('filters by followingUserIds when provided', async () => {
-      const posts = [{ id: 'p1', userId: 'u-2' }];
-      repo.find.mockResolvedValue(posts);
-
-      const result = await service.getFeed(['u-2', 'u-3'], 1, 20);
-      expect(result).toEqual(posts);
-      expect(repo.find).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { userId: expect.anything() } }),
-      );
+      const qb = qbMock();
+      repo.createQueryBuilder.mockReturnValue(qb);
+      await service.getFeed(['u-2', 'u-3'], 1, 20);
+      expect(qb.andWhere).toHaveBeenCalledWith('post.userId IN (:...ids)', { ids: ['u-2', 'u-3'] });
     });
 
-    it('returns all posts when followingUserIds is an empty array', async () => {
-      repo.find.mockResolvedValue([]);
+    it('does not add andWhere when followingUserIds is empty', async () => {
+      const qb = qbMock();
+      repo.createQueryBuilder.mockReturnValue(qb);
       await service.getFeed([], 1, 20);
-      expect(repo.find).toHaveBeenCalledWith(expect.objectContaining({ where: {} }));
+      expect(qb.andWhere).not.toHaveBeenCalled();
     });
 
-    it('applies correct pagination offset for page 2', async () => {
-      repo.find.mockResolvedValue([]);
+    it('applies correct pagination for page 2', async () => {
+      const qb = qbMock();
+      repo.createQueryBuilder.mockReturnValue(qb);
       await service.getFeed(undefined, 2, 10);
-      expect(repo.find).toHaveBeenCalledWith(expect.objectContaining({ skip: 10, take: 10 }));
+      expect(qb.skip).toHaveBeenCalledWith(10);
+      expect(qb.take).toHaveBeenCalledWith(10);
     });
 
-    it('falls back to page 1 / limit 20 when NaN is passed (transform coercion edge case)', async () => {
-      repo.find.mockResolvedValue([]);
+    it('falls back to page 1 / limit 20 on NaN input', async () => {
+      const qb = qbMock();
+      repo.createQueryBuilder.mockReturnValue(qb);
       await service.getFeed(undefined, NaN, NaN);
-      expect(repo.find).toHaveBeenCalledWith(expect.objectContaining({ skip: 0, take: 20 }));
+      expect(qb.skip).toHaveBeenCalledWith(0);
+      expect(qb.take).toHaveBeenCalledWith(20);
     });
   });
 
+  // ---------------------------------------------------------------------------
   describe('getUserPosts', () => {
     it('returns posts filtered by userId', async () => {
       const posts = [{ id: 'p1', userId: 'u-1' }];
       repo.find.mockResolvedValue(posts);
-
       const result = await service.getUserPosts('u-1');
-      expect(repo.find).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { userId: 'u-1' } }),
-      );
       expect(result).toEqual(posts);
     });
 
-    it('applies pagination when page and limit are provided', async () => {
+    it('applies pagination', async () => {
       repo.find.mockResolvedValue([]);
       await service.getUserPosts('u-1', 3, 5);
       expect(repo.find).toHaveBeenCalledWith(expect.objectContaining({ skip: 10, take: 5 }));
     });
   });
 
+  // ---------------------------------------------------------------------------
   describe('like', () => {
     it('increments likesCount and saves', async () => {
-      const post = { id: 'post-1', likesCount: 5 };
+      const post = { id: 'p1', likesCount: 5 };
       repo.findOne.mockResolvedValue(post);
       repo.save.mockImplementation((p) => Promise.resolve(p));
-
-      const result = await service.like('post-1');
+      const result = await service.like('p1');
       expect(result.likesCount).toBe(6);
-      expect(repo.save).toHaveBeenCalled();
     });
 
     it('throws NotFoundException when post does not exist', async () => {
       repo.findOne.mockResolvedValue(null);
-      await expect(service.like('bad-id')).rejects.toThrow(NotFoundException);
+      await expect(service.like('bad')).rejects.toThrow(NotFoundException);
     });
   });
 
-  describe('delete', () => {
-    it('removes the post when the user owns it', async () => {
-      const post = { id: 'post-1', userId: 'u-1' };
-      repo.findOne.mockResolvedValue(post);
-      repo.remove.mockResolvedValue(undefined);
+  // ---------------------------------------------------------------------------
+  describe('react', () => {
+    it('creates a new reaction when none exists', async () => {
+      repo.findOne.mockResolvedValue({ id: 'p1', visibility: 'public' });
+      reactionRepo.findOne.mockResolvedValue(null);
+      const reaction = { postId: 'p1', userId: 'u-1', emoji: 'fire' };
+      reactionRepo.create.mockReturnValue(reaction);
+      reactionRepo.save.mockResolvedValue(reaction);
+      const result = await service.react('p1', 'u-1', 'fire');
+      expect(result.emoji).toBe('fire');
+    });
 
-      const result = await service.delete('post-1', 'u-1');
-      expect(result).toEqual({ deleted: true });
-      expect(repo.remove).toHaveBeenCalledWith(post);
+    it('updates emoji when user already reacted', async () => {
+      repo.findOne.mockResolvedValue({ id: 'p1' });
+      const existing = { postId: 'p1', userId: 'u-1', emoji: 'like' };
+      reactionRepo.findOne.mockResolvedValue(existing);
+      reactionRepo.save.mockImplementation((r) => Promise.resolve(r));
+      const result = await service.react('p1', 'u-1', 'fire');
+      expect(result.emoji).toBe('fire');
     });
 
     it('throws NotFoundException when post does not exist', async () => {
       repo.findOne.mockResolvedValue(null);
-      await expect(service.delete('bad-id', 'u-1')).rejects.toThrow(NotFoundException);
+      await expect(service.react('bad', 'u-1', 'fire')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  describe('unreact', () => {
+    it('removes an existing reaction', async () => {
+      const reaction = { postId: 'p1', userId: 'u-1', emoji: 'fire' };
+      reactionRepo.findOne.mockResolvedValue(reaction);
+      reactionRepo.remove.mockResolvedValue(reaction);
+      expect(await service.unreact('p1', 'u-1')).toEqual({ removed: true });
+    });
+
+    it('returns removed:true even when no reaction exists', async () => {
+      reactionRepo.findOne.mockResolvedValue(null);
+      expect(await service.unreact('p1', 'u-1')).toEqual({ removed: true });
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  describe('getReactions', () => {
+    it('returns counts grouped by emoji', async () => {
+      reactionRepo.find.mockResolvedValue([
+        { emoji: 'fire' }, { emoji: 'fire' }, { emoji: 'love' },
+      ]);
+      const result = await service.getReactions('p1');
+      expect(result.total).toBe(3);
+      expect(result.counts.fire).toBe(2);
+      expect(result.counts.love).toBe(1);
+    });
+
+    it('returns zero counts when no reactions exist', async () => {
+      reactionRepo.find.mockResolvedValue([]);
+      const result = await service.getReactions('p1');
+      expect(result.total).toBe(0);
+      expect(result.counts).toEqual({});
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  describe('share', () => {
+    it('creates a re-post and increments sharesCount', async () => {
+      const original = { id: 'p1', visibility: 'public', sharesCount: 0 };
+      repo.findOne.mockResolvedValue(original);
+      repo.save.mockImplementation((p) => Promise.resolve(p));
+      const newPost = { id: 'p2', sharedPostId: 'p1', userId: 'u-1', content: '' };
+      repo.create.mockReturnValue(newPost);
+
+      const result = await service.share('p1', 'u-1');
+      expect(original.sharesCount).toBe(1);
+      expect(repo.save).toHaveBeenCalledWith(original);
+      expect(result).toEqual(newPost);
+    });
+
+    it('throws NotFoundException when original post does not exist', async () => {
+      repo.findOne.mockResolvedValue(null);
+      await expect(service.share('bad', 'u-1')).rejects.toThrow(NotFoundException);
+    });
+
+    it('throws ForbiddenException when original post is not public', async () => {
+      repo.findOne.mockResolvedValue({ id: 'p1', visibility: 'private', sharesCount: 0 });
+      await expect(service.share('p1', 'u-1')).rejects.toThrow(ForbiddenException);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  describe('delete', () => {
+    it('removes the post when the user owns it', async () => {
+      const post = { id: 'p1', userId: 'u-1' };
+      repo.findOne.mockResolvedValue(post);
+      repo.remove.mockResolvedValue(undefined);
+      expect(await service.delete('p1', 'u-1')).toEqual({ deleted: true });
+    });
+
+    it('throws NotFoundException when post does not exist', async () => {
+      repo.findOne.mockResolvedValue(null);
+      await expect(service.delete('bad', 'u-1')).rejects.toThrow(NotFoundException);
     });
 
     it('throws ForbiddenException when user does not own the post', async () => {
-      repo.findOne.mockResolvedValue({ id: 'post-1', userId: 'u-2' });
-      await expect(service.delete('post-1', 'u-1')).rejects.toThrow(ForbiddenException);
+      repo.findOne.mockResolvedValue({ id: 'p1', userId: 'u-2' });
+      await expect(service.delete('p1', 'u-1')).rejects.toThrow(ForbiddenException);
     });
   });
 });

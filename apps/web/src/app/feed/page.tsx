@@ -2,16 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  useInfiniteQuery,
-  useQuery,
-  useMutation,
-  useQueryClient,
-  type InfiniteData,
-} from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import {
-  Heart,
   Trash2,
   Send,
   Loader2,
@@ -20,6 +13,10 @@ import {
   ChevronUp,
   ImageIcon,
   X,
+  Repeat2,
+  Globe,
+  Users,
+  Lock,
 } from 'lucide-react';
 import Link from 'next/link';
 import AppShell from '@/components/layout/AppShell';
@@ -35,7 +32,24 @@ interface PostWithUser extends Post {
     role: string;
     profile?: { id: string; name: string };
   };
+  sharedPost?: PostWithUser;
+  sharesCount?: number;
+  visibility?: string;
 }
+
+const REACTIONS = [
+  { key: 'fire', emoji: '🔥', label: 'Fire' },
+  { key: 'love', emoji: '❤️', label: 'Love' },
+  { key: 'respect', emoji: '🔧', label: 'Respect' },
+  { key: 'wild', emoji: '😮', label: 'Wild' },
+  { key: 'like', emoji: '👍', label: 'Like' },
+] as const;
+
+const VISIBILITY_OPTIONS = [
+  { key: 'public', label: 'Public', Icon: Globe },
+  { key: 'followers', label: 'Followers', Icon: Users },
+  { key: 'private', label: 'Only me', Icon: Lock },
+] as const;
 
 interface CommentWithUser extends Comment {
   user?: { id: string; email: string };
@@ -130,37 +144,68 @@ function CommentThread({ postId }: { postId: string }) {
 
 function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: string | null }) {
   const [showComments, setShowComments] = useState(false);
+  const [showReactions, setShowReactions] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [shareComment, setShareComment] = useState('');
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [myReaction, setMyReaction] = useState<string | null>(null);
+  const [reactionCounts, setReactionCounts] = useState<Record<string, number>>({});
   const qc = useQueryClient();
   const isOwn = currentUserId === post.userId;
   const profileId = post.user?.profile?.id;
   const displayName = post.user?.profile?.name ?? post.user?.email ?? 'Unknown';
 
-  const like = useMutation({
-    mutationFn: () => api.post(`/posts/${post.id}/like`),
-    onMutate: async () => {
-      await qc.cancelQueries({ queryKey: ['feed'] });
-      const prev = qc.getQueryData<InfiniteData<FeedPage>>(['feed']);
-      qc.setQueryData<InfiniteData<FeedPage>>(['feed'], (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          pages: old.pages.map((page) =>
-            page.map((p) => (p.id === post.id ? { ...p, likesCount: p.likesCount + 1 } : p)),
-          ),
-        };
-      });
-      return { prev };
-    },
-    onError: (_err, _vars, ctx) => {
-      if (ctx?.prev) qc.setQueryData(['feed'], ctx.prev);
-    },
-    onSettled: () => qc.invalidateQueries({ queryKey: ['feed'] }),
-  });
+  // Load reactions on mount
+  useEffect(() => {
+    api.get(`/posts/${post.id}/reactions`).then((r) => setReactionCounts(r.data.counts ?? {}));
+    if (currentUserId) {
+      api
+        .get(`/posts/${post.id}/my-reaction`)
+        .then((r) => setMyReaction(r.data?.emoji ?? null))
+        .catch(() => {});
+    }
+  }, [post.id, currentUserId]);
+
+  const handleReact = async (emoji: string) => {
+    setShowReactions(false);
+    if (myReaction === emoji) {
+      setMyReaction(null);
+      setReactionCounts((c) => ({ ...c, [emoji]: Math.max(0, (c[emoji] ?? 1) - 1) }));
+      await api.delete(`/posts/${post.id}/react`);
+    } else {
+      if (myReaction) {
+        setReactionCounts((c) => ({ ...c, [myReaction]: Math.max(0, (c[myReaction] ?? 1) - 1) }));
+      }
+      setMyReaction(emoji);
+      setReactionCounts((c) => ({ ...c, [emoji]: (c[emoji] ?? 0) + 1 }));
+      await api.post(`/posts/${post.id}/react`, { emoji });
+    }
+  };
+
+  const handleQuickShare = async () => {
+    setShowShareMenu(false);
+    await api.post(`/posts/${post.id}/share`);
+    qc.invalidateQueries({ queryKey: ['feed'] });
+  };
+
+  const handleShareWithComment = async () => {
+    if (!shareComment.trim()) return;
+    await api.post(`/posts/${post.id}/share`, { content: shareComment.trim() });
+    setShareComment('');
+    setShowShareModal(false);
+    qc.invalidateQueries({ queryKey: ['feed'] });
+  };
 
   const del = useMutation({
     mutationFn: () => api.delete(`/posts/${post.id}`),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['feed'] }),
   });
+
+  const topReactions = Object.entries(reactionCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 2);
+  const totalReactions = Object.values(reactionCounts).reduce((s, c) => s + c, 0);
+  const myReactionObj = REACTIONS.find((r) => r.key === myReaction);
 
   return (
     <article className="card">
@@ -203,16 +248,54 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
             />
           )}
 
+          {/* Shared post preview */}
+          {post.sharedPost && (
+            <div className="mt-2 border border-surface-border rounded-lg p-3 bg-surface-card text-sm">
+              <p className="text-xs text-gray-500 mb-1">
+                {post.sharedPost.user?.profile?.name ?? post.sharedPost.user?.email ?? 'Unknown'}
+              </p>
+              <p className="text-gray-300 line-clamp-3">{post.sharedPost.content}</p>
+            </div>
+          )}
+
           {/* Actions */}
-          <div className="mt-3 flex items-center gap-4">
-            <button
-              onClick={() => like.mutate()}
-              disabled={like.isPending}
-              className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-brand-500 transition-colors disabled:opacity-50"
-            >
-              <Heart className="w-4 h-4" />
-              <span>{post.likesCount}</span>
-            </button>
+          <div className="mt-3 flex items-center gap-3 relative">
+            {/* Reaction button */}
+            <div className="relative">
+              {showReactions && (
+                <div className="absolute bottom-8 left-0 flex items-center gap-1 bg-surface-card border border-surface-border rounded-full px-2 py-1 shadow-lg z-10">
+                  {REACTIONS.map((r) => (
+                    <button
+                      key={r.key}
+                      onClick={() => handleReact(r.key)}
+                      title={r.label}
+                      className="text-lg hover:scale-125 transition-transform"
+                    >
+                      {r.emoji}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <button
+                onClick={() => setShowReactions((v) => !v)}
+                onMouseEnter={() => setShowReactions(true)}
+                onMouseLeave={() => setShowReactions(false)}
+                className={`flex items-center gap-1.5 text-xs transition-colors ${myReaction ? 'text-brand-500' : 'text-gray-400 hover:text-brand-500'}`}
+              >
+                <span className="text-sm">{myReactionObj ? myReactionObj.emoji : '👍'}</span>
+                <span className="flex items-center gap-0.5">
+                  {topReactions.map(([key]) => {
+                    const r = REACTIONS.find((x) => x.key === key);
+                    return r ? (
+                      <span key={key} className="text-xs">
+                        {r.emoji}
+                      </span>
+                    ) : null;
+                  })}
+                  {totalReactions > 0 && <span>{totalReactions}</span>}
+                </span>
+              </button>
+            </div>
 
             <button
               onClick={() => setShowComments((v) => !v)}
@@ -226,6 +309,38 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
                 <ChevronDown className="w-3 h-3" />
               )}
             </button>
+
+            {/* Share */}
+            {post.visibility !== 'private' && (
+              <div className="relative">
+                <button
+                  onClick={() => setShowShareMenu((v) => !v)}
+                  className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-brand-500 transition-colors"
+                >
+                  <Repeat2 className="w-4 h-4" />
+                  <span>{post.sharesCount ?? 0}</span>
+                </button>
+                {showShareMenu && (
+                  <div className="absolute bottom-7 left-0 bg-surface-card border border-surface-border rounded-lg shadow-lg z-10 min-w-[160px] py-1">
+                    <button
+                      onClick={handleQuickShare}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-border hover:text-white transition-colors"
+                    >
+                      Quick Share
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowShareMenu(false);
+                        setShowShareModal(true);
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-border hover:text-white transition-colors"
+                    >
+                      Share with comment
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             {isOwn && (
               <button
@@ -243,6 +358,49 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
           </div>
 
           {showComments && <CommentThread postId={post.id} />}
+
+          {/* Share with comment modal */}
+          {showShareModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
+              <div className="card w-full max-w-md space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-semibold text-white">Share with comment</h2>
+                  <button
+                    onClick={() => setShowShareModal(false)}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="border border-surface-border rounded-lg p-3 text-sm text-gray-400 line-clamp-2">
+                  {post.content}
+                </div>
+                <textarea
+                  value={shareComment}
+                  onChange={(e) => setShareComment(e.target.value)}
+                  placeholder="Add your take…"
+                  rows={3}
+                  className="input w-full text-sm resize-none"
+                  maxLength={2000}
+                />
+                <div className="flex justify-end gap-2">
+                  <button
+                    onClick={() => setShowShareModal(false)}
+                    className="btn-secondary text-sm px-4 py-2"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleShareWithComment}
+                    disabled={!shareComment.trim()}
+                    className="btn-primary text-sm px-4 py-2 disabled:opacity-50"
+                  >
+                    Share
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </article>
@@ -255,11 +413,13 @@ function CreatePostForm() {
   const [content, setContent] = useState('');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [visibility, setVisibility] = useState<'public' | 'followers' | 'private'>('public');
   const imageInputRef = useRef<HTMLInputElement>(null);
   const qc = useQueryClient();
 
   const create = useMutation({
-    mutationFn: (body: { content: string; mediaUrls?: string[] }) => api.post('/posts', body),
+    mutationFn: (body: { content: string; mediaUrls?: string[]; visibility: string }) =>
+      api.post('/posts', body),
     onSuccess: () => {
       setContent('');
       setImageUrl(null);
@@ -284,7 +444,7 @@ function CreatePostForm() {
     e.preventDefault();
     const trimmed = content.trim();
     if (!trimmed) return;
-    create.mutate({ content: trimmed, ...(imageUrl ? { mediaUrls: [imageUrl] } : {}) });
+    create.mutate({ content: trimmed, visibility, ...(imageUrl ? { mediaUrls: [imageUrl] } : {}) });
   };
 
   return (
@@ -338,6 +498,25 @@ function CreatePostForm() {
             onChange={handleImagePick}
           />
           <span className="text-xs text-gray-500">{content.length} / 2000</span>
+          {/* Visibility picker */}
+          <div className="ml-auto flex items-center">
+            {VISIBILITY_OPTIONS.map((opt) => (
+              <button
+                key={opt.key}
+                type="button"
+                onClick={() => setVisibility(opt.key)}
+                title={opt.label}
+                className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full transition-colors ${
+                  visibility === opt.key
+                    ? 'bg-brand-500/20 text-brand-500 border border-brand-500/40'
+                    : 'text-gray-500 hover:text-gray-300'
+                }`}
+              >
+                <opt.Icon className="w-3 h-3" />
+                {visibility === opt.key && <span>{opt.label}</span>}
+              </button>
+            ))}
+          </div>
         </div>
         <button
           type="submit"

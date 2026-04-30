@@ -13,6 +13,7 @@ import { SearchModule } from './search/search.module';
 import { HealthModule } from './health/health.module';
 import { UploadModule } from './upload/upload.module';
 import { MessagesModule } from './messages/messages.module';
+import { ReviewsModule } from './reviews/reviews.module';
 import { FirebaseModule } from './firebase/firebase.module';
 import { validate } from './config/env.validation';
 
@@ -53,6 +54,7 @@ import { validate } from './config/env.validation';
     HealthModule,
     UploadModule,
     MessagesModule,
+    ReviewsModule,
   ],
 })
 export class AppModule {}
