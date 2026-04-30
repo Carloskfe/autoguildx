@@ -55,10 +55,7 @@ export class SubscriptionsController {
   @Post('webhook')
   @HttpCode(200)
   @ApiOperation({ summary: 'Stripe webhook receiver (called by Stripe, not users)' })
-  handleWebhook(
-    @Req() req: RawBodyRequest<Request>,
-    @Headers('stripe-signature') sig: string,
-  ) {
+  handleWebhook(@Req() req: RawBodyRequest<Request>, @Headers('stripe-signature') sig: string) {
     return this.subscriptionsService.handleWebhook(req.rawBody, sig);
   }
 }

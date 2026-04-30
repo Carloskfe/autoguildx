@@ -11,9 +11,7 @@ export class AddReactionsVisibilityShareReviews1700000000003 implements Migratio
     await queryRunner.query(
       `ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "sharesCount" integer NOT NULL DEFAULT 0`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "sharedPostId" uuid`,
-    );
+    await queryRunner.query(`ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "sharedPostId" uuid`);
 
     // Reactions
     await queryRunner.query(`

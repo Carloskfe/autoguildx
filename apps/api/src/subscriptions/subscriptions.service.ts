@@ -54,10 +54,8 @@ export class SubscriptionsService {
     const priceId =
       tier === 'owner' ? process.env.STRIPE_PRICE_OWNER : process.env.STRIPE_PRICE_COMPANY;
 
-    if (!this.stripe)
-      throw new BadRequestException('Stripe is not configured');
-    if (!priceId)
-      throw new BadRequestException('Stripe price ID not configured for this tier');
+    if (!this.stripe) throw new BadRequestException('Stripe is not configured');
+    if (!priceId) throw new BadRequestException('Stripe price ID not configured for this tier');
 
     const user = await this.userRepo.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');

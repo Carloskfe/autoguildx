@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { PostEntity } from './entities/post.entity';
 import { PostReactionEntity } from './entities/post-reaction.entity';
 
@@ -26,7 +26,10 @@ export class PostsService {
     @InjectRepository(PostReactionEntity) private reactionRepo: Repository<PostReactionEntity>,
   ) {}
 
-  async create(userId: string, dto: { content: string; mediaUrls?: string[]; visibility?: string; mediaMode?: string }) {
+  async create(
+    userId: string,
+    dto: { content: string; mediaUrls?: string[]; visibility?: string; mediaMode?: string },
+  ) {
     const { linkUrl, linkPreviewType } = extractLink(dto.content);
     const post = this.repo.create({
       ...dto,
@@ -117,7 +120,8 @@ export class PostsService {
   async share(postId: string, userId: string, content?: string) {
     const original = await this.repo.findOne({ where: { id: postId } });
     if (!original) throw new NotFoundException('Post not found');
-    if (original.visibility !== 'public') throw new ForbiddenException('Cannot share non-public posts');
+    if (original.visibility !== 'public')
+      throw new ForbiddenException('Cannot share non-public posts');
 
     original.sharesCount += 1;
     await this.repo.save(original);

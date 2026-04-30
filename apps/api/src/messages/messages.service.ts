@@ -65,7 +65,11 @@ export class MessagesService {
         });
 
         const unreadCount = await this.msgRepo.count({
-          where: { conversationId: conv.id, isRead: false, senderId: this.otherParticipantId(conv, userId) },
+          where: {
+            conversationId: conv.id,
+            isRead: false,
+            senderId: this.otherParticipantId(conv, userId),
+          },
         });
 
         return { ...conv, lastMessage: lastMessage ?? null, unreadCount };

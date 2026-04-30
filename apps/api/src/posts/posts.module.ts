@@ -10,7 +10,10 @@ import { PostReactionEntity } from './entities/post-reaction.entity';
 import { ProfilesModule } from '../profiles/profiles.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PostEntity, CommentEntity, PostReactionEntity]), ProfilesModule],
+  imports: [
+    TypeOrmModule.forFeature([PostEntity, CommentEntity, PostReactionEntity]),
+    ProfilesModule,
+  ],
   providers: [PostsService, CommentsService],
   controllers: [PostsController, CommentsController],
   exports: [PostsService],

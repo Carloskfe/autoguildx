@@ -54,11 +54,7 @@ export class MessagesController {
 
   @Post('conversations/:id/messages')
   @ApiOperation({ summary: 'Send a message in a conversation' })
-  sendMessage(
-    @CurrentUser() user,
-    @Param('id') id: string,
-    @Body() dto: SendMessageDto,
-  ) {
+  sendMessage(@CurrentUser() user, @Param('id') id: string, @Body() dto: SendMessageDto) {
     return this.messagesService.sendMessage(id, user.id, dto.content);
   }
 }

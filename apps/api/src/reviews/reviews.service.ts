@@ -38,9 +38,7 @@ export class ReviewsService {
     });
 
     const avgRating =
-      total > 0
-        ? Math.round((reviews.reduce((s, r) => s + r.rating, 0) / total) * 10) / 10
-        : null;
+      total > 0 ? Math.round((reviews.reduce((s, r) => s + r.rating, 0) / total) * 10) / 10 : null;
 
     const distribution = [1, 2, 3, 4, 5].reduce(
       (acc, star) => {
