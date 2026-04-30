@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ForbiddenException } from '@nestjs/common';
 import { ReviewsService } from '../../../src/reviews/reviews.service';
 import { ReviewEntity } from '../../../src/reviews/entities/review.entity';
+import { NotificationsService } from '../../../src/notifications/notifications.service';
 
 const mockRepo = () => ({
   findOne: jest.fn(),
@@ -33,6 +34,7 @@ describe('ReviewsService', () => {
       providers: [
         ReviewsService,
         { provide: getRepositoryToken(ReviewEntity), useFactory: mockRepo },
+        { provide: NotificationsService, useValue: { create: jest.fn().mockResolvedValue(undefined) } },
       ],
     }).compile();
 

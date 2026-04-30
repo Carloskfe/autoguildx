@@ -3,10 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ReviewEntity } from './entities/review.entity';
 import { CreateReviewDto } from './dto/create-review.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class ReviewsService {
-  constructor(@InjectRepository(ReviewEntity) private repo: Repository<ReviewEntity>) {}
+  constructor(
+    @InjectRepository(ReviewEntity) private repo: Repository<ReviewEntity>,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   async upsert(reviewerId: string, dto: CreateReviewDto) {
     if (dto.targetType === 'profile' && dto.targetId === reviewerId) {
@@ -22,7 +26,23 @@ export class ReviewsService {
       return this.repo.save(existing);
     }
 
-    return this.repo.save(this.repo.create({ reviewerId, ...dto }));
+    const saved = await this.repo.save(this.repo.create({ reviewerId, ...dto }));
+
+    // Notify for profile reviews (targetId === recipient's userId)
+    if (dto.targetType === 'profile') {
+      this.notifications
+        .create({
+          userId: dto.targetId,
+          actorId: reviewerId,
+          type: 'review',
+          targetId: dto.targetId,
+          targetType: 'profile',
+          data: { rating: dto.rating },
+        })
+        .catch(() => {});
+    }
+
+    return saved;
   }
 
   async getForTarget(targetId: string, targetType: string, page = 1, limit = 20) {

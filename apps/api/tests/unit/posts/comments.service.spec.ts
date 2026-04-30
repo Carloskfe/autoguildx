@@ -4,6 +4,7 @@ import { NotFoundException } from '@nestjs/common';
 import { CommentsService } from '../../../src/posts/comments.service';
 import { CommentEntity } from '../../../src/posts/entities/comment.entity';
 import { PostEntity } from '../../../src/posts/entities/post.entity';
+import { NotificationsService } from '../../../src/notifications/notifications.service';
 
 const mockCommentRepo = () => ({
   findOne: jest.fn(),
@@ -28,6 +29,7 @@ describe('CommentsService', () => {
         CommentsService,
         { provide: getRepositoryToken(CommentEntity), useFactory: mockCommentRepo },
         { provide: getRepositoryToken(PostEntity), useFactory: mockPostRepo },
+        { provide: NotificationsService, useValue: { create: jest.fn().mockResolvedValue(undefined) } },
       ],
     }).compile();
 

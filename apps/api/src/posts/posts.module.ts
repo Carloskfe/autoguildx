@@ -8,11 +8,13 @@ import { PostEntity } from './entities/post.entity';
 import { CommentEntity } from './entities/comment.entity';
 import { PostReactionEntity } from './entities/post-reaction.entity';
 import { ProfilesModule } from '../profiles/profiles.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([PostEntity, CommentEntity, PostReactionEntity]),
     ProfilesModule,
+    NotificationsModule,
   ],
   providers: [PostsService, CommentsService],
   controllers: [PostsController, CommentsController],

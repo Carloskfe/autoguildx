@@ -12,11 +12,13 @@ import {
   PlusSquare,
   Zap,
   MessageSquare,
+  Bell,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { clsx } from 'clsx';
 import { useAuth } from '@/hooks/useAuth';
 import UpgradeModal from '@/components/UpgradeModal';
+import NotificationPanel from '@/components/NotificationPanel';
 import api from '@/lib/api';
 import type { SubscriptionTier } from '@autoguildx/shared';
 
@@ -42,6 +44,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { isAuthenticated } = useAuth();
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const { data: subscription } = useQuery<{ tier: SubscriptionTier; active: boolean }>({
     queryKey: ['subscription'],
@@ -56,7 +59,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     refetchInterval: 10000,
   });
 
+  const { data: notifUnread } = useQuery<{ count: number }>({
+    queryKey: ['notifUnread'],
+    queryFn: () => api.get('/notifications/unread-count').then((r) => r.data),
+    enabled: isAuthenticated,
+    refetchInterval: 15000,
+  });
+
   const unreadCount = unreadData?.count ?? 0;
+  const notifCount = notifUnread?.count ?? 0;
   const tier = subscription?.tier ?? 'free';
   const badge = TIER_BADGE[tier] ?? TIER_BADGE.free;
 
@@ -79,6 +90,25 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <Zap className="w-3 h-3" />
               {badge.label}
             </button>
+          )}
+          {isAuthenticated && (
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifications((v) => !v)}
+                className="relative p-1.5 text-gray-400 hover:text-white transition-colors"
+                aria-label="Notifications"
+              >
+                <Bell className="w-5 h-5" />
+                {notifCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-brand-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                    {notifCount > 9 ? '9+' : notifCount}
+                  </span>
+                )}
+              </button>
+              {showNotifications && (
+                <NotificationPanel onClose={() => setShowNotifications(false)} />
+              )}
+            </div>
           )}
           <Link
             href="/marketplace/new"

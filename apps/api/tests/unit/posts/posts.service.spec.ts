@@ -4,6 +4,7 @@ import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PostsService } from '../../../src/posts/posts.service';
 import { PostEntity } from '../../../src/posts/entities/post.entity';
 import { PostReactionEntity } from '../../../src/posts/entities/post-reaction.entity';
+import { NotificationsService } from '../../../src/notifications/notifications.service';
 
 const qbMock = () => ({
   leftJoinAndSelect: jest.fn().mockReturnThis(),
@@ -43,6 +44,7 @@ describe('PostsService', () => {
         PostsService,
         { provide: getRepositoryToken(PostEntity), useFactory: mockPostRepo },
         { provide: getRepositoryToken(PostReactionEntity), useFactory: mockReactionRepo },
+        { provide: NotificationsService, useValue: { create: jest.fn().mockResolvedValue(undefined) } },
       ],
     }).compile();
 

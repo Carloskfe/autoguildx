@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { ProfilesService } from '../../../src/profiles/profiles.service';
 import { ProfileEntity } from '../../../src/profiles/entities/profile.entity';
+import { NotificationsService } from '../../../src/notifications/notifications.service';
 
 const mockRepo = () => ({
   findOne: jest.fn(),
@@ -30,6 +31,7 @@ describe('ProfilesService', () => {
       providers: [
         ProfilesService,
         { provide: getRepositoryToken(ProfileEntity), useFactory: mockRepo },
+        { provide: NotificationsService, useValue: { create: jest.fn().mockResolvedValue(undefined) } },
       ],
     }).compile();
 

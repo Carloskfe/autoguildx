@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PostEntity } from './entities/post.entity';
 import { PostReactionEntity } from './entities/post-reaction.entity';
+import { NotificationsService } from '../notifications/notifications.service';
 
 export const VALID_REACTIONS = ['fire', 'love', 'respect', 'wild', 'like'] as const;
 
@@ -24,6 +25,7 @@ export class PostsService {
   constructor(
     @InjectRepository(PostEntity) private repo: Repository<PostEntity>,
     @InjectRepository(PostReactionEntity) private reactionRepo: Repository<PostReactionEntity>,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async create(
@@ -95,7 +97,18 @@ export class PostsService {
       existing.emoji = emoji;
       return this.reactionRepo.save(existing);
     }
-    return this.reactionRepo.save(this.reactionRepo.create({ postId, userId, emoji }));
+    const saved = await this.reactionRepo.save(this.reactionRepo.create({ postId, userId, emoji }));
+    this.notifications
+      .create({
+        userId: post.userId,
+        actorId: userId,
+        type: 'reaction',
+        targetId: postId,
+        targetType: 'post',
+        data: { emoji },
+      })
+      .catch(() => {});
+    return saved;
   }
 
   async unreact(postId: string, userId: string) {
@@ -132,7 +145,17 @@ export class PostsService {
       sharedPostId: postId,
       visibility: 'public',
     });
-    return this.repo.save(newPost);
+    const saved = await this.repo.save(newPost);
+    this.notifications
+      .create({
+        userId: original.userId,
+        actorId: userId,
+        type: 'share',
+        targetId: postId,
+        targetType: 'post',
+      })
+      .catch(() => {});
+    return saved;
   }
 
   async delete(postId: string, userId: string) {

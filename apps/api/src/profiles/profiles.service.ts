@@ -2,10 +2,14 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProfileEntity } from './entities/profile.entity';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class ProfilesService {
-  constructor(@InjectRepository(ProfileEntity) private repo: Repository<ProfileEntity>) {}
+  constructor(
+    @InjectRepository(ProfileEntity) private repo: Repository<ProfileEntity>,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   async create(userId: string, dto: Partial<ProfileEntity>) {
     const existing = await this.repo.findOne({ where: { userId } });
@@ -45,6 +49,15 @@ export class ProfilesService {
       follower.followingCount += 1;
       target.followersCount += 1;
       await this.repo.save([follower, target]);
+      this.notifications
+        .create({
+          userId: target.userId,
+          actorId: followerId,
+          type: 'follow',
+          targetId: target.id,
+          targetType: 'profile',
+        })
+        .catch(() => {});
     }
     return { followed: true };
   }
