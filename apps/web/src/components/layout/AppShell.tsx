@@ -3,7 +3,16 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Search, Package, Calendar, User, PlusSquare, Zap } from 'lucide-react';
+import {
+  Home,
+  Search,
+  Package,
+  Calendar,
+  User,
+  PlusSquare,
+  Zap,
+  MessageSquare,
+} from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { clsx } from 'clsx';
 import { useAuth } from '@/hooks/useAuth';
@@ -16,6 +25,7 @@ const NAV = [
   { href: '/discover', label: 'Discover', icon: Search },
   { href: '/marketplace', label: 'Market', icon: Package },
   { href: '/events', label: 'Events', icon: Calendar },
+  { href: '/messages', label: 'Messages', icon: MessageSquare },
   { href: '/profile', label: 'Profile', icon: User },
 ];
 
@@ -39,6 +49,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     enabled: isAuthenticated,
   });
 
+  const { data: unreadData } = useQuery<{ count: number }>({
+    queryKey: ['unreadCount'],
+    queryFn: () => api.get('/messages/unread-count').then((r) => r.data),
+    enabled: isAuthenticated,
+    refetchInterval: 10000,
+  });
+
+  const unreadCount = unreadData?.count ?? 0;
   const tier = subscription?.tier ?? 'free';
   const badge = TIER_BADGE[tier] ?? TIER_BADGE.free;
 
@@ -86,7 +104,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   : 'text-gray-400 hover:text-white hover:bg-surface-card',
               )}
             >
-              <Icon className="w-5 h-5" /> {label}
+              <span className="relative">
+                <Icon className="w-5 h-5" />
+                {href === '/messages' && unreadCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-brand-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </span>
+              {label}
             </Link>
           ))}
 
@@ -135,7 +161,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               pathname.startsWith(href) ? 'text-brand-500' : 'text-gray-500',
             )}
           >
-            <Icon className="w-6 h-6" /> {label}
+            <span className="relative">
+              <Icon className="w-6 h-6" />
+              {href === '/messages' && unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-brand-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </span>
+            {label}
           </Link>
         ))}
       </nav>

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { MapPin, Star, Tag, ArrowLeft, Trash2, Loader2, Zap } from 'lucide-react';
+import { MapPin, Star, Tag, ArrowLeft, Trash2, Loader2, Zap, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import AppShell from '@/components/layout/AppShell';
 import UpgradeModal from '@/components/UpgradeModal';
@@ -23,6 +23,17 @@ export default function ListingDetailPage() {
   const qc = useQueryClient();
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [boostError, setBoostError] = useState<string | null>(null);
+  const [messagePending, setMessagePending] = useState(false);
+
+  const handleMessageSeller = async (sellerId: string) => {
+    setMessagePending(true);
+    try {
+      const { data } = await api.post('/messages/conversations', { recipientId: sellerId });
+      router.push(`/messages?conversation=${data.id}`);
+    } finally {
+      setMessagePending(false);
+    }
+  };
 
   const {
     data: listing,
@@ -229,10 +240,23 @@ export default function ListingDetailPage() {
               <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
                 Contact Seller
               </h2>
-              {listing.user?.email ? (
+              {listing.user?.id && isAuthenticated ? (
+                <button
+                  onClick={() => handleMessageSeller(listing.user!.id)}
+                  disabled={messagePending}
+                  className="btn-primary w-full text-sm py-2.5 flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {messagePending ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <MessageSquare className="w-4 h-4" />
+                  )}
+                  Message Seller
+                </button>
+              ) : listing.user?.email ? (
                 <a
                   href={`mailto:${listing.user.email}?subject=Re: ${encodeURIComponent(listing.title)}`}
-                  className="btn-primary w-full text-sm py-2.5 text-center block"
+                  className="btn-secondary w-full text-sm py-2.5 text-center block"
                 >
                   Email Seller
                 </a>

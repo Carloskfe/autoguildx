@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { MapPin, Users, Heart, UserPlus, UserMinus, Loader2 } from 'lucide-react';
+import { MapPin, Users, Heart, UserPlus, UserMinus, Loader2, MessageSquare } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
@@ -61,6 +61,18 @@ export default function PublicProfilePage() {
 
   const isOwnProfile = profile?.userId === userId;
   const isFollowing = following.some((p) => p.id === profileId);
+  const [messagePending, setMessagePending] = useState(false);
+
+  const handleMessage = async () => {
+    if (!profile?.userId) return;
+    setMessagePending(true);
+    try {
+      const { data } = await api.post('/messages/conversations', { recipientId: profile.userId });
+      router.push(`/messages?conversation=${data.id}`);
+    } finally {
+      setMessagePending(false);
+    }
+  };
 
   const followMutation = useMutation({
     mutationFn: () => api.post(`/profiles/${profileId}/follow`),
@@ -117,29 +129,43 @@ export default function PublicProfilePage() {
                 </div>
 
                 {!isOwnProfile && (
-                  <button
-                    onClick={() =>
-                      isFollowing ? unfollowMutation.mutate() : followMutation.mutate()
-                    }
-                    disabled={followMutation.isPending || unfollowMutation.isPending}
-                    className={`shrink-0 flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg font-medium transition-colors disabled:opacity-50 ${
-                      isFollowing
-                        ? 'bg-surface-card border border-surface-border text-gray-300 hover:text-red-400 hover:border-red-400'
-                        : 'btn-primary'
-                    }`}
-                  >
-                    {followMutation.isPending || unfollowMutation.isPending ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : isFollowing ? (
-                      <>
-                        <UserMinus className="w-4 h-4" /> Unfollow
-                      </>
-                    ) : (
-                      <>
-                        <UserPlus className="w-4 h-4" /> Follow
-                      </>
-                    )}
-                  </button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={handleMessage}
+                      disabled={messagePending}
+                      className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg font-medium bg-surface-card border border-surface-border text-gray-300 hover:text-white hover:border-gray-400 transition-colors disabled:opacity-50"
+                    >
+                      {messagePending ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <MessageSquare className="w-4 h-4" />
+                      )}
+                      Message
+                    </button>
+                    <button
+                      onClick={() =>
+                        isFollowing ? unfollowMutation.mutate() : followMutation.mutate()
+                      }
+                      disabled={followMutation.isPending || unfollowMutation.isPending}
+                      className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg font-medium transition-colors disabled:opacity-50 ${
+                        isFollowing
+                          ? 'bg-surface-card border border-surface-border text-gray-300 hover:text-red-400 hover:border-red-400'
+                          : 'btn-primary'
+                      }`}
+                    >
+                      {followMutation.isPending || unfollowMutation.isPending ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : isFollowing ? (
+                        <>
+                          <UserMinus className="w-4 h-4" /> Unfollow
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus className="w-4 h-4" /> Follow
+                        </>
+                      )}
+                    </button>
+                  </div>
                 )}
 
                 {isOwnProfile && (
