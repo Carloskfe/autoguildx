@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import { X, Check, Loader2, Zap } from 'lucide-react';
 import { SUBSCRIPTION_PRICES, SubscriptionTier } from '@autoguildx/shared';
 import api from '@/lib/api';
@@ -28,15 +28,22 @@ const FEATURES: Record<SubscriptionTier, string[]> = {
 };
 
 export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
-  const qc = useQueryClient();
+  const [loading, setLoading] = useState<SubscriptionTier | null>(null);
+  const [error, setError] = useState('');
 
-  const upgrade = useMutation({
-    mutationFn: (tier: 'owner' | 'company') => api.post('/subscriptions/upgrade', { tier }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['subscription'] });
-      onClose();
-    },
-  });
+  const handleUpgrade = async (tier: 'owner' | 'company') => {
+    setError('');
+    setLoading(tier);
+    try {
+      const { data } = await api.post<{ url: string }>('/subscriptions/create-checkout-session', {
+        tier,
+      });
+      window.location.href = data.url;
+    } catch {
+      setError('Unable to start checkout. Please try again.');
+      setLoading(null);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
@@ -98,11 +105,11 @@ export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
 
                 {isUpgrade && (
                   <button
-                    onClick={() => upgrade.mutate(id as 'owner' | 'company')}
-                    disabled={upgrade.isPending}
+                    onClick={() => handleUpgrade(id as 'owner' | 'company')}
+                    disabled={loading !== null}
                     className="btn-primary w-full text-sm py-2 flex items-center justify-center gap-2 disabled:opacity-50"
                   >
-                    {upgrade.isPending ? (
+                    {loading === id ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
                       `Upgrade to ${name}`
@@ -122,8 +129,10 @@ export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
           })}
         </div>
 
+        {error && <p className="px-6 pb-4 text-sm text-red-400 text-center">{error}</p>}
+
         <p className="px-6 pb-6 text-xs text-gray-500 text-center">
-          No payment processor connected — upgrades are recorded instantly for demo purposes.
+          Powered by Stripe. You will be redirected to a secure payment page.
         </p>
       </div>
     </div>

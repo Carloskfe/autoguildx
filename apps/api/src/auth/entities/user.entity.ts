@@ -21,6 +21,9 @@ export class UserEntity {
   @CreateDateColumn()
   createdAt: Date;
 
+  @Column({ nullable: true })
+  stripeCustomerId: string;
+
   @OneToOne(() => ProfileEntity, (profile) => profile.user)
   profile: ProfileEntity;
 }
