@@ -161,4 +161,26 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 | S3 uploads | `mediaUrls[]` fields exist but upload flow not built | S5 |
 | Payment gateway | Subscription tier upgrades recorded in DB; no payment processor | Post-MVP |
 | Other user profiles | `/profile/[id]` for viewing other people not built yet | S3 |
-| Test coverage | ✅ 98 passing unit tests across 9 suites under `apps/api/tests/unit/` | — |
+| Test coverage | ✅ 120 passing unit tests across 10 suites under `apps/api/tests/unit/` | — |
+
+---
+
+## Backlog — Post-MVP Features
+
+### Reactions & Rich Engagement on Posts
+- Emoji reactions on posts: like, love, surprise (extend or replace the current single `likesCount` with a `PostReactionEntity` keyed by `userId + emoji`)
+- Threaded comments already exist; expose collapse/expand and reply-to on the feed
+- Share / re-post: `POST /posts/:id/share` creates a new post referencing the original; feed shows shared attribution
+- Post visibility: author sets `visibility` field on create — `public` (default), `contacts` (followers only), `private` (author only); API enforces visibility in feed query
+
+### Marketplace & Event Sharing
+- Share a listing or event via in-platform link or copy-to-clipboard (no backend needed; client-side only)
+- Share to profile: re-post a listing card as a feed post with a link-preview component
+
+### Reviews & Recommendations (5-star system)
+- `ReviewEntity`: reviewer, target (user or listing), rating (1–5), comment, createdAt
+- `POST /reviews` — submit a review; one per reviewer–target pair (upsert)
+- `GET /profiles/:id/reviews` — paginated reviews with average rating
+- `GET /listings/:id/reviews` — reviews for a specific listing
+- Profile and listing pages display star rating summary + review list
+- Aggregate average rating surfaced on profile cards and listing grid tiles
