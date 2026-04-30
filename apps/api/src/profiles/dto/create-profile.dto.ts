@@ -8,7 +8,7 @@ export class CreateProfileDto {
   @ApiProperty({ required: false }) @IsOptional() @IsString() @MaxLength(500) bio?: string;
   @ApiProperty({ enum: ['individual', 'business'], default: 'individual' })
   @IsOptional()
-  @IsIn(['individual', 'business'])
+  @IsIn(['mechanic', 'manufacturer', 'collector', 'enthusiast'])
   roleType?: string;
   @ApiProperty({ type: [String], required: false })
   @IsOptional()

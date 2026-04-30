@@ -34,7 +34,7 @@ export class ProfileEntity {
   @Column({ type: 'text', nullable: true })
   bio: string;
 
-  @Column({ default: 'individual' })
+  @Column({ default: 'enthusiast' })
   roleType: string;
 
   @Column({ type: 'simple-array', default: '' })

@@ -34,7 +34,7 @@ const ROLE_LABELS: Record<string, string> = {
 
 // ─── Avatar with upload ────────────────────────────────────────────────────────
 
-function AvatarUpload({ profile }: { profile: Profile & { profileVideoUrl?: string } }) {
+function AvatarUpload({ profile }: { profile: Profile }) {
   const qc = useQueryClient();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -104,10 +104,18 @@ function AvatarUpload({ profile }: { profile: Profile & { profileVideoUrl?: stri
 
 // ─── Inline edit form ─────────────────────────────────────────────────────────
 
+const ROLE_CARDS = [
+  { value: 'mechanic', emoji: '🔧', label: 'Mechanic / Shop' },
+  { value: 'manufacturer', emoji: '🏭', label: 'Manufacturer' },
+  { value: 'collector', emoji: '🏎️', label: 'Collector' },
+  { value: 'enthusiast', emoji: '🛠️', label: 'Enthusiast' },
+] as const;
+
 interface EditForm {
   name: string;
   bio: string;
   location: string;
+  roleType: string;
 }
 
 function EditProfileForm({
@@ -125,6 +133,7 @@ function EditProfileForm({
     name: profile.name,
     bio: profile.bio ?? '',
     location: profile.location ?? '',
+    roleType: profile.roleType ?? 'enthusiast',
   });
 
   const set =
@@ -162,6 +171,26 @@ function EditProfileForm({
           maxLength={500}
         />
         <p className="text-xs text-gray-500 mt-1">{form.bio.length} / 500</p>
+      </div>
+      <div>
+        <label className="text-xs text-gray-400 mb-1 block">What best describes you?</label>
+        <div className="grid grid-cols-2 gap-2">
+          {ROLE_CARDS.map((card) => (
+            <button
+              key={card.value}
+              type="button"
+              onClick={() => setForm((f) => ({ ...f, roleType: card.value }))}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-left transition-colors text-sm ${
+                form.roleType === card.value
+                  ? 'border-brand-500 bg-brand-500/10 text-white'
+                  : 'border-surface-border text-gray-400 hover:border-gray-500'
+              }`}
+            >
+              <span>{card.emoji}</span>
+              <span className="truncate">{card.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
       <div className="flex gap-2 pt-1">
         <button
