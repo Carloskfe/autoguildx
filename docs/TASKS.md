@@ -151,17 +151,9 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ---
 
-## Known Gaps / Open Decisions
+## Resolved Gaps
 
-| Gap | Detail | Sprint |
-|---|---|---|
-| Feed scope | `GET /feed` returns all posts, not just followed users | S3 |
-| Comments | `commentsCount` exists on `PostEntity` but no entity or endpoints | S3 |
-| Listing limits | `SUBSCRIPTION_LIMITS` defined but not enforced in service | S4 |
-| S3 uploads | `mediaUrls[]` fields exist but upload flow not built | S5 |
-| Payment gateway | Subscription tier upgrades recorded in DB; no payment processor | Post-MVP |
-| Other user profiles | `/profile/[id]` for viewing other people not built yet | S3 |
-| Test coverage | ✅ 120 passing unit tests across 10 suites under `apps/api/tests/unit/` | — |
+All gaps identified during Sprint 1–6 have been closed. See individual sprint entries for details.
 
 ---
 
@@ -231,4 +223,32 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ---
 
-## Backlog — Sprint 9 Candidates
+## Sprint 9 — Polish & Self-Service
+
+**Goal:** Close the remaining UX gaps so users can fully self-manage their profiles and subscriptions, and add location/vehicle filters to Discover.
+
+### Profile — tag editing
+- [ ] Add specialty tag picker to `/profile` edit form (same tag set as onboarding step 3)
+- [ ] `PATCH /profiles/me` already accepts `tags[]` — frontend change only
+
+### Subscription self-service
+- [ ] Add cancel/downgrade option to `UpgradeModal` for users on Owner or Company tier
+- [ ] Wire to existing `DELETE /subscriptions/me` endpoint
+- [ ] Show confirmation dialog before cancelling
+
+### Discover — advanced filters
+- [ ] Add location filter input to `/discover` page
+- [ ] Add vehicle type / tag filter chips
+- [ ] Pass `location` and `tag` query params to `GET /search`
+- [ ] Update `SearchService` to filter by location (ILike) and tags when params present
+- [ ] Add unit tests for new filter cases in `search/search.service.spec.ts`
+
+### Stripe activation (ops — no code changes needed)
+- [ ] Set `STRIPE_SECRET_KEY`, `STRIPE_PRICE_OWNER`, `STRIPE_PRICE_COMPANY`, `STRIPE_WEBHOOK_SECRET` in production env
+- [ ] Register Stripe webhook endpoint (`POST /subscriptions/webhook`) in Stripe dashboard
+- [ ] Smoke-test checkout flow in Stripe test mode
+
+### Doc & code hygiene
+- [x] Update `CLAUDE.md` — route table, API modules, jest config (this session)
+- [x] Update `PRD.md` — reflect built features, remove resolved non-goals (this session)
+- [x] Update `TASKS.md` — Sprint 9 plan (this session)

@@ -78,47 +78,51 @@ AutoGuildX/
 │   └── shared/                 # @autoguildx/shared — TypeScript domain types
 │       └── src/types/
 │           ├── user.ts
-│           ├── profile.ts
-│           ├── post.ts
+│           ├── profile.ts      # Profile, ProfileRoleType
+│           ├── post.ts         # Post, Comment
 │           ├── listing.ts
 │           ├── event.ts
-│           └── subscription.ts
+│           └── subscription.ts # SubscriptionTier, SUBSCRIPTION_LIMITS, SUBSCRIPTION_PRICES
 ├── apps/
 │   ├── api/                    # NestJS backend
 │   │   ├── src/
 │   │   │   ├── auth/           # Signup, login, Firebase token exchange, JWT
-│   │   │   ├── profiles/       # Profile CRUD, follow/unfollow graph
-│   │   │   ├── posts/          # Feed posts, likes
-│   │   │   ├── listings/       # Marketplace CRUD, featured boost
+│   │   │   ├── profiles/       # Profile CRUD, follow/unfollow graph, video avatar
+│   │   │   ├── posts/          # Feed posts, reactions, sharing, visibility, link extraction
+│   │   │   ├── comments/       # Threaded comments on posts
+│   │   │   ├── listings/       # Marketplace CRUD, featured boost, tier enforcement
 │   │   │   ├── events/         # Event CRUD, RSVP
-│   │   │   ├── subscriptions/  # Tier management (Free/Owner/Company)
+│   │   │   ├── messages/       # 1:1 conversations, unread count
+│   │   │   ├── notifications/  # In-app notifications, unread count, mark-read
+│   │   │   ├── reviews/        # 5-star ratings with dimensions, upsert, summary
+│   │   │   ├── subscriptions/  # Tier mgmt, Stripe Checkout session, webhook handler
 │   │   │   ├── search/         # Cross-entity ILike search
+│   │   │   ├── upload/         # S3 presign stub (POST /upload/presign)
 │   │   │   ├── firebase/       # Firebase Admin SDK module
 │   │   │   ├── common/         # Guards, decorators, filters, pipes
-│   │   │   └── config/         # Env validation on startup (Joi)
-│   │   ├── jest.config.js
+│   │   │   ├── config/         # Env validation on startup (Joi)
+│   │   │   ├── migrations/     # TypeORM migration files (prod)
+│   │   │   └── data-source.ts  # TypeORM DataSource for migration CLI
+│   │   ├── tests/unit/         # Mirrors src/ — one .spec.ts per service
+│   │   ├── test/               # E2E specs + jest-e2e.json
+│   │   ├── jest.config.js      # isolatedModules:true, maxWorkers:2, forceExit:true
 │   │   ├── Dockerfile
 │   │   └── package.json
 │   └── web/                    # Next.js frontend
 │       ├── src/
-│       │   ├── app/            # App Router pages
-│       │   │   ├── page.tsx            # / — public landing
-│       │   │   ├── login/              # /login
-│       │   │   ├── signup/             # /signup
-│       │   │   ├── onboarding/         # /onboarding — 2-step profile creation
-│       │   │   ├── feed/               # /feed — social feed ✓ wired
-│       │   │   ├── discover/           # /discover — search (shell)
-│       │   │   ├── marketplace/        # /marketplace (shell)
-│       │   │   ├── events/             # /events (shell)
-│       │   │   └── profile/            # /profile (shell)
+│       │   ├── app/            # App Router pages (all fully wired — see Frontend Architecture)
 │       │   ├── components/
-│       │   │   └── layout/
-│       │   │       └── AppShell.tsx    # Sticky header + sidebar + mobile nav
+│       │   │   ├── layout/
+│       │   │   │   └── AppShell.tsx      # Header + sidebar + mobile nav, unread badges
+│       │   │   ├── NotificationPanel.tsx  # Slide-down notification dropdown
+│       │   │   ├── ReviewSection.tsx      # Star picker, histogram, dimension ratings
+│       │   │   └── UpgradeModal.tsx       # Tier cards + Stripe Checkout redirect
 │       │   ├── hooks/
-│       │   │   └── useAuth.ts          # Zustand auth store, persisted to localStorage
+│       │   │   └── useAuth.ts            # Zustand auth store, persisted to localStorage
 │       │   └── lib/
-│       │       ├── api.ts              # Axios — auto JWT attach, 401 redirect
-│       │       └── firebase.ts         # Lazy Firebase init (SSR-safe)
+│       │       ├── api.ts                # Axios — auto JWT attach, 401 redirect
+│       │       ├── firebase.ts           # Lazy Firebase init (SSR-safe)
+│       │       └── upload.ts             # uploadFile(file) → presign → PUT → publicUrl
 │       ├── .eslintrc.js
 │       ├── .prettierrc
 │       ├── Dockerfile
@@ -242,21 +246,35 @@ The rule is simple: **take the source path, replace `apps/api/src/` with `apps/a
 
 ### jest.config.js requirement
 
-The default NestJS jest config scopes `rootDir` to `src/`. To pick up tests in `apps/api/tests/unit/`, the config must be updated:
+The config at `apps/api/jest.config.js` must remain exactly as below. Do not revert these settings — they prevent OOM crashes on machines with limited RAM (ts-jest without `isolatedModules` loads the entire TypeScript type graph per worker, which exceeds available memory).
 
 ```js
 module.exports = {
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: '.',
   testMatch: ['<rootDir>/tests/unit/**/*.spec.ts'],
-  transform: { '^.+\\.(t|j)s$': 'ts-jest' },
+  transform: {
+    '^.+\\.(t|j)s$': ['ts-jest', { isolatedModules: true }],
+  },
+  moduleNameMapper: {
+    '^@autoguildx/shared$': '<rootDir>/../../packages/shared/src',
+  },
   collectCoverageFrom: ['src/**/*.(t|j)s'],
   coverageDirectory: 'coverage',
   testEnvironment: 'node',
+  maxWorkers: 2,
+  forceExit: true,
 };
 ```
 
-This change is tracked in Sprint 6 of `docs/TASKS.md`.
+**Why `isolatedModules: true`:** Without it, ts-jest performs full type-checking and loads all transitive type definitions (including aws-sdk at 101 MB) — each worker hits >1.5 GB heap, crashing machines with ≤8 GB RAM when Jest runs 7 workers in parallel.
+
+**Why `maxWorkers: 2`:** Caps parallel Jest workers so total memory stays under ~1.5 GB on an 8 GB machine.
+
+The `test` script in `apps/api/package.json` also includes a heap cap:
+```json
+"test": "NODE_OPTIONS='--max-old-space-size=3072' jest"
+```
 
 ### Before marking any task complete, verify
 
@@ -268,9 +286,19 @@ This change is tracked in Sprint 6 of `docs/TASKS.md`.
 
 ---
 
-## Keeping This File Current
+## Keeping Docs Current
 
-**Update `CLAUDE.md` whenever something project-relevant becomes settled:** new architectural decisions, new modules, conventions adopted, constraints discovered, tools added, or workflow rules established. Also keep `docs/TASKS.md` in sync as tasks are completed or new ones are identified.
+**This is a mandatory step at the end of every session and after every completed task.**
+
+Update all three management documents whenever anything project-relevant changes:
+
+| Document | Update when |
+|---|---|
+| `CLAUDE.md` | New modules added, routes change status, architectural decisions made, new conventions or constraints established, tools added |
+| `docs/TASKS.md` | Tasks completed (mark `[x]`), new tasks identified, sprint closed, sprint plan written |
+| `docs/PRD.md` | Features shipped (move from roadmap to built scope), non-goals resolved, risks change, new post-MVP items identified |
+
+Never leave a session with docs that contradict the actual codebase state.
 
 ---
 
@@ -281,12 +309,17 @@ Every domain feature follows the same NestJS pattern: `module → controller →
 | Module | Path | Key responsibility |
 |---|---|---|
 | Auth | `src/auth/` | Signup/login, Firebase token exchange, JWT issuance |
-| Profiles | `src/profiles/` | Profile CRUD, follow/unfollow graph |
-| Posts | `src/posts/` | Feed posts, likes |
-| Listings | `src/listings/` | Marketplace CRUD, featured boost |
+| Profiles | `src/profiles/` | Profile CRUD, follow/unfollow graph, video avatar |
+| Posts | `src/posts/` | Feed posts, reactions, sharing, visibility, link extraction |
+| Comments | `src/comments/` | Threaded comments on posts |
+| Listings | `src/listings/` | Marketplace CRUD, featured boost, tier limit enforcement |
 | Events | `src/events/` | Event CRUD, RSVP |
-| Subscriptions | `src/subscriptions/` | Tier management (Free/Owner/Company) |
+| Messages | `src/messages/` | 1:1 conversation threads, unread count |
+| Notifications | `src/notifications/` | In-app notifications, unread count, mark-read |
+| Reviews | `src/reviews/` | 5-star ratings with dimensions, upsert, summary |
+| Subscriptions | `src/subscriptions/` | Tier management, Stripe Checkout, webhook handler |
 | Search | `src/search/` | Cross-entity ILike search |
+| Upload | `src/upload/` | S3 presign stub (`POST /upload/presign`) |
 
 **Auth flow:** `JwtStrategy` (`src/auth/jwt.strategy.ts`) validates Bearer tokens and injects `{ id, email, role }` into `req.user`. Protected routes use `JwtAuthGuard` (`src/common/guards/`). Use `@CurrentUser()` (`src/common/decorators/`) to extract the user in controllers.
 
@@ -298,19 +331,28 @@ Every domain feature follows the same NestJS pattern: `module → controller →
 
 ## Frontend Architecture
 
-All authenticated pages wrap their content with `AppShell` (`src/components/layout/AppShell.tsx`), which renders the sticky header, desktop sidebar nav, and mobile bottom nav.
+All authenticated pages wrap their content with `AppShell` (`src/components/layout/AppShell.tsx`), which renders the sticky header, desktop sidebar nav, and mobile bottom nav. AppShell polls for unread message count (10 s) and unread notification count (15 s), and shows live badges on the Messages nav item and the Bell icon.
 
 | Route | File | Status |
 |---|---|---|
 | `/` | `app/page.tsx` | Public landing |
 | `/login` | `app/login/page.tsx` | Email + Google OAuth |
-| `/signup` | `app/signup/page.tsx` | Email + Google OAuth, role selection |
-| `/onboarding` | `app/onboarding/page.tsx` | 2-step profile creation |
-| `/feed` | `app/feed/page.tsx` | ✓ Wired — create, like, delete, infinite scroll |
-| `/discover` | `app/discover/page.tsx` | Shell only |
-| `/marketplace` | `app/marketplace/page.tsx` | Shell only |
-| `/events` | `app/events/page.tsx` | Shell only |
-| `/profile` | `app/profile/page.tsx` | Shell only |
+| `/signup` | `app/signup/page.tsx` | Email + Google OAuth — no role selection, goes straight to onboarding |
+| `/onboarding` | `app/onboarding/page.tsx` | 3-step: role picker → profile details → specialty tags |
+| `/feed` | `app/feed/page.tsx` | ✓ Wired — compose, reactions, comments, share/repost, media modes, link previews, visibility picker, infinite scroll |
+| `/discover` | `app/discover/page.tsx` | ✓ Wired — keyword search, section filter (All/People/Listings/Events), star ratings |
+| `/marketplace` | `app/marketplace/page.tsx` | ✓ Wired — listing grid, type filter, search, star ratings, infinite scroll |
+| `/marketplace/new` | `app/marketplace/new/page.tsx` | ✓ Wired — create form with images, tier limit → UpgradeModal |
+| `/marketplace/[id]` | `app/marketplace/[id]/page.tsx` | ✓ Wired — detail, boost, delete, message seller, share to feed, reviews |
+| `/events` | `app/events/page.tsx` | ✓ Wired — upcoming list, date blocks, type badges, infinite scroll |
+| `/events/new` | `app/events/new/page.tsx` | ✓ Wired — create form |
+| `/events/[id]` | `app/events/[id]/page.tsx` | ✓ Wired — detail, RSVP, delete, share to feed |
+| `/messages` | `app/messages/page.tsx` | ✓ Wired — conversation list + message thread, real-time-ish via polling |
+| `/notifications` | `app/notifications/page.tsx` | ✓ Wired — list with read/unread state and deep links |
+| `/profile` | `app/profile/page.tsx` | ✓ Wired — own profile, avatar/video upload, inline edit, role picker, posts |
+| `/profile/[id]` | `app/profile/[id]/page.tsx` | ✓ Wired — public profile, follow/unfollow, message, posts, reviews |
+| `/subscription/success` | `app/subscription/success/page.tsx` | Stripe checkout success — invalidates subscription cache |
+| `/subscription/cancel` | `app/subscription/cancel/page.tsx` | Stripe checkout cancel |
 
 **Page pattern for authenticated routes:** check `useAuth().isAuthenticated` in `useEffect`, redirect to `/login` if false, disable React Query fetches with `enabled: isAuthenticated`.
 
