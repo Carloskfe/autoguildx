@@ -45,6 +45,15 @@ export class PostEntity {
   @JoinColumn({ name: 'sharedPostId' })
   sharedPost: PostEntity;
 
+  @Column({ default: 'single' })
+  mediaMode: string; // single | multi | carousel
+
+  @Column({ nullable: true })
+  linkUrl: string;
+
+  @Column({ nullable: true })
+  linkPreviewType: string; // youtube | link
+
   @CreateDateColumn()
   createdAt: Date;
 }

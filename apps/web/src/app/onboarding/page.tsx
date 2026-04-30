@@ -1,7 +1,35 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { clsx } from 'clsx';
 import api from '@/lib/api';
+
+const ROLE_CARDS = [
+  {
+    value: 'mechanic',
+    emoji: '🔧',
+    label: 'Mechanic / Shop',
+    description: 'Restoration specialists, performance tuners, niche experts',
+  },
+  {
+    value: 'manufacturer',
+    emoji: '🏭',
+    label: 'Manufacturer',
+    description: 'Small-scale parts producers, custom fabrication shops',
+  },
+  {
+    value: 'collector',
+    emoji: '🏎️',
+    label: 'Collector',
+    description: 'Owners of rare, classic, or performance vehicles',
+  },
+  {
+    value: 'enthusiast',
+    emoji: '🛠️',
+    label: 'Enthusiast',
+    description: 'DIY builders and general automotive fans',
+  },
+] as const;
 
 const TAGS = [
   'Classic Cars',
@@ -23,7 +51,7 @@ export default function OnboardingPage() {
     businessName: '',
     location: '',
     bio: '',
-    roleType: 'individual',
+    roleType: '' as string,
     tags: [] as string[],
   });
   const [loading, setLoading] = useState(false);
@@ -46,17 +74,79 @@ export default function OnboardingPage() {
     }
   };
 
+  const totalSteps = 3;
+
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4 py-10">
       <div className="card w-full max-w-md space-y-6">
         <div>
-          <p className="text-gray-400 text-sm">Step {step} of 2</p>
-          <h1 className="text-2xl font-bold mt-1">
-            {step === 1 ? 'Tell us about yourself' : 'Pick your specialties'}
+          <p className="text-gray-400 text-sm">
+            Step {step} of {totalSteps}
+          </p>
+          <div className="flex gap-1 mt-2">
+            {Array.from({ length: totalSteps }).map((_, i) => (
+              <div
+                key={i}
+                className={`h-1 flex-1 rounded-full transition-colors ${i < step ? 'bg-brand-500' : 'bg-surface-border'}`}
+              />
+            ))}
+          </div>
+          <h1 className="text-2xl font-bold mt-4">
+            {step === 1
+              ? 'What best describes you?'
+              : step === 2
+                ? 'Tell us about yourself'
+                : 'Pick your specialties'}
           </h1>
         </div>
 
+        {/* Step 1 — Role picker */}
         {step === 1 && (
+          <div className="space-y-3">
+            {ROLE_CARDS.map((card) => (
+              <button
+                key={card.value}
+                type="button"
+                onClick={() => setForm({ ...form, roleType: card.value })}
+                className={clsx(
+                  'w-full flex items-center gap-4 p-4 rounded-xl border-2 text-left transition-all',
+                  form.roleType === card.value
+                    ? 'border-brand-500 bg-brand-500/10'
+                    : 'border-surface-border hover:border-gray-500 bg-surface-card',
+                )}
+              >
+                <span className="text-3xl shrink-0">{card.emoji}</span>
+                <div className="min-w-0">
+                  <p className="font-semibold text-white text-sm">{card.label}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{card.description}</p>
+                </div>
+                {form.roleType === card.value && (
+                  <div className="ml-auto w-5 h-5 rounded-full bg-brand-500 flex items-center justify-center shrink-0">
+                    <svg
+                      className="w-3 h-3 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={3}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                )}
+              </button>
+            ))}
+            <button
+              className="btn-primary w-full mt-2"
+              onClick={() => setStep(2)}
+              disabled={!form.roleType}
+            >
+              Next
+            </button>
+          </div>
+        )}
+
+        {/* Step 2 — Profile details */}
+        {step === 2 && (
           <div className="space-y-4">
             <input
               className="input"
@@ -82,21 +172,23 @@ export default function OnboardingPage() {
               value={form.bio}
               onChange={(e) => setForm({ ...form, bio: e.target.value })}
             />
-            <select
-              className="input"
-              value={form.roleType}
-              onChange={(e) => setForm({ ...form, roleType: e.target.value })}
-            >
-              <option value="individual">Individual</option>
-              <option value="business">Business</option>
-            </select>
-            <button className="btn-primary w-full" onClick={() => setStep(2)} disabled={!form.name}>
-              Next
-            </button>
+            <div className="flex gap-3">
+              <button className="btn-secondary flex-1" onClick={() => setStep(1)}>
+                Back
+              </button>
+              <button
+                className="btn-primary flex-1"
+                onClick={() => setStep(3)}
+                disabled={!form.name}
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
 
-        {step === 2 && (
+        {/* Step 3 — Tags */}
+        {step === 3 && (
           <div className="space-y-4">
             <p className="text-gray-400 text-sm">Select all that apply to your work</p>
             <div className="flex flex-wrap gap-2">
@@ -104,14 +196,18 @@ export default function OnboardingPage() {
                 <button
                   key={tag}
                   onClick={() => toggleTag(tag)}
-                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${form.tags.includes(tag) ? 'bg-brand-500 border-brand-500 text-white' : 'border-surface-border text-gray-400 hover:border-brand-500'}`}
+                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                    form.tags.includes(tag)
+                      ? 'bg-brand-500 border-brand-500 text-white'
+                      : 'border-surface-border text-gray-400 hover:border-brand-500'
+                  }`}
                 >
                   {tag}
                 </button>
               ))}
             </div>
             <div className="flex gap-3">
-              <button className="btn-secondary flex-1" onClick={() => setStep(1)}>
+              <button className="btn-secondary flex-1" onClick={() => setStep(2)}>
                 Back
               </button>
               <button className="btn-primary flex-1" onClick={handleSubmit} disabled={loading}>

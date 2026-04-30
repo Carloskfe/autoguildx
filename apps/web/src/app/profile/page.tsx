@@ -34,7 +34,7 @@ const ROLE_LABELS: Record<string, string> = {
 
 // ─── Avatar with upload ────────────────────────────────────────────────────────
 
-function AvatarUpload({ profile }: { profile: Profile }) {
+function AvatarUpload({ profile }: { profile: Profile & { profileVideoUrl?: string } }) {
   const qc = useQueryClient();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -45,7 +45,9 @@ function AvatarUpload({ profile }: { profile: Profile }) {
     setUploading(true);
     try {
       const url = await uploadFile(file);
-      const updated = await api.patch('/profiles/me', { profileImageUrl: url }).then((r) => r.data);
+      const isVideo = file.type.startsWith('video/');
+      const patch = isVideo ? { profileVideoUrl: url } : { profileImageUrl: url };
+      const updated = await api.patch('/profiles/me', patch).then((r) => r.data);
       qc.setQueryData(['profile', 'me'], updated);
     } finally {
       setUploading(false);
@@ -59,9 +61,18 @@ function AvatarUpload({ profile }: { profile: Profile }) {
       onClick={() => inputRef.current?.click()}
       disabled={uploading}
       className="relative w-16 h-16 rounded-full shrink-0 group"
-      aria-label="Change profile photo"
+      aria-label="Change profile photo or video"
     >
-      {profile.profileImageUrl ? (
+      {profile.profileVideoUrl ? (
+        <video
+          src={profile.profileVideoUrl}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-16 h-16 rounded-full object-cover"
+        />
+      ) : profile.profileImageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={profile.profileImageUrl}
@@ -83,7 +94,7 @@ function AvatarUpload({ profile }: { profile: Profile }) {
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,video/mp4,video/webm"
         className="sr-only"
         onChange={handleFile}
       />

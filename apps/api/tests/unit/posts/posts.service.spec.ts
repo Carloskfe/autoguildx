@@ -61,7 +61,7 @@ describe('PostsService', () => {
       repo.save.mockResolvedValue(post);
       const result = await service.create('u-1', { content: 'Hello' });
       expect(result).toEqual(post);
-      expect(repo.create).toHaveBeenCalledWith(expect.objectContaining({ visibility: 'public' }));
+      expect(repo.create).toHaveBeenCalledWith(expect.objectContaining({ visibility: 'public', mediaMode: 'single' }));
     });
 
     it('respects explicit visibility setting', async () => {
@@ -79,6 +79,49 @@ describe('PostsService', () => {
       repo.save.mockResolvedValue(post);
       const result = await service.create('u-1', { content: 'Photo', mediaUrls: urls });
       expect(result.mediaUrls).toEqual(urls);
+    });
+
+    it('extracts YouTube linkUrl and sets linkPreviewType to youtube', async () => {
+      const content = 'Check this out https://www.youtube.com/watch?v=dQw4w9WgXcQ awesome build';
+      const post = { id: 'p1', userId: 'u-1', content };
+      repo.create.mockReturnValue(post);
+      repo.save.mockResolvedValue(post);
+      await service.create('u-1', { content });
+      expect(repo.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          linkUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+          linkPreviewType: 'youtube',
+        }),
+      );
+    });
+
+    it('extracts a generic link and sets linkPreviewType to link', async () => {
+      const content = 'See https://autoguildx.com/listing/123 for details';
+      const post = { id: 'p1', userId: 'u-1', content };
+      repo.create.mockReturnValue(post);
+      repo.save.mockResolvedValue(post);
+      await service.create('u-1', { content });
+      expect(repo.create).toHaveBeenCalledWith(
+        expect.objectContaining({ linkUrl: 'https://autoguildx.com/listing/123', linkPreviewType: 'link' }),
+      );
+    });
+
+    it('sets no linkUrl when content has no URL', async () => {
+      const post = { id: 'p1', userId: 'u-1', content: 'No links here' };
+      repo.create.mockReturnValue(post);
+      repo.save.mockResolvedValue(post);
+      await service.create('u-1', { content: 'No links here' });
+      expect(repo.create).toHaveBeenCalledWith(
+        expect.objectContaining({ linkUrl: undefined, linkPreviewType: undefined }),
+      );
+    });
+
+    it('respects carousel mediaMode', async () => {
+      const post = { id: 'p1', userId: 'u-1', content: 'Build', mediaMode: 'carousel' };
+      repo.create.mockReturnValue(post);
+      repo.save.mockResolvedValue(post);
+      await service.create('u-1', { content: 'Build', mediaMode: 'carousel' });
+      expect(repo.create).toHaveBeenCalledWith(expect.objectContaining({ mediaMode: 'carousel' }));
     });
   });
 

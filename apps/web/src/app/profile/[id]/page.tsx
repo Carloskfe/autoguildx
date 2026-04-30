@@ -113,9 +113,27 @@ export default function PublicProfilePage() {
         {/* Profile card */}
         <div className="card space-y-4">
           <div className="flex items-start gap-4">
-            <div className="w-16 h-16 rounded-full bg-brand-500 flex items-center justify-center text-xl font-black text-white shrink-0">
-              {initials(profile.name)}
-            </div>
+            {(profile as Profile & { profileVideoUrl?: string }).profileVideoUrl ? (
+              <video
+                src={(profile as Profile & { profileVideoUrl?: string }).profileVideoUrl}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-16 h-16 rounded-full object-cover shrink-0"
+              />
+            ) : profile.profileImageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={profile.profileImageUrl}
+                alt={profile.name}
+                className="w-16 h-16 rounded-full object-cover shrink-0"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-brand-500 flex items-center justify-center text-xl font-black text-white shrink-0">
+                {initials(profile.name)}
+              </div>
+            )}
 
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-3">

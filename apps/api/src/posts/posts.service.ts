@@ -6,6 +6,19 @@ import { PostReactionEntity } from './entities/post-reaction.entity';
 
 export const VALID_REACTIONS = ['fire', 'love', 'respect', 'wild', 'like'] as const;
 
+const URL_REGEX = /https?:\/\/[^\s]+/g;
+const YOUTUBE_REGEX = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+
+function extractLink(content: string): { linkUrl?: string; linkPreviewType?: string } {
+  const urls = content.match(URL_REGEX);
+  if (!urls?.length) return {};
+  const url = urls[0];
+  return {
+    linkUrl: url,
+    linkPreviewType: YOUTUBE_REGEX.test(url) ? 'youtube' : 'link',
+  };
+}
+
 @Injectable()
 export class PostsService {
   constructor(
@@ -13,8 +26,16 @@ export class PostsService {
     @InjectRepository(PostReactionEntity) private reactionRepo: Repository<PostReactionEntity>,
   ) {}
 
-  async create(userId: string, dto: { content: string; mediaUrls?: string[]; visibility?: string }) {
-    const post = this.repo.create({ ...dto, userId, visibility: dto.visibility ?? 'public' });
+  async create(userId: string, dto: { content: string; mediaUrls?: string[]; visibility?: string; mediaMode?: string }) {
+    const { linkUrl, linkPreviewType } = extractLink(dto.content);
+    const post = this.repo.create({
+      ...dto,
+      userId,
+      visibility: dto.visibility ?? 'public',
+      mediaMode: dto.mediaMode ?? 'single',
+      linkUrl,
+      linkPreviewType,
+    });
     return this.repo.save(post);
   }
 

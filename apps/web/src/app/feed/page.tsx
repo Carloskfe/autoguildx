@@ -17,6 +17,11 @@ import {
   Globe,
   Users,
   Lock,
+  LayoutGrid,
+  GalleryHorizontal,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
 } from 'lucide-react';
 import Link from 'next/link';
 import AppShell from '@/components/layout/AppShell';
@@ -35,6 +40,102 @@ interface PostWithUser extends Post {
   sharedPost?: PostWithUser;
   sharesCount?: number;
   visibility?: string;
+  mediaMode?: string;
+  linkUrl?: string;
+  linkPreviewType?: string;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function extractYouTubeId(url: string): string | null {
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return m?.[1] ?? null;
+}
+
+function countUrls(text: string): number {
+  return (text.match(/https?:\/\/[^\s]+/g) ?? []).length;
+}
+
+function Linkified({ text }: { text: string }) {
+  const urlRegex = /https?:\/\/[^\s]+/g;
+  const nodes: React.ReactNode[] = [];
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = urlRegex.exec(text)) !== null) {
+    if (m.index > last) nodes.push(text.slice(last, m.index));
+    nodes.push(
+      <a
+        key={m.index}
+        href={m[0]}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-brand-500 hover:underline break-all"
+      >
+        {m[0]}
+      </a>,
+    );
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) nodes.push(text.slice(last));
+  return <>{nodes}</>;
+}
+
+function MediaCarousel({ urls }: { urls: string[] }) {
+  const [idx, setIdx] = useState(0);
+  if (!urls.length) return null;
+  return (
+    <div className="relative mt-2 rounded-lg overflow-hidden bg-black select-none">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={urls[idx]} alt="" className="w-full object-cover max-h-80" />
+      {urls.length > 1 && (
+        <>
+          <button
+            onClick={() => setIdx((i) => (i - 1 + urls.length) % urls.length)}
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 flex items-center justify-center hover:bg-black/80 transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5 text-white" />
+          </button>
+          <button
+            onClick={() => setIdx((i) => (i + 1) % urls.length)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 flex items-center justify-center hover:bg-black/80 transition-colors"
+          >
+            <ChevronRight className="w-5 h-5 text-white" />
+          </button>
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+            {urls.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setIdx(i)}
+                className={`w-1.5 h-1.5 rounded-full transition-colors ${i === idx ? 'bg-white' : 'bg-white/40'}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function MediaGrid({ urls }: { urls: string[] }) {
+  const shown = urls.slice(0, 4);
+  const extra = urls.length - 4;
+  return (
+    <div
+      className={`mt-2 grid gap-1 rounded-lg overflow-hidden ${shown.length === 1 ? '' : shown.length === 2 ? 'grid-cols-2' : 'grid-cols-2'}`}
+    >
+      {shown.map((url, i) => (
+        <div key={i} className={`relative ${shown.length === 3 && i === 0 ? 'row-span-2' : ''}`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={url} alt="" className="w-full h-40 object-cover" />
+          {i === 3 && extra > 0 && (
+            <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-bold text-xl">
+              +{extra}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
 }
 
 const REACTIONS = [
@@ -235,18 +336,57 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
 
           {/* Content */}
           <p className="mt-2 text-sm text-gray-200 whitespace-pre-wrap break-words leading-relaxed">
-            {post.content}
+            <Linkified text={post.content} />
           </p>
 
-          {/* Image */}
-          {post.mediaUrls?.[0] && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={post.mediaUrls[0]}
-              alt=""
-              className="mt-2 w-full rounded-lg object-cover max-h-80"
-            />
-          )}
+          {/* Media */}
+          {post.mediaUrls?.filter(Boolean).length > 0 &&
+            (post.mediaMode === 'carousel' ? (
+              <MediaCarousel urls={post.mediaUrls.filter(Boolean)} />
+            ) : post.mediaMode === 'multi' ? (
+              <MediaGrid urls={post.mediaUrls.filter(Boolean)} />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={post.mediaUrls[0]}
+                alt=""
+                className="mt-2 w-full rounded-lg object-cover max-h-80"
+              />
+            ))}
+
+          {/* YouTube / link preview */}
+          {post.linkUrl &&
+            !post.sharedPostId &&
+            (post.linkPreviewType === 'youtube' && extractYouTubeId(post.linkUrl) ? (
+              <a
+                href={post.linkUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 block rounded-lg overflow-hidden border border-surface-border hover:border-brand-500 transition-colors group"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`https://img.youtube.com/vi/${extractYouTubeId(post.linkUrl)}/hqdefault.jpg`}
+                  alt="YouTube preview"
+                  className="w-full object-cover max-h-48"
+                />
+                <div className="flex items-center gap-2 px-3 py-2 bg-surface-card">
+                  <span className="text-red-500 text-xs font-bold">▶ YouTube</span>
+                  <span className="text-xs text-gray-400 truncate flex-1">{post.linkUrl}</span>
+                  <ExternalLink className="w-3 h-3 text-gray-500 shrink-0" />
+                </div>
+              </a>
+            ) : (
+              <a
+                href={post.linkUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg border border-surface-border bg-surface-card hover:border-brand-500 transition-colors"
+              >
+                <ExternalLink className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                <span className="text-xs text-brand-400 truncate">{post.linkUrl}</span>
+              </a>
+            ))}
 
           {/* Shared post preview */}
           {post.sharedPost && (
@@ -409,42 +549,71 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
 
 // ─── Create post form ─────────────────────────────────────────────────────────
 
+type MediaMode = 'single' | 'multi' | 'carousel';
+
 function CreatePostForm() {
   const [content, setContent] = useState('');
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
+  const [mediaMode, setMediaMode] = useState<MediaMode>('single');
   const [uploading, setUploading] = useState(false);
   const [visibility, setVisibility] = useState<'public' | 'followers' | 'private'>('public');
   const imageInputRef = useRef<HTMLInputElement>(null);
   const qc = useQueryClient();
 
+  const urlCount = countUrls(content);
+  const tooManyLinks = urlCount > 1;
+  const detectedYtId =
+    urlCount === 1 && content.match(/https?:\/\/[^\s]+/)
+      ? extractYouTubeId(content.match(/https?:\/\/[^\s]+/)![0])
+      : null;
+
+  const maxImages = mediaMode === 'single' ? 1 : 9;
+
   const create = useMutation({
-    mutationFn: (body: { content: string; mediaUrls?: string[]; visibility: string }) =>
-      api.post('/posts', body),
+    mutationFn: (body: {
+      content: string;
+      mediaUrls?: string[];
+      visibility: string;
+      mediaMode: string;
+    }) => api.post('/posts', body),
     onSuccess: () => {
       setContent('');
-      setImageUrl(null);
+      setMediaUrls([]);
+      setMediaMode('single');
       qc.invalidateQueries({ queryKey: ['feed'] });
     },
   });
 
   async function handleImagePick(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files ?? []).slice(0, maxImages - mediaUrls.length);
+    if (!files.length) return;
     setUploading(true);
     try {
-      const url = await uploadFile(file);
-      setImageUrl(url);
+      const urls = await Promise.all(files.map((f) => uploadFile(f)));
+      setMediaUrls((prev) => [...prev, ...urls].slice(0, maxImages));
     } finally {
       setUploading(false);
       e.target.value = '';
     }
   }
 
+  const removeImage = (i: number) => setMediaUrls((prev) => prev.filter((_, idx) => idx !== i));
+
+  const switchMode = (mode: MediaMode) => {
+    setMediaMode(mode);
+    if (mode === 'single') setMediaUrls((prev) => prev.slice(0, 1));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = content.trim();
-    if (!trimmed) return;
-    create.mutate({ content: trimmed, visibility, ...(imageUrl ? { mediaUrls: [imageUrl] } : {}) });
+    if (!trimmed || tooManyLinks) return;
+    create.mutate({
+      content: trimmed,
+      visibility,
+      mediaMode,
+      ...(mediaUrls.length ? { mediaUrls } : {}),
+    });
   };
 
   return (
@@ -457,70 +626,118 @@ function CreatePostForm() {
         maxLength={2000}
       />
 
-      {imageUrl && (
-        <div className="relative">
+      {/* YouTube preview (compose) */}
+      {detectedYtId && (
+        <div className="rounded-lg overflow-hidden border border-surface-border">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={imageUrl}
-            alt="attachment preview"
-            className="w-full rounded-lg object-cover max-h-48"
+            src={`https://img.youtube.com/vi/${detectedYtId}/hqdefault.jpg`}
+            alt="YouTube preview"
+            className="w-full object-cover max-h-36"
           />
-          <button
-            type="button"
-            onClick={() => setImageUrl(null)}
-            className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/70 flex items-center justify-center hover:bg-black/90 transition-colors"
-          >
-            <X className="w-3.5 h-3.5 text-white" />
-          </button>
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-surface-card">
+            <span className="text-red-500 text-xs font-bold">▶ YouTube</span>
+            <span className="text-xs text-gray-500 truncate">Preview</span>
+          </div>
         </div>
       )}
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => imageInputRef.current?.click()}
-            disabled={uploading || !!imageUrl}
-            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-brand-500 transition-colors disabled:opacity-40"
-          >
-            {uploading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <ImageIcon className="w-4 h-4" />
-            )}
-            {uploading ? 'Uploading…' : 'Photo'}
-          </button>
-          <input
-            ref={imageInputRef}
-            type="file"
-            accept="image/*"
-            className="sr-only"
-            onChange={handleImagePick}
-          />
-          <span className="text-xs text-gray-500">{content.length} / 2000</span>
-          {/* Visibility picker */}
-          <div className="ml-auto flex items-center">
-            {VISIBILITY_OPTIONS.map((opt) => (
+      {tooManyLinks && <p className="text-xs text-red-400">Only 1 link per post is allowed.</p>}
+
+      {/* Image previews */}
+      {mediaUrls.length > 0 && (
+        <div className={`grid gap-1 ${mediaUrls.length > 1 ? 'grid-cols-3' : ''}`}>
+          {mediaUrls.map((url, i) => (
+            <div key={i} className="relative">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={url} alt="" className="w-full h-24 object-cover rounded-lg" />
               <button
-                key={opt.key}
                 type="button"
-                onClick={() => setVisibility(opt.key)}
-                title={opt.label}
-                className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full transition-colors ${
-                  visibility === opt.key
-                    ? 'bg-brand-500/20 text-brand-500 border border-brand-500/40'
-                    : 'text-gray-500 hover:text-gray-300'
-                }`}
+                onClick={() => removeImage(i)}
+                className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 flex items-center justify-center hover:bg-black/90"
               >
-                <opt.Icon className="w-3 h-3" />
-                {visibility === opt.key && <span>{opt.label}</span>}
+                <X className="w-3 h-3 text-white" />
               </button>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
+      )}
+
+      <div className="flex items-center gap-2 flex-wrap">
+        {/* Media mode toolbar */}
+        <div className="flex items-center gap-1 border border-surface-border rounded-lg p-0.5">
+          {(
+            [
+              { mode: 'single' as MediaMode, Icon: ImageIcon, title: 'Single photo' },
+              { mode: 'multi' as MediaMode, Icon: LayoutGrid, title: 'Photo grid' },
+              { mode: 'carousel' as MediaMode, Icon: GalleryHorizontal, title: 'Carousel' },
+            ] as const
+          ).map(({ mode, Icon, title }) => (
+            <button
+              key={mode}
+              type="button"
+              title={title}
+              onClick={() => switchMode(mode)}
+              className={`p-1.5 rounded transition-colors ${
+                mediaMode === mode ? 'bg-brand-500 text-white' : 'text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              <Icon className="w-3.5 h-3.5" />
+            </button>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => imageInputRef.current?.click()}
+          disabled={uploading || mediaUrls.length >= maxImages}
+          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-brand-500 transition-colors disabled:opacity-40"
+        >
+          {uploading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <ImageIcon className="w-4 h-4" />
+          )}
+          {uploading
+            ? 'Uploading…'
+            : mediaUrls.length > 0
+              ? `Add photo (${mediaUrls.length}/${maxImages})`
+              : 'Photo'}
+        </button>
+        <input
+          ref={imageInputRef}
+          type="file"
+          accept="image/*"
+          multiple={mediaMode !== 'single'}
+          className="sr-only"
+          onChange={handleImagePick}
+        />
+
+        <span className="text-xs text-gray-500">{content.length} / 2000</span>
+
+        {/* Visibility picker */}
+        <div className="flex items-center ml-auto">
+          {VISIBILITY_OPTIONS.map((opt) => (
+            <button
+              key={opt.key}
+              type="button"
+              onClick={() => setVisibility(opt.key)}
+              title={opt.label}
+              className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full transition-colors ${
+                visibility === opt.key
+                  ? 'bg-brand-500/20 text-brand-500 border border-brand-500/40'
+                  : 'text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              <opt.Icon className="w-3 h-3" />
+              {visibility === opt.key && <span>{opt.label}</span>}
+            </button>
+          ))}
+        </div>
+
         <button
           type="submit"
-          disabled={!content.trim() || create.isPending || uploading}
+          disabled={!content.trim() || tooManyLinks || create.isPending || uploading}
           className="btn-primary text-sm flex items-center gap-2 px-4 py-2 disabled:opacity-50"
         >
           {create.isPending ? (

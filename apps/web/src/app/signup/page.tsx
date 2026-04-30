@@ -5,17 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useAuth, signupWithEmail, loginWithFirebaseToken } from '@/hooks/useAuth';
 import { signInWithGoogle, signInWithFacebook, signInWithApple } from '@/lib/firebase';
 
-const ROLES = [
-  { value: 'mechanic', label: 'Mechanic / Shop' },
-  { value: 'manufacturer', label: 'Manufacturer / Fabricator' },
-  { value: 'collector', label: 'Collector' },
-  { value: 'enthusiast', label: 'Enthusiast / DIY Builder' },
-];
-
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('enthusiast');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -26,7 +18,7 @@ export default function SignupPage() {
     setError('');
     setLoading(true);
     try {
-      const data = await signupWithEmail(email, password, role);
+      const data = await signupWithEmail(email, password);
       login(data.accessToken, data.userId);
       router.push('/onboarding');
     } catch {
@@ -92,13 +84,6 @@ export default function SignupPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <select className="input" value={role} onChange={(e) => setRole(e.target.value)}>
-            {ROLES.map((r) => (
-              <option key={r.value} value={r.value}>
-                {r.label}
-              </option>
-            ))}
-          </select>
           {error && <p className="text-red-400 text-sm">{error}</p>}
           <button className="btn-primary w-full" type="submit" disabled={loading}>
             {loading ? 'Creating account...' : 'Create Account'}
