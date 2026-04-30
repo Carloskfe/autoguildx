@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { MapPin, Users, Heart, UserPlus, UserMinus, Loader2, MessageSquare } from 'lucide-react';
+import { MapPin, Users, Heart, UserPlus, UserMinus, Loader2, MessageSquare, Link2 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import ReviewSection from '@/components/ReviewSection';
 import { useAuth } from '@/hooks/useAuth';
@@ -63,6 +63,13 @@ export default function PublicProfilePage() {
   const isOwnProfile = profile?.userId === userId;
   const isFollowing = following.some((p) => p.id === profileId);
   const [messagePending, setMessagePending] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleMessage = async () => {
     if (!profile?.userId) return;
@@ -225,16 +232,25 @@ export default function PublicProfilePage() {
             </div>
           )}
 
-          <div className="flex items-center gap-6 pt-1 border-t border-surface-border">
-            <div className="flex items-center gap-1.5 text-sm">
-              <Users className="w-4 h-4 text-gray-500" />
-              <span className="font-semibold text-white">{profile.followersCount}</span>
-              <span className="text-gray-400">followers</span>
+          <div className="flex items-center justify-between pt-1 border-t border-surface-border">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-1.5 text-sm">
+                <Users className="w-4 h-4 text-gray-500" />
+                <span className="font-semibold text-white">{profile.followersCount}</span>
+                <span className="text-gray-400">followers</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-sm">
+                <span className="font-semibold text-white">{profile.followingCount}</span>
+                <span className="text-gray-400">following</span>
+              </div>
             </div>
-            <div className="flex items-center gap-1.5 text-sm">
-              <span className="font-semibold text-white">{profile.followingCount}</span>
-              <span className="text-gray-400">following</span>
-            </div>
+            <button
+              onClick={handleCopyLink}
+              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors"
+            >
+              <Link2 className="w-3.5 h-3.5" />
+              {copied ? 'Copied!' : 'Copy Link'}
+            </button>
           </div>
         </div>
 

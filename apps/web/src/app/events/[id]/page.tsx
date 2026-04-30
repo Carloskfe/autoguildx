@@ -1,9 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { MapPin, Calendar, Users, ArrowLeft, Trash2, Loader2 } from 'lucide-react';
+import { MapPin, Calendar, Users, ArrowLeft, Trash2, Loader2, Share2, Link2, X } from 'lucide-react';
 import Link from 'next/link';
 import AppShell from '@/components/layout/AppShell';
 import { useAuth } from '@/hooks/useAuth';
@@ -28,6 +29,10 @@ export default function EventDetailPage() {
   const { userId, isAuthenticated } = useAuth();
   const router = useRouter();
   const qc = useQueryClient();
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareComment, setShareComment] = useState('');
+  const [sharePosting, setSharePosting] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const {
     data: event,
@@ -63,6 +68,37 @@ export default function EventDetailPage() {
     },
   });
 
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleShareToFeed = async () => {
+    if (!event) return;
+    setSharePosting(true);
+    try {
+      const snapshot = JSON.stringify({
+        type: 'event',
+        id: event.id,
+        title: event.title,
+        subtitle: event.type,
+        location: event.location,
+        startDate: event.startDate,
+      });
+      await api.post('/posts', {
+        content: shareComment.trim(),
+        sharedContentType: 'event',
+        sharedContentId: event.id,
+        sharedContent: snapshot,
+      });
+      setShareComment('');
+      setShowShareModal(false);
+    } finally {
+      setSharePosting(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <AppShell>
@@ -93,13 +129,32 @@ export default function EventDetailPage() {
   return (
     <AppShell>
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
-        {/* Back */}
-        <Link
-          href="/events"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to Events
-        </Link>
+        {/* Back + actions row */}
+        <div className="flex items-center justify-between">
+          <Link
+            href="/events"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back to Events
+          </Link>
+          <div className="flex items-center gap-2">
+            {isAuthenticated && (
+              <button
+                onClick={() => setShowShareModal(true)}
+                className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-brand-500 transition-colors"
+              >
+                <Share2 className="w-4 h-4" /> Share to Feed
+              </button>
+            )}
+            <button
+              onClick={handleCopyLink}
+              className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors"
+            >
+              <Link2 className="w-4 h-4" />
+              {copied ? 'Copied!' : 'Copy Link'}
+            </button>
+          </div>
+        </div>
 
         {/* Header card */}
         <div className="card space-y-4">
@@ -182,6 +237,45 @@ export default function EventDetailPage() {
           )}
         </div>
       </div>
+
+      {showShareModal && event && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
+          <div className="card w-full max-w-md space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold text-white">Share to Feed</h2>
+              <button onClick={() => setShowShareModal(false)} className="text-gray-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="border border-surface-border rounded-lg p-3 space-y-1">
+              <p className="text-sm font-semibold text-white truncate">{event.title}</p>
+              <p className="text-xs text-gray-400 capitalize">{event.type}</p>
+              <p className="text-xs text-gray-500">{format(new Date(event.startDate), 'EEEE, MMMM d, yyyy')}</p>
+              {event.location && <p className="text-xs text-gray-500">{event.location}</p>}
+            </div>
+            <textarea
+              value={shareComment}
+              onChange={(e) => setShareComment(e.target.value)}
+              placeholder="Add your take… (optional)"
+              rows={3}
+              className="input w-full text-sm resize-none"
+              maxLength={2000}
+            />
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setShowShareModal(false)} className="btn-secondary text-sm px-4 py-2">
+                Cancel
+              </button>
+              <button
+                onClick={handleShareToFeed}
+                disabled={sharePosting}
+                className="btn-primary text-sm px-4 py-2 disabled:opacity-50"
+              >
+                {sharePosting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Share'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }

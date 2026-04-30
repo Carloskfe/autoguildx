@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { Search, MapPin, Calendar, Package, User, Loader2 } from 'lucide-react';
+import { Search, MapPin, Calendar, Package, User, Loader2, Star } from 'lucide-react';
 import { clsx } from 'clsx';
 import AppShell from '@/components/layout/AppShell';
 import api from '@/lib/api';
@@ -21,13 +21,28 @@ interface SearchResults {
 // ─── Result cards ─────────────────────────────────────────────────────────────
 
 function ProfileResult({ profile }: { profile: Profile }) {
+  const { data: reviewSummary } = useQuery<{ avgRating: number | null; total: number }>({
+    queryKey: ['review-summary', 'profile', profile.id],
+    queryFn: () => api.get(`/reviews/profile/${profile.id}/summary`).then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+  });
+
   return (
-    <div className="card flex items-start gap-3">
+    <Link href={`/profile/${profile.id}`} className="card flex items-start gap-3 hover:border-brand-500 transition-colors group">
       <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center text-sm font-bold text-white shrink-0">
         {profile.name?.[0]?.toUpperCase() ?? '?'}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-white">{profile.name}</p>
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-semibold text-white group-hover:text-brand-500 transition-colors">{profile.name}</p>
+          {reviewSummary && reviewSummary.total > 0 && (
+            <span className="flex items-center gap-0.5">
+              <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+              <span className="text-xs text-amber-400 font-medium">{reviewSummary.avgRating}</span>
+              <span className="text-xs text-gray-500">· {reviewSummary.total}</span>
+            </span>
+          )}
+        </div>
         {profile.businessName && <p className="text-xs text-gray-400">{profile.businessName}</p>}
         {profile.location && (
           <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
@@ -50,13 +65,19 @@ function ProfileResult({ profile }: { profile: Profile }) {
           </div>
         )}
       </div>
-    </div>
+    </Link>
   );
 }
 
 function ListingResult({ listing }: { listing: Listing }) {
   const price =
     listing.price != null ? `$${Number(listing.price).toLocaleString()}` : 'Contact for price';
+
+  const { data: reviewSummary } = useQuery<{ avgRating: number | null; total: number }>({
+    queryKey: ['review-summary', 'listing', listing.id],
+    queryFn: () => api.get(`/reviews/listing/${listing.id}/summary`).then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+  });
 
   return (
     <Link
@@ -71,11 +92,18 @@ function ListingResult({ listing }: { listing: Listing }) {
           {listing.title}
         </p>
         <p className="text-xs text-gray-400 capitalize mt-0.5">{listing.category}</p>
-        <div className="flex items-center gap-3 mt-1">
+        <div className="flex items-center gap-3 mt-1 flex-wrap">
           <span className="text-xs font-medium text-white">{price}</span>
           {listing.location && (
             <span className="text-xs text-gray-500 flex items-center gap-0.5">
               <MapPin className="w-3 h-3" /> {listing.location}
+            </span>
+          )}
+          {reviewSummary && reviewSummary.total > 0 && (
+            <span className="flex items-center gap-0.5">
+              <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+              <span className="text-xs text-amber-400 font-medium">{reviewSummary.avgRating}</span>
+              <span className="text-xs text-gray-500">· {reviewSummary.total}</span>
             </span>
           )}
         </div>

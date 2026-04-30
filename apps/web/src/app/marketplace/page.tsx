@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { Search, Star, MapPin, Loader2 } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -17,6 +17,12 @@ const PAGE_SIZE = 20;
 function ListingCard({ listing }: { listing: Listing }) {
   const price =
     listing.price != null ? `$${Number(listing.price).toLocaleString()}` : 'Contact for price';
+
+  const { data: reviewSummary } = useQuery<{ avgRating: number | null; total: number }>({
+    queryKey: ['review-summary', 'listing', listing.id],
+    queryFn: () => api.get(`/reviews/listing/${listing.id}/summary`).then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+  });
 
   return (
     <Link
@@ -36,6 +42,13 @@ function ListingCard({ listing }: { listing: Listing }) {
             {listing.title}
           </h3>
           <p className="text-xs text-gray-400 mt-0.5 capitalize">{listing.category}</p>
+          {reviewSummary && reviewSummary.total > 0 && (
+            <div className="flex items-center gap-1 mt-1">
+              <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+              <span className="text-xs text-amber-400 font-medium">{reviewSummary.avgRating}</span>
+              <span className="text-xs text-gray-500">· {reviewSummary.total}</span>
+            </div>
+          )}
         </div>
         <div className="text-right shrink-0">
           <p className="text-sm font-bold text-white">{price}</p>
