@@ -28,6 +28,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:password@postgres:5432/autoguildx
       NODE_ENV: production
+      FRONTEND_URL: http://localhost:3003
     ports:
       - '3002:3001'
     healthcheck:

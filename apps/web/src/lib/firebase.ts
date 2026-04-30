@@ -1,5 +1,13 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, type Auth } from 'firebase/auth';
+import {
+  getAuth,
+  GoogleAuthProvider,
+  FacebookAuthProvider,
+  OAuthProvider,
+  signInWithPopup,
+  signOut,
+  type Auth,
+} from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -20,6 +28,16 @@ export function getFirebaseAuth(): Auth {
 
 export async function signInWithGoogle(): Promise<string> {
   const result = await signInWithPopup(getFirebaseAuth(), new GoogleAuthProvider());
+  return result.user.getIdToken();
+}
+
+export async function signInWithFacebook(): Promise<string> {
+  const result = await signInWithPopup(getFirebaseAuth(), new FacebookAuthProvider());
+  return result.user.getIdToken();
+}
+
+export async function signInWithApple(): Promise<string> {
+  const result = await signInWithPopup(getFirebaseAuth(), new OAuthProvider('apple.com'));
   return result.user.getIdToken();
 }
 
