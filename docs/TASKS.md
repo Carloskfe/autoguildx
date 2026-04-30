@@ -165,22 +165,43 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ---
 
-## Backlog — Post-MVP Features
+## Sprint 7 — Engagement & Trust ✅ COMPLETE
 
-### Reactions & Rich Engagement on Posts
-- Emoji reactions on posts: like, love, surprise (extend or replace the current single `likesCount` with a `PostReactionEntity` keyed by `userId + emoji`)
-- Threaded comments already exist; expose collapse/expand and reply-to on the feed
-- Share / re-post: `POST /posts/:id/share` creates a new post referencing the original; feed shows shared attribution
-- Post visibility: author sets `visibility` field on create — `public` (default), `contacts` (followers only), `private` (author only); API enforces visibility in feed query
+**Goal:** Complete the backlog items identified post-Sprint 6.
 
-### Marketplace & Event Sharing
-- Share a listing or event via in-platform link or copy-to-clipboard (no backend needed; client-side only)
-- Share to profile: re-post a listing card as a feed post with a link-preview component
+### Reactions
+- [x] `PostReactionEntity` — unique per `userId + postId`; 5 types: fire🔥 love❤️ respect🔧 wild😮 like👍
+- [x] `POST /posts/:id/react`, `DELETE /posts/:id/react`, `GET /posts/:id/reactions`, `GET /posts/:id/my-reaction`
+- [x] Feed: hover-reveal reaction picker, top-2 emoji badge, optimistic local state toggle
 
-### Reviews & Recommendations (5-star system)
-- `ReviewEntity`: reviewer, target (user or listing), rating (1–5), comment, createdAt
-- `POST /reviews` — submit a review; one per reviewer–target pair (upsert)
-- `GET /profiles/:id/reviews` — paginated reviews with average rating
-- `GET /listings/:id/reviews` — reviews for a specific listing
-- Profile and listing pages display star rating summary + review list
-- Aggregate average rating surfaced on profile cards and listing grid tiles
+### Post Visibility
+- [x] `visibility` column on `PostEntity` (public / followers / private, default public)
+- [x] `getFeed` filters to public posts only via QueryBuilder
+- [x] Compose form: inline 3-icon visibility pill (🌐 Public / 👥 Followers / 🔒 Only me)
+
+### Share / Repost
+- [x] `sharesCount` + `sharedPostId` on `PostEntity`; `POST /posts/:id/share` (optional comment)
+- [x] Feed: share button → Quick Share or Share with comment (modal with post preview)
+- [x] Shared post preview card rendered inline in feed
+
+### Reviews (5-star)
+- [x] `ReviewEntity` — overall rating + 4 dimension ratings (quality / communication / timeliness / value)
+- [x] Upsert review (one per reviewer–target pair); `DELETE /reviews/:id`
+- [x] `GET /reviews/:targetType/:targetId` — paginated list + avg + distribution histogram
+- [x] `GET /reviews/:targetType/:targetId/summary` — lightweight avg + total for cards
+- [x] `ReviewSection` component — star picker, distribution histogram, dimension ratings
+- [x] Wired into `/profile/[id]` (with 4 dimensions) and `/marketplace/[id]` (overall only)
+
+### Tests
+- [x] Updated `posts/posts.service.spec.ts` — 22 tests covering react/unreact/getReactions/share/visibility
+- [x] `reviews/reviews.service.spec.ts` — upsert, getForTarget, getSummary, delete (141 total tests passing)
+
+---
+
+## Backlog — Next Priorities
+
+| Feature | Notes |
+|---|---|
+| Review summary badges on listing grid cards and profile cards | Show ⭐ avg on listing grid tiles |
+| Marketplace/event sharing to feed | Embed listing/event link-preview card in a new post |
+| Copy-link share | Client-side clipboard copy for listings, events, profiles |
