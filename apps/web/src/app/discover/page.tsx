@@ -28,13 +28,18 @@ function ProfileResult({ profile }: { profile: Profile }) {
   });
 
   return (
-    <Link href={`/profile/${profile.id}`} className="card flex items-start gap-3 hover:border-brand-500 transition-colors group">
+    <Link
+      href={`/profile/${profile.id}`}
+      className="card flex items-start gap-3 hover:border-brand-500 transition-colors group"
+    >
       <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center text-sm font-bold text-white shrink-0">
         {profile.name?.[0]?.toUpperCase() ?? '?'}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <p className="text-sm font-semibold text-white group-hover:text-brand-500 transition-colors">{profile.name}</p>
+          <p className="text-sm font-semibold text-white group-hover:text-brand-500 transition-colors">
+            {profile.name}
+          </p>
           {reviewSummary && reviewSummary.total > 0 && (
             <span className="flex items-center gap-0.5">
               <Star className="w-3 h-3 fill-amber-400 text-amber-400" />

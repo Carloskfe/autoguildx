@@ -394,48 +394,70 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
           )}
 
           {/* Shared listing/event preview */}
-          {post.sharedContentType && post.sharedContent && (() => {
-            try {
-              const sc = JSON.parse(post.sharedContent) as {
-                type: string; id: string; title: string; subtitle?: string;
-                price?: string; location?: string; startDate?: string; imageUrl?: string;
-              };
-              const href = sc.type === 'listing' ? `/marketplace/${sc.id}` : `/events/${sc.id}`;
-              return (
-                <Link
-                  href={href}
-                  className="mt-2 flex items-start gap-3 border border-surface-border rounded-lg p-3 bg-surface-card hover:border-brand-500 transition-colors group"
-                >
-                  {sc.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={sc.imageUrl} alt="" className="w-14 h-14 rounded-lg object-cover shrink-0" />
-                  ) : (
-                    <div className="w-14 h-14 rounded-lg bg-surface-border flex items-center justify-center shrink-0 text-xl">
-                      {sc.type === 'listing' ? '🔩' : '📅'}
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-0.5">
-                      {sc.type === 'listing' ? 'Listing' : 'Event'}
-                    </p>
-                    <p className="text-sm font-semibold text-white group-hover:text-brand-500 transition-colors truncate">
-                      {sc.title}
-                    </p>
-                    {sc.subtitle && <p className="text-xs text-gray-400 capitalize">{sc.subtitle}</p>}
-                    {sc.price && <p className="text-xs font-bold text-white mt-0.5">{sc.price}</p>}
-                    {sc.startDate && (
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        {new Date(sc.startDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </p>
+          {post.sharedContentType &&
+            post.sharedContent &&
+            (() => {
+              try {
+                const sc = JSON.parse(post.sharedContent) as {
+                  type: string;
+                  id: string;
+                  title: string;
+                  subtitle?: string;
+                  price?: string;
+                  location?: string;
+                  startDate?: string;
+                  imageUrl?: string;
+                };
+                const href = sc.type === 'listing' ? `/marketplace/${sc.id}` : `/events/${sc.id}`;
+                return (
+                  <Link
+                    href={href}
+                    className="mt-2 flex items-start gap-3 border border-surface-border rounded-lg p-3 bg-surface-card hover:border-brand-500 transition-colors group"
+                  >
+                    {sc.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={sc.imageUrl}
+                        alt=""
+                        className="w-14 h-14 rounded-lg object-cover shrink-0"
+                      />
+                    ) : (
+                      <div className="w-14 h-14 rounded-lg bg-surface-border flex items-center justify-center shrink-0 text-xl">
+                        {sc.type === 'listing' ? '🔩' : '📅'}
+                      </div>
                     )}
-                    {sc.location && <p className="text-xs text-gray-500 truncate">{sc.location}</p>}
-                  </div>
-                </Link>
-              );
-            } catch {
-              return null;
-            }
-          })()}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-0.5">
+                        {sc.type === 'listing' ? 'Listing' : 'Event'}
+                      </p>
+                      <p className="text-sm font-semibold text-white group-hover:text-brand-500 transition-colors truncate">
+                        {sc.title}
+                      </p>
+                      {sc.subtitle && (
+                        <p className="text-xs text-gray-400 capitalize">{sc.subtitle}</p>
+                      )}
+                      {sc.price && (
+                        <p className="text-xs font-bold text-white mt-0.5">{sc.price}</p>
+                      )}
+                      {sc.startDate && (
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          {new Date(sc.startDate).toLocaleDateString(undefined, {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                          })}
+                        </p>
+                      )}
+                      {sc.location && (
+                        <p className="text-xs text-gray-500 truncate">{sc.location}</p>
+                      )}
+                    </div>
+                  </Link>
+                );
+              } catch {
+                return null;
+              }
+            })()}
 
           {/* Actions */}
           <div className="mt-3 flex items-center gap-3 relative">
