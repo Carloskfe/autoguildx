@@ -11,7 +11,14 @@ export class SearchController {
   @ApiOperation({ summary: 'Full-text search across profiles, listings, and events' })
   @ApiQuery({ name: 'q', required: true })
   @ApiQuery({ name: 'type', required: false, enum: ['profiles', 'listings', 'events'] })
-  search(@Query('q') q: string, @Query('type') type?: 'profiles' | 'listings' | 'events') {
-    return this.searchService.search(q, type);
+  @ApiQuery({ name: 'location', required: false })
+  @ApiQuery({ name: 'tag', required: false })
+  search(
+    @Query('q') q: string,
+    @Query('type') type?: 'profiles' | 'listings' | 'events',
+    @Query('location') location?: string,
+    @Query('tag') tag?: string,
+  ) {
+    return this.searchService.search(q, type, location, tag);
   }
 }

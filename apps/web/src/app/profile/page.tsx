@@ -111,11 +111,25 @@ const ROLE_CARDS = [
   { value: 'enthusiast', emoji: '🛠️', label: 'Enthusiast' },
 ] as const;
 
+const SPECIALTY_TAGS = [
+  'Classic Cars',
+  'Performance',
+  'Off-Road',
+  'Motorcycles',
+  'Restoration',
+  'Fabrication',
+  'Drag Racing',
+  'Import',
+  'Diesel',
+  'Electric/EV',
+];
+
 interface EditForm {
   name: string;
   bio: string;
   location: string;
   roleType: string;
+  tags: string[];
 }
 
 function EditProfileForm({
@@ -134,11 +148,18 @@ function EditProfileForm({
     bio: profile.bio ?? '',
     location: profile.location ?? '',
     roleType: profile.roleType ?? 'enthusiast',
+    tags: profile.tags?.filter(Boolean) ?? [],
   });
 
   const set =
     (field: keyof EditForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm((f) => ({ ...f, [field]: e.target.value }));
+
+  const toggleTag = (tag: string) =>
+    setForm((f) => ({
+      ...f,
+      tags: f.tags.includes(tag) ? f.tags.filter((t) => t !== tag) : [...f.tags, tag],
+    }));
 
   return (
     <div className="space-y-3">
@@ -188,6 +209,25 @@ function EditProfileForm({
             >
               <span>{card.emoji}</span>
               <span className="truncate">{card.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+      <div>
+        <label className="text-xs text-gray-400 mb-2 block">Specialty tags</label>
+        <div className="flex flex-wrap gap-2">
+          {SPECIALTY_TAGS.map((tag) => (
+            <button
+              key={tag}
+              type="button"
+              onClick={() => toggleTag(tag)}
+              className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                form.tags.includes(tag)
+                  ? 'bg-brand-500 border-brand-500 text-white'
+                  : 'border-surface-border text-gray-400 hover:border-gray-500 hover:text-white'
+              }`}
+            >
+              {tag}
             </button>
           ))}
         </div>

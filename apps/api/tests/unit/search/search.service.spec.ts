@@ -98,4 +98,87 @@ describe('SearchService', () => {
       expect(listingRepo.find).not.toHaveBeenCalled();
     });
   });
+
+  describe('search — location filter', () => {
+    it('filters profiles by location substring', async () => {
+      const profiles = [
+        { id: 'p-1', location: 'Los Angeles, CA', tags: [] },
+        { id: 'p-2', location: 'Dallas, TX', tags: [] },
+      ];
+      profileRepo.find.mockResolvedValue(profiles);
+      listingRepo.find.mockResolvedValue([]);
+      eventRepo.find.mockResolvedValue([]);
+
+      const result = await service.search('mechanic', undefined, 'Dallas');
+
+      expect(result.profiles).toEqual([{ id: 'p-2', location: 'Dallas, TX', tags: [] }]);
+    });
+
+    it('filters listings by location substring', async () => {
+      const listings = [
+        { id: 'l-1', location: 'Miami, FL' },
+        { id: 'l-2', location: 'Seattle, WA' },
+      ];
+      listingRepo.find.mockResolvedValue(listings);
+      profileRepo.find.mockResolvedValue([]);
+      eventRepo.find.mockResolvedValue([]);
+
+      const result = await service.search('car', undefined, 'Miami');
+
+      expect(result.listings).toEqual([{ id: 'l-1', location: 'Miami, FL' }]);
+    });
+
+    it('returns all when location filter does not match anything', async () => {
+      profileRepo.find.mockResolvedValue([{ id: 'p-1', location: 'Austin, TX', tags: [] }]);
+      listingRepo.find.mockResolvedValue([]);
+      eventRepo.find.mockResolvedValue([]);
+
+      const result = await service.search('car', undefined, 'NewYork');
+
+      expect(result.profiles).toEqual([]);
+    });
+  });
+
+  describe('search — tag filter', () => {
+    it('filters profiles by tag substring (case-insensitive)', async () => {
+      const profiles = [
+        { id: 'p-1', location: 'LA', tags: ['Classic Cars', 'Performance'] },
+        { id: 'p-2', location: 'TX', tags: ['Diesel'] },
+      ];
+      profileRepo.find.mockResolvedValue(profiles);
+      listingRepo.find.mockResolvedValue([]);
+      eventRepo.find.mockResolvedValue([]);
+
+      const result = await service.search('shop', undefined, undefined, 'classic');
+
+      expect(result.profiles).toEqual([profiles[0]]);
+    });
+
+    it('returns empty profiles when no tag matches', async () => {
+      profileRepo.find.mockResolvedValue([{ id: 'p-1', location: 'LA', tags: ['Diesel'] }]);
+      listingRepo.find.mockResolvedValue([]);
+      eventRepo.find.mockResolvedValue([]);
+
+      const result = await service.search('shop', undefined, undefined, 'EV');
+
+      expect(result.profiles).toEqual([]);
+    });
+  });
+
+  describe('search — combined location + tag filters', () => {
+    it('applies both filters independently', async () => {
+      const profiles = [
+        { id: 'p-1', location: 'Los Angeles, CA', tags: ['Classic Cars'] },
+        { id: 'p-2', location: 'Los Angeles, CA', tags: ['Diesel'] },
+        { id: 'p-3', location: 'Dallas, TX', tags: ['Classic Cars'] },
+      ];
+      profileRepo.find.mockResolvedValue(profiles);
+      listingRepo.find.mockResolvedValue([]);
+      eventRepo.find.mockResolvedValue([]);
+
+      const result = await service.search('m', undefined, 'Los Angeles', 'Classic');
+
+      expect(result.profiles).toEqual([profiles[0]]);
+    });
+  });
 });

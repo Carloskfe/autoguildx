@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { Search, MapPin, Calendar, Package, User, Loader2, Star } from 'lucide-react';
+import { Search, MapPin, Calendar, Package, User, Loader2, Star, X } from 'lucide-react';
 import { clsx } from 'clsx';
 import AppShell from '@/components/layout/AppShell';
 import api from '@/lib/api';
@@ -174,24 +174,45 @@ const FILTERS: { value: SectionFilter; label: string }[] = [
   { value: 'events', label: 'Events' },
 ];
 
+const TAG_CHIPS = [
+  'Classic Cars',
+  'Performance',
+  'Off-Road',
+  'Motorcycles',
+  'Restoration',
+  'Fabrication',
+  'Drag Racing',
+  'Import',
+  'Diesel',
+  'Electric/EV',
+];
+
 export default function DiscoverPage() {
   const [input, setInput] = useState('');
   const [q, setQ] = useState('');
   const [section, setSection] = useState<SectionFilter>('all');
+  const [locationInput, setLocationInput] = useState('');
+  const [location, setLocation] = useState('');
+  const [activeTag, setActiveTag] = useState('');
 
   const applySearch = () => {
     const trimmed = input.trim();
-    if (trimmed) setQ(trimmed);
+    if (trimmed) {
+      setQ(trimmed);
+      setLocation(locationInput.trim());
+    }
   };
 
   const { data, isLoading, isError } = useQuery<SearchResults>({
-    queryKey: ['search', q, section],
+    queryKey: ['search', q, section, location, activeTag],
     queryFn: () =>
       api
         .get('/search', {
           params: {
             q,
             ...(section !== 'all' && { type: section }),
+            ...(location && { location }),
+            ...(activeTag && { tag: activeTag }),
           },
         })
         .then((r) => r.data),
@@ -227,8 +248,19 @@ export default function DiscoverPage() {
           </button>
         </div>
 
-        {/* Section filter */}
-        <div className="flex gap-2 flex-wrap">
+        {/* Location + section filters */}
+        <div className="flex gap-2 flex-wrap items-center">
+          <div className="relative">
+            <MapPin className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
+            <input
+              className="input text-sm pl-8 pr-3 py-1.5 w-40"
+              placeholder="Location…"
+              value={locationInput}
+              onChange={(e) => setLocationInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && applySearch()}
+            />
+          </div>
+          <div className="w-px h-5 bg-surface-border" />
           {FILTERS.map(({ value, label }) => (
             <button
               key={value}
@@ -243,6 +275,32 @@ export default function DiscoverPage() {
               {label}
             </button>
           ))}
+        </div>
+
+        {/* Tag chips */}
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+          {TAG_CHIPS.map((tag) => (
+            <button
+              key={tag}
+              onClick={() => setActiveTag(activeTag === tag ? '' : tag)}
+              className={clsx(
+                'shrink-0 text-xs px-3 py-1 rounded-full border transition-colors whitespace-nowrap',
+                activeTag === tag
+                  ? 'bg-brand-500 border-brand-500 text-white'
+                  : 'border-surface-border text-gray-400 hover:text-white hover:border-gray-500',
+              )}
+            >
+              {tag}
+            </button>
+          ))}
+          {activeTag && (
+            <button
+              onClick={() => setActiveTag('')}
+              className="shrink-0 flex items-center gap-1 text-xs px-2 py-1 rounded-full text-gray-500 hover:text-white transition-colors"
+            >
+              <X className="w-3 h-3" /> Clear
+            </button>
+          )}
         </div>
 
         {/* States */}

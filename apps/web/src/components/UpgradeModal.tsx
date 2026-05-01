@@ -29,6 +29,8 @@ const FEATURES: Record<SubscriptionTier, string[]> = {
 
 export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
   const [loading, setLoading] = useState<SubscriptionTier | null>(null);
+  const [cancelling, setCancelling] = useState(false);
+  const [confirmCancel, setConfirmCancel] = useState(false);
   const [error, setError] = useState('');
 
   const handleUpgrade = async (tier: 'owner' | 'company') => {
@@ -42,6 +44,20 @@ export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
     } catch {
       setError('Unable to start checkout. Please try again.');
       setLoading(null);
+    }
+  };
+
+  const handleCancel = async () => {
+    setError('');
+    setCancelling(true);
+    try {
+      await api.delete('/subscriptions/me');
+      onClose();
+      window.location.reload();
+    } catch {
+      setError('Unable to cancel subscription. Please try again.');
+      setCancelling(false);
+      setConfirmCancel(false);
     }
   };
 
@@ -121,9 +137,38 @@ export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
                   <p className="text-xs text-center text-gray-500">Active plan</p>
                 )}
 
-                {id === 'free' && !isCurrent && (
-                  <p className="text-xs text-center text-gray-500">Downgrade via support</p>
-                )}
+                {id === 'free' &&
+                  currentTier !== 'free' &&
+                  (confirmCancel ? (
+                    <div className="space-y-2">
+                      <p className="text-xs text-center text-gray-400">
+                        Cancel and return to Free?
+                      </p>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleCancel}
+                          disabled={cancelling}
+                          className="flex-1 text-xs py-1.5 rounded-lg bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500/30 transition-colors flex items-center justify-center gap-1"
+                        >
+                          {cancelling ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Confirm'}
+                        </button>
+                        <button
+                          onClick={() => setConfirmCancel(false)}
+                          disabled={cancelling}
+                          className="flex-1 text-xs py-1.5 rounded-lg border border-surface-border text-gray-400 hover:text-white transition-colors"
+                        >
+                          Keep plan
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmCancel(true)}
+                      className="w-full text-xs py-1.5 rounded-lg border border-surface-border text-gray-500 hover:text-red-400 hover:border-red-500/40 transition-colors"
+                    >
+                      Downgrade to Free
+                    </button>
+                  ))}
               </div>
             );
           })}
