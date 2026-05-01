@@ -311,7 +311,8 @@ Every domain feature follows the same NestJS pattern: `module → controller →
 | Auth | `src/auth/` | Signup/login, Firebase token exchange, JWT issuance |
 | Profiles | `src/profiles/` | Profile CRUD, follow/unfollow graph, video avatar |
 | Posts | `src/posts/` | Feed posts, reactions, sharing, visibility, link extraction |
-| Comments | `src/comments/` | Threaded comments on posts |
+| Comments | `src/posts/` | Threaded comments on posts and forum posts (co-located with Posts module) |
+| Forums | `src/forums/` | AGXTopics: forum CRUD, membership, posts, hot/top/new sort, upvote/downvote, comment voting |
 | Listings | `src/listings/` | Marketplace CRUD, featured boost, tier limit enforcement |
 | Events | `src/events/` | Event CRUD, RSVP |
 | Messages | `src/messages/` | 1:1 conversation threads, unread count |
@@ -339,6 +340,11 @@ All authenticated pages wrap their content with `AppShell` (`src/components/layo
 | `/login` | `app/login/page.tsx` | Email + Google OAuth |
 | `/signup` | `app/signup/page.tsx` | Email + Google OAuth — no role selection, goes straight to onboarding |
 | `/onboarding` | `app/onboarding/page.tsx` | 3-step: role picker → profile details → specialty tags |
+| `/agxtopics` | `app/agxtopics/page.tsx` | ✓ Wired — forum list, category filter, join/leave |
+| `/agxtopics/new` | `app/agxtopics/new/page.tsx` | ✓ Wired — create forum with auto-slug |
+| `/agxtopics/[slug]` | `app/agxtopics/[slug]/page.tsx` | ✓ Wired — forum detail, Hot/Top/New sort, upvote/downvote |
+| `/agxtopics/[slug]/new` | `app/agxtopics/[slug]/new/page.tsx` | ✓ Wired — create post |
+| `/agxtopics/[slug]/[postId]` | `app/agxtopics/[slug]/[postId]/page.tsx` | ✓ Wired — post detail, Reddit-style voting, threaded comments, emoji reactions |
 | `/feed` | `app/feed/page.tsx` | ✓ Wired — compose, reactions, comments, share/repost, media modes, link previews, visibility picker, infinite scroll |
 | `/discover` | `app/discover/page.tsx` | ✓ Wired — keyword search, section filter (All/People/Listings/Events), star ratings |
 | `/marketplace` | `app/marketplace/page.tsx` | ✓ Wired — listing grid, type filter, search, star ratings, infinite scroll |

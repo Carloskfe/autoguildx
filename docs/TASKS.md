@@ -252,3 +252,36 @@ All gaps identified during Sprint 1–6 have been closed. See individual sprint 
 - [x] Update `CLAUDE.md` — route table, API modules, jest config (this session)
 - [x] Update `PRD.md` — reflect built features, remove resolved non-goals (this session)
 - [x] Update `TASKS.md` — Sprint 9 plan (this session)
+
+---
+
+## Sprint 10 — AGXTopics (Community Forums) ✅ COMPLETE
+
+**Goal:** Reddit-style thematic forums with threaded comments, reactions, and upvote/downvote ranking.
+
+### Backend
+- [x] `CommentEntity` extended: `parentId` (self-referential), `forumPostId` (nullable), `voteScore`
+- [x] `CommentReactionEntity` — unique per userId+commentId; 5 emoji types (fire/love/respect/wild/like)
+- [x] `ForumEntity` — name, slug (unique), description, category, rules, memberCount, postCount
+- [x] `ForumMemberEntity` — junction for forum membership (unique userId+forumId)
+- [x] `ForumPostEntity` — title, content, mediaUrls, voteScore, commentCount, isPinned, isLocked
+- [x] `ForumVoteEntity` — unique per userId+forumPostId; value +1/-1
+- [x] `ForumCommentVoteEntity` — unique per userId+commentId; value +1/-1
+- [x] `CommentsService` — threaded tree builder (`buildTree`), forum post comment creation, reactions (upsert/remove/get), `findByForumPost`
+- [x] `ForumsService` — full CRUD, join/leave, post CRUD, hot/top/new sort (hot uses age-decay formula), vote upsert/remove on posts and comments
+- [x] `ForumsModule` registered in `AppModule`; `CommentsService` exported from `PostsModule`
+- [x] All forum REST endpoints wired (21 routes across `ForumsController` + `CommentsVoteController`)
+- [x] `CreateCommentDto` extended with optional `parentId`
+
+### Tests
+- [x] `tests/unit/posts/comments.service.spec.ts` — extended with threading, forum post path, reactions (205 total passing)
+- [x] `tests/unit/forums/forums.service.spec.ts` — full coverage of all ForumsService methods
+
+### Frontend
+- [x] `/agxtopics` — forum list, category filter bar, join/leave per forum
+- [x] `/agxtopics/new` — create forum form with auto-slug generation
+- [x] `/agxtopics/[slug]` — forum detail, Hot/Top/New sort tabs, post list with upvote/downvote arrows
+- [x] `/agxtopics/[slug]/new` — create post form
+- [x] `/agxtopics/[slug]/[postId]` — post detail with Reddit-style vote column, threaded comments, delete (author only)
+- [x] `ForumCommentThread` component — nested replies (1-level indent), per-comment upvote/downvote, emoji reaction picker, inline reply input, locked-post guard
+- [x] AGXTopics (Hash icon) added to AppShell nav
