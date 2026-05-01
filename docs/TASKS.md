@@ -223,25 +223,25 @@ All gaps identified during Sprint 1–6 have been closed. See individual sprint 
 
 ---
 
-## Sprint 9 — Polish & Self-Service
+## Sprint 9 — Polish & Self-Service ✅ COMPLETE
 
 **Goal:** Close the remaining UX gaps so users can fully self-manage their profiles and subscriptions, and add location/vehicle filters to Discover.
 
 ### Profile — tag editing
-- [ ] Add specialty tag picker to `/profile` edit form (same tag set as onboarding step 3)
-- [ ] `PATCH /profiles/me` already accepts `tags[]` — frontend change only
+- [x] Add specialty tag picker to `/profile` edit form (same tag set as onboarding step 3)
+- [x] `PATCH /profiles/me` already accepts `tags[]` — frontend change only
 
 ### Subscription self-service
-- [ ] Add cancel/downgrade option to `UpgradeModal` for users on Owner or Company tier
-- [ ] Wire to existing `DELETE /subscriptions/me` endpoint
-- [ ] Show confirmation dialog before cancelling
+- [x] Add cancel/downgrade option to `UpgradeModal` for users on Owner or Company tier
+- [x] Wire to existing `DELETE /subscriptions/me` endpoint
+- [x] Show confirmation dialog before cancelling
 
 ### Discover — advanced filters
-- [ ] Add location filter input to `/discover` page
-- [ ] Add vehicle type / tag filter chips
-- [ ] Pass `location` and `tag` query params to `GET /search`
-- [ ] Update `SearchService` to filter by location (ILike) and tags when params present
-- [ ] Add unit tests for new filter cases in `search/search.service.spec.ts`
+- [x] Add location filter input to `/discover` page
+- [x] Add vehicle type / tag filter chips
+- [x] Pass `location` and `tag` query params to `GET /search`
+- [x] Update `SearchService` to filter by location (ILike) and tags when params present
+- [x] Add unit tests for new filter cases in `search/search.service.spec.ts` (211 total passing)
 
 ### Stripe activation (ops — no code changes needed)
 - [ ] Set `STRIPE_SECRET_KEY`, `STRIPE_PRICE_OWNER`, `STRIPE_PRICE_COMPANY`, `STRIPE_WEBHOOK_SECRET` in production env
