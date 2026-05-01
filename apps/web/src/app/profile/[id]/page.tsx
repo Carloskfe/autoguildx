@@ -4,7 +4,16 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { MapPin, Users, Heart, UserPlus, UserMinus, Loader2, MessageSquare, Link2 } from 'lucide-react';
+import {
+  MapPin,
+  Users,
+  Heart,
+  UserPlus,
+  UserMinus,
+  Loader2,
+  MessageSquare,
+  Link2,
+} from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import ReviewSection from '@/components/ReviewSection';
 import { useAuth } from '@/hooks/useAuth';

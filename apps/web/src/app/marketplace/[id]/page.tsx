@@ -4,7 +4,19 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { MapPin, Star, Tag, ArrowLeft, Trash2, Loader2, Zap, MessageSquare, Share2, Link2, X } from 'lucide-react';
+import {
+  MapPin,
+  Star,
+  Tag,
+  ArrowLeft,
+  Trash2,
+  Loader2,
+  Zap,
+  MessageSquare,
+  Share2,
+  Link2,
+  X,
+} from 'lucide-react';
 import Link from 'next/link';
 import AppShell from '@/components/layout/AppShell';
 import UpgradeModal from '@/components/UpgradeModal';
@@ -45,7 +57,10 @@ export default function ListingDetailPage() {
         id: listing.id,
         title: listing.title,
         subtitle: listing.category,
-        price: listing.price != null ? `$${Number(listing.price).toLocaleString()}` : 'Contact for price',
+        price:
+          listing.price != null
+            ? `$${Number(listing.price).toLocaleString()}`
+            : 'Contact for price',
         location: listing.location,
         imageUrl: listing.mediaUrls?.filter(Boolean)[0] ?? null,
       });
@@ -336,7 +351,10 @@ export default function ListingDetailPage() {
           <div className="card w-full max-w-md space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="font-semibold text-white">Share to Feed</h2>
-              <button onClick={() => setShowShareModal(false)} className="text-gray-400 hover:text-white">
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="text-gray-400 hover:text-white"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -344,7 +362,9 @@ export default function ListingDetailPage() {
               <p className="text-sm font-semibold text-white truncate">{listing.title}</p>
               <p className="text-xs text-gray-400 capitalize">{listing.category}</p>
               <p className="text-sm font-bold text-white">
-                {listing.price != null ? `$${Number(listing.price).toLocaleString()}` : 'Contact for price'}
+                {listing.price != null
+                  ? `$${Number(listing.price).toLocaleString()}`
+                  : 'Contact for price'}
               </p>
             </div>
             <textarea
@@ -356,7 +376,10 @@ export default function ListingDetailPage() {
               maxLength={2000}
             />
             <div className="flex justify-end gap-2">
-              <button onClick={() => setShowShareModal(false)} className="btn-secondary text-sm px-4 py-2">
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="btn-secondary text-sm px-4 py-2"
+              >
                 Cancel
               </button>
               <button

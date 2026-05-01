@@ -4,7 +4,17 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { MapPin, Calendar, Users, ArrowLeft, Trash2, Loader2, Share2, Link2, X } from 'lucide-react';
+import {
+  MapPin,
+  Calendar,
+  Users,
+  ArrowLeft,
+  Trash2,
+  Loader2,
+  Share2,
+  Link2,
+  X,
+} from 'lucide-react';
 import Link from 'next/link';
 import AppShell from '@/components/layout/AppShell';
 import { useAuth } from '@/hooks/useAuth';
@@ -243,14 +253,19 @@ export default function EventDetailPage() {
           <div className="card w-full max-w-md space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="font-semibold text-white">Share to Feed</h2>
-              <button onClick={() => setShowShareModal(false)} className="text-gray-400 hover:text-white">
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="text-gray-400 hover:text-white"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="border border-surface-border rounded-lg p-3 space-y-1">
               <p className="text-sm font-semibold text-white truncate">{event.title}</p>
               <p className="text-xs text-gray-400 capitalize">{event.type}</p>
-              <p className="text-xs text-gray-500">{format(new Date(event.startDate), 'EEEE, MMMM d, yyyy')}</p>
+              <p className="text-xs text-gray-500">
+                {format(new Date(event.startDate), 'EEEE, MMMM d, yyyy')}
+              </p>
               {event.location && <p className="text-xs text-gray-500">{event.location}</p>}
             </div>
             <textarea
@@ -262,7 +277,10 @@ export default function EventDetailPage() {
               maxLength={2000}
             />
             <div className="flex justify-end gap-2">
-              <button onClick={() => setShowShareModal(false)} className="btn-secondary text-sm px-4 py-2">
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="btn-secondary text-sm px-4 py-2"
+              >
                 Cancel
               </button>
               <button
