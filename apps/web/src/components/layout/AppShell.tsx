@@ -13,6 +13,7 @@ import {
   Zap,
   MessageSquare,
   Bell,
+  Hash,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { clsx } from 'clsx';
@@ -25,6 +26,7 @@ import type { SubscriptionTier } from '@autoguildx/shared';
 const NAV = [
   { href: '/feed', label: 'Feed', icon: Home },
   { href: '/discover', label: 'Discover', icon: Search },
+  { href: '/agxtopics', label: 'AGXTopics', icon: Hash },
   { href: '/marketplace', label: 'Market', icon: Package },
   { href: '/events', label: 'Events', icon: Calendar },
   { href: '/messages', label: 'Messages', icon: MessageSquare },

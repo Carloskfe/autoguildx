@@ -19,8 +19,12 @@ export interface Post {
 
 export interface Comment {
   id: string;
-  postId: string;
+  postId?: string;
+  forumPostId?: string;
   userId: string;
   content: string;
+  parentId?: string;
+  replies?: Comment[];
+  voteScore: number;
   createdAt: string;
 }

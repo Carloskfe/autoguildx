@@ -4,3 +4,4 @@ export * from './types/post';
 export * from './types/listing';
 export * from './types/event';
 export * from './types/subscription';
+export * from './types/forum';

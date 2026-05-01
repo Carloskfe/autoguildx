@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   ManyToOne,
+  OneToMany,
   JoinColumn,
 } from 'typeorm';
 import { PostEntity } from './post.entity';
@@ -14,12 +15,15 @@ export class CommentEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => PostEntity)
+  @ManyToOne(() => PostEntity, { nullable: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'postId' })
   post: PostEntity;
 
-  @Column()
-  postId: string;
+  @Column({ nullable: true })
+  postId: string | null;
+
+  @Column({ nullable: true })
+  forumPostId: string | null;
 
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'userId' })
@@ -30,6 +34,19 @@ export class CommentEntity {
 
   @Column({ type: 'text' })
   content: string;
+
+  @Column({ nullable: true })
+  parentId: string | null;
+
+  @ManyToOne(() => CommentEntity, (c) => c.replies, { nullable: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'parentId' })
+  parent: CommentEntity;
+
+  @OneToMany(() => CommentEntity, (c) => c.parent)
+  replies: CommentEntity[];
+
+  @Column({ default: 0 })
+  voteScore: number;
 
   @CreateDateColumn()
   createdAt: Date;

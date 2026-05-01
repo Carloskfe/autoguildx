@@ -7,6 +7,12 @@ import { CommentEntity } from './posts/entities/comment.entity';
 import { ListingEntity } from './listings/entities/listing.entity';
 import { EventEntity } from './events/entities/event.entity';
 import { SubscriptionEntity } from './subscriptions/entities/subscription.entity';
+import { CommentReactionEntity } from './posts/entities/comment-reaction.entity';
+import { ForumEntity } from './forums/entities/forum.entity';
+import { ForumMemberEntity } from './forums/entities/forum-member.entity';
+import { ForumPostEntity } from './forums/entities/forum-post.entity';
+import { ForumVoteEntity } from './forums/entities/forum-vote.entity';
+import { ForumCommentVoteEntity } from './forums/entities/forum-comment-vote.entity';
 
 dotenv.config();
 
@@ -18,9 +24,15 @@ export const AppDataSource = new DataSource({
     ProfileEntity,
     PostEntity,
     CommentEntity,
+    CommentReactionEntity,
     ListingEntity,
     EventEntity,
     SubscriptionEntity,
+    ForumEntity,
+    ForumMemberEntity,
+    ForumPostEntity,
+    ForumVoteEntity,
+    ForumCommentVoteEntity,
   ],
   migrations: ['src/migrations/*.ts'],
   synchronize: false,
