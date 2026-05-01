@@ -112,7 +112,7 @@ describe('Auth flow (E2E)', () => {
       await request(app.getHttpServer())
         .post('/api/v1/profiles')
         .set('Authorization', `Bearer ${accessToken}`)
-        .send({ name: 'Flow User', bio: 'Automotive enthusiast', roleType: 'individual' })
+        .send({ name: 'Flow User', bio: 'Automotive enthusiast', roleType: 'enthusiast' })
         .expect(201);
 
       // 3. Read feed (public, no auth required)
