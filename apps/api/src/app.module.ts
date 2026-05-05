@@ -18,6 +18,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { ForumsModule } from './forums/forums.module';
 import { VerificationModule } from './verification/verification.module';
 import { AdminModule } from './admin/admin.module';
+import { EmailModule } from './email/email.module';
 import { FirebaseModule } from './firebase/firebase.module';
 import { validate } from './config/env.validation';
 
@@ -48,6 +49,7 @@ import { validate } from './config/env.validation';
       ],
     }),
     FirebaseModule,
+    EmailModule,
     AuthModule,
     ProfilesModule,
     PostsModule,

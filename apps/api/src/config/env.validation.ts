@@ -42,6 +42,10 @@ class EnvironmentVariables {
   @IsInt() @Min(1) @IsOptional() THROTTLE_LIMIT: number = 100;
 
   @IsString() @IsOptional() FRONTEND_URL: string;
+
+  // Email (Resend) — optional; emails are skipped if absent
+  @IsString() @IsOptional() EMAIL_API_KEY: string;
+  @IsString() @IsOptional() EMAIL_FROM: string;
 }
 
 export function validate(config: Record<string, unknown>) {

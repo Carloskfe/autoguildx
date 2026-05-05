@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotificationsService } from '../../../src/notifications/notifications.service';
 import { NotificationEntity } from '../../../src/notifications/entities/notification.entity';
+import { UserEntity } from '../../../src/auth/entities/user.entity';
+import { EmailService } from '../../../src/email/email.service';
 
 const mockRepo = () => ({
   findOne: jest.fn(),
@@ -11,6 +13,8 @@ const mockRepo = () => ({
   save: jest.fn(),
   update: jest.fn(),
 });
+
+const mockEmailService = () => ({ send: jest.fn().mockResolvedValue(undefined) });
 
 const notif = (overrides = {}): Partial<NotificationEntity> => ({
   id: 'n-1',
@@ -27,27 +31,35 @@ const notif = (overrides = {}): Partial<NotificationEntity> => ({
 describe('NotificationsService', () => {
   let service: NotificationsService;
   let repo: ReturnType<typeof mockRepo>;
+  let userRepo: ReturnType<typeof mockRepo>;
+  let emailService: ReturnType<typeof mockEmailService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         NotificationsService,
         { provide: getRepositoryToken(NotificationEntity), useFactory: mockRepo },
+        { provide: getRepositoryToken(UserEntity), useFactory: mockRepo },
+        { provide: EmailService, useFactory: mockEmailService },
       ],
     }).compile();
 
     service = module.get<NotificationsService>(NotificationsService);
     repo = module.get(getRepositoryToken(NotificationEntity));
+    userRepo = module.get(getRepositoryToken(UserEntity));
+    emailService = module.get(EmailService);
   });
 
   afterEach(() => jest.clearAllMocks());
 
-  // ---------------------------------------------------------------------------
+  // ── create ───────────────────────────────────────────────────────────────────
+
   describe('create', () => {
     it('saves a notification when actor and recipient differ', async () => {
       const n = notif();
       repo.create.mockReturnValue(n);
       repo.save.mockResolvedValue(n);
+      userRepo.findOne.mockResolvedValue(null); // no email lookup match needed
 
       await service.create({ userId: 'u-recipient', actorId: 'u-actor', type: 'reaction' });
       expect(repo.save).toHaveBeenCalled();
@@ -57,9 +69,54 @@ describe('NotificationsService', () => {
       await service.create({ userId: 'u-1', actorId: 'u-1', type: 'reaction' });
       expect(repo.save).not.toHaveBeenCalled();
     });
+
+    it('sends email on verification_approved', async () => {
+      repo.create.mockReturnValue(notif({ type: 'verification_approved' }));
+      repo.save.mockResolvedValue({});
+      userRepo.findOne.mockResolvedValue({ id: 'u-recipient', email: 'user@test.com' });
+
+      await service.create({ userId: 'u-recipient', actorId: 'u-actor', type: 'verification_approved' });
+
+      expect(emailService.send).toHaveBeenCalledWith(
+        expect.objectContaining({ to: 'user@test.com' }),
+      );
+    });
+
+    it('sends email on verification_denied', async () => {
+      repo.create.mockReturnValue(notif({ type: 'verification_denied' }));
+      repo.save.mockResolvedValue({});
+      userRepo.findOne.mockResolvedValue({ id: 'u-recipient', email: 'user@test.com' });
+
+      await service.create({ userId: 'u-recipient', actorId: 'u-actor', type: 'verification_denied' });
+
+      expect(emailService.send).toHaveBeenCalledWith(
+        expect.objectContaining({ to: 'user@test.com' }),
+      );
+    });
+
+    it('does not send email for non-email notification types', async () => {
+      repo.create.mockReturnValue(notif());
+      repo.save.mockResolvedValue({});
+      userRepo.findOne.mockResolvedValue(null);
+
+      await service.create({ userId: 'u-recipient', actorId: 'u-actor', type: 'reaction' });
+
+      expect(emailService.send).not.toHaveBeenCalled();
+    });
+
+    it('does not send email when recipient has no email address', async () => {
+      repo.create.mockReturnValue(notif({ type: 'verification_approved' }));
+      repo.save.mockResolvedValue({});
+      userRepo.findOne.mockResolvedValue(null);
+
+      await service.create({ userId: 'u-recipient', actorId: 'u-actor', type: 'verification_approved' });
+
+      expect(emailService.send).not.toHaveBeenCalled();
+    });
   });
 
-  // ---------------------------------------------------------------------------
+  // ── getNotifications ─────────────────────────────────────────────────────────
+
   describe('getNotifications', () => {
     it('returns paginated notifications', async () => {
       const notifications = [notif(), notif({ id: 'n-2' })];
@@ -79,7 +136,8 @@ describe('NotificationsService', () => {
     });
   });
 
-  // ---------------------------------------------------------------------------
+  // ── getUnreadCount ───────────────────────────────────────────────────────────
+
   describe('getUnreadCount', () => {
     it('returns the unread count', async () => {
       repo.count.mockResolvedValue(3);
@@ -87,7 +145,8 @@ describe('NotificationsService', () => {
     });
   });
 
-  // ---------------------------------------------------------------------------
+  // ── markRead ─────────────────────────────────────────────────────────────────
+
   describe('markRead', () => {
     it('updates the specific notification as read', async () => {
       repo.update.mockResolvedValue({ affected: 1 });
@@ -96,7 +155,8 @@ describe('NotificationsService', () => {
     });
   });
 
-  // ---------------------------------------------------------------------------
+  // ── markAllRead ──────────────────────────────────────────────────────────────
+
   describe('markAllRead', () => {
     it('marks all unread notifications as read for the user', async () => {
       repo.update.mockResolvedValue({ affected: 5 });
