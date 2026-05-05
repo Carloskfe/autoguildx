@@ -83,7 +83,8 @@ All features below are fully implemented and deployed unless noted.
 ### 7. Direct Messaging
 - Conversation-based 1:1 messaging
 - Start conversation from listing detail or profile page ("Message Seller" / "Message")
-- Unread message badge on Messages nav item (polls every 10 s)
+- Real-time message delivery via WebSocket (Socket.IO `/messages` namespace, JWT-authenticated)
+- Unread badge updates in real-time via `unread_count_changed` socket event; falls back to 60s poll
 - Conversation list with last message preview and unread count per conversation
 
 ### 8. Notifications
@@ -99,7 +100,14 @@ All features below are fully implemented and deployed unless noted.
 - `ReviewSection` component wired into `/profile/[id]` and `/marketplace/[id]`
 - Lightweight summary (avg + total) shown on listing cards and search results
 
-### 10. Subscription Tiers
+### 10. Verified Badges
+- Profiles can request a verified badge via `POST /verification/request`
+- Admins review requests at `GET /verification/pending` and approve/deny via `PATCH /verification/:id/review`
+- Approved profiles get `isVerified: true` on their profile entity; a `verification_approved` notification is sent
+- Blue check badge (`VerifiedBadge` component) shown next to name on: own profile, public profile, feed post headers, and discover search results
+- "Request Verification" card shown on own profile when not yet verified, with live status (`pending` / `denied`) feedback
+
+### 11. Subscription Tiers
 
 | Tier | Price | Listings | Featured Campaigns |
 |---|---|---|---|
@@ -154,7 +162,7 @@ All features below are fully implemented and deployed unless noted.
 
 ## Post-MVP Roadmap
 
-- Verified badges (identity trust layer)
+- ~~Verified badges (identity trust layer)~~ — shipped Sprint 11
 - Payment transaction fees (up to 9% on marketplace sales)
 - Logistics / shipping support
 - Courses and certifications

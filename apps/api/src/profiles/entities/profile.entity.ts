@@ -52,6 +52,9 @@ export class ProfileEntity {
   @Column({ default: 0 })
   followingCount: number;
 
+  @Column({ default: false })
+  isVerified: boolean;
+
   @ManyToMany(() => ProfileEntity)
   @JoinTable({
     name: 'profile_followers',

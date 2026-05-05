@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import AppShell from '@/components/layout/AppShell';
+import VerifiedBadge from '@/components/VerifiedBadge';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
 import { uploadFile } from '@/lib/upload';
@@ -35,7 +36,7 @@ interface PostWithUser extends Post {
     id: string;
     email: string;
     role: string;
-    profile?: { id: string; name: string };
+    profile?: { id: string; name: string; isVerified?: boolean };
   };
   sharedPost?: PostWithUser;
 }
@@ -317,9 +318,10 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
             {profileId ? (
               <Link
                 href={`/profile/${profileId}`}
-                className="text-sm font-medium text-white truncate hover:text-brand-500 transition-colors"
+                className="flex items-center gap-1 text-sm font-medium text-white truncate hover:text-brand-500 transition-colors"
               >
                 {displayName}
+                {post.user?.profile?.isVerified && <VerifiedBadge size="sm" />}
               </Link>
             ) : (
               <span className="text-sm font-medium text-white truncate">{displayName}</span>

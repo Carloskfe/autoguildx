@@ -3,11 +3,14 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConversationEntity } from './entities/conversation.entity';
 import { MessageEntity } from './entities/message.entity';
+import { MessagesGateway } from './messages.gateway';
 
 @Injectable()
 export class MessagesService {
@@ -16,6 +19,8 @@ export class MessagesService {
     private convRepo: Repository<ConversationEntity>,
     @InjectRepository(MessageEntity)
     private msgRepo: Repository<MessageEntity>,
+    @Inject(forwardRef(() => MessagesGateway))
+    private readonly gateway: MessagesGateway,
   ) {}
 
   async getOrCreateConversation(userId: string, recipientId: string) {
@@ -117,10 +122,17 @@ export class MessagesService {
     conv.lastMessageAt = saved.createdAt;
     await this.convRepo.save(conv);
 
-    return this.msgRepo.findOne({
+    const full = await this.msgRepo.findOne({
       where: { id: saved.id },
       relations: ['sender', 'sender.profile'],
     });
+
+    this.gateway.notifyNewMessage(conv.id, conv.participantAId, conv.participantBId, full);
+    const recipientId = conv.participantAId === senderId ? conv.participantBId : conv.participantAId;
+    const { count } = await this.getUnreadCount(recipientId);
+    this.gateway.notifyUnreadCount(recipientId, count);
+
+    return full;
   }
 
   async getUnreadCount(userId: string) {

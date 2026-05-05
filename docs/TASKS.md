@@ -285,3 +285,43 @@ All gaps identified during Sprint 1–6 have been closed. See individual sprint 
 - [x] `/agxtopics/[slug]/[postId]` — post detail with Reddit-style vote column, threaded comments, delete (author only)
 - [x] `ForumCommentThread` component — nested replies (1-level indent), per-comment upvote/downvote, emoji reaction picker, inline reply input, locked-post guard
 - [x] AGXTopics (Hash icon) added to AppShell nav
+
+---
+
+## Sprint 11 — Verified Badges + Real-Time Messaging ✅ COMPLETE
+
+**Goal:** Add an identity-trust layer (verified badges) and upgrade messaging from 5s polling to WebSocket-based real-time delivery.
+
+### Feature A — Verified Badges
+
+#### Backend
+- [x] `Profile.isVerified: boolean` added to shared type and `ProfileEntity`
+- [x] `@Roles()` decorator and `RolesGuard` created in `src/common/`
+- [x] `VerificationRequestEntity` — tracks userId, profileId, status (pending/approved/denied), optional note
+- [x] `VerificationService` — requestVerification (ConflictException on duplicate pending), getPendingRequests, reviewRequest (approve sets isVerified + notifies), getMyRequestStatus
+- [x] `VerificationController` — POST /verification/request, GET /verification/my-status, GET /verification/pending [admin], PATCH /verification/:id/review [admin]
+- [x] `VerificationModule` registered in `AppModule`
+- [x] Migration `1700000000006-AddVerifiedBadge.ts` — adds `isVerified` column to profiles, creates `verification_requests` table
+- [x] `tests/unit/verification/verification.service.spec.ts` — 11 tests covering all methods
+
+#### Frontend
+- [x] `VerifiedBadge` component (`src/components/VerifiedBadge.tsx`) — `CheckCircle2` in brand orange, `size` sm/md prop
+- [x] Badge shown next to name on: own profile page, public profile page, feed post author, discover profile cards
+- [x] "Request Verification" card on own profile — shows status if pending/denied, hides if verified
+
+### Feature B — Real-Time WebSocket Messaging
+
+#### Backend
+- [x] `@nestjs/websockets`, `@nestjs/platform-socket.io`, `socket.io` installed
+- [x] `MessagesGateway` — JWT-authenticated WebSocket gateway on `/messages` namespace; per-user socket map; `notifyNewMessage`, `notifyUnreadCount` emitters
+- [x] `MessagesModule` updated — registers `MessagesGateway`, imports `AuthModule` via `forwardRef`
+- [x] `MessagesService.sendMessage` updated — calls `gateway.notifyNewMessage` + `gateway.notifyUnreadCount` after save
+- [x] `main.ts` — `helmet({ contentSecurityPolicy: false })` so socket.io handshake is not blocked
+- [x] `tests/unit/messages/messages.gateway.spec.ts` — 10 tests (connect, disconnect, notify events)
+- [x] `tests/unit/messages/messages.service.spec.ts` — updated to mock `MessagesGateway`
+
+#### Frontend
+- [x] `useSocket` hook — creates authenticated socket.io-client connection to `/messages` namespace; useRef prevents double-connect in Strict Mode
+- [x] `useUnreadCount` hook — wraps React Query (60s poll) + socket `unread_count_changed` listener
+- [x] `AppShell` — replaces inline 10s unreadCount poll query with `useUnreadCount()` hook
+- [x] Messages page — imports `useSocket`, adds `new_message` / `conversation_updated` socket listeners; reduces poll from 5s to 60s

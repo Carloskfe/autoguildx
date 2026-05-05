@@ -18,6 +18,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { clsx } from 'clsx';
 import { useAuth } from '@/hooks/useAuth';
+import { useUnreadCount } from '@/hooks/useUnreadCount';
 import UpgradeModal from '@/components/UpgradeModal';
 import NotificationPanel from '@/components/NotificationPanel';
 import api from '@/lib/api';
@@ -54,12 +55,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     enabled: isAuthenticated,
   });
 
-  const { data: unreadData } = useQuery<{ count: number }>({
-    queryKey: ['unreadCount'],
-    queryFn: () => api.get('/messages/unread-count').then((r) => r.data),
-    enabled: isAuthenticated,
-    refetchInterval: 10000,
-  });
+  const unreadCount = useUnreadCount();
 
   const { data: notifUnread } = useQuery<{ count: number }>({
     queryKey: ['notifUnread'],
@@ -68,7 +64,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     refetchInterval: 15000,
   });
 
-  const unreadCount = unreadData?.count ?? 0;
   const notifCount = notifUnread?.count ?? 0;
   const tier = subscription?.tier ?? 'free';
   const badge = TIER_BADGE[tier] ?? TIER_BADGE.free;

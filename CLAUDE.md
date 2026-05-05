@@ -321,8 +321,13 @@ Every domain feature follows the same NestJS pattern: `module → controller →
 | Subscriptions | `src/subscriptions/` | Tier management, Stripe Checkout, webhook handler |
 | Search | `src/search/` | Cross-entity ILike search |
 | Upload | `src/upload/` | S3 presign stub (`POST /upload/presign`) |
+| Verification | `src/verification/` | Verified badge requests, admin review, isVerified flag on profiles |
 
 **Auth flow:** `JwtStrategy` (`src/auth/jwt.strategy.ts`) validates Bearer tokens and injects `{ id, email, role }` into `req.user`. Protected routes use `JwtAuthGuard` (`src/common/guards/`). Use `@CurrentUser()` (`src/common/decorators/`) to extract the user in controllers.
+
+**Role-based access:** Use `@Roles('admin')` decorator + `RolesGuard` (both in `src/common/`) to restrict endpoints to specific roles. Apply `@UseGuards(JwtAuthGuard, RolesGuard)` together.
+
+**WebSocket messaging:** `MessagesGateway` runs on the `/messages` Socket.IO namespace. Clients connect with `{ auth: { token } }` — the gateway verifies the JWT and registers the socket. `MessagesService.sendMessage()` calls the gateway directly after saving to push real-time events (`new_message`, `conversation_updated`, `unread_count_changed`) to recipients. The `useSocket` and `useUnreadCount` hooks (in `apps/web/src/hooks/`) manage the client-side socket lifecycle.
 
 **Firebase social login:** Frontend acquires a Firebase ID token → sends it to `POST /auth/firebase` → `firebase-admin` verifies it → API issues its own JWT. `FirebaseModule` initializes the SDK on startup using `FIREBASE_*` env vars; it warns but does not crash if absent (safe for local dev without Firebase credentials).
 

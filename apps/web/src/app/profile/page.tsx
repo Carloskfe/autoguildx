@@ -4,8 +4,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { MapPin, Users, Heart, Edit2, Check, X, Loader2, Camera } from 'lucide-react';
+import { MapPin, Users, Heart, Edit2, Check, X, Loader2, Camera, ShieldCheck } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
+import VerifiedBadge from '@/components/VerifiedBadge';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
 import { uploadFile } from '@/lib/upload';
@@ -273,7 +274,10 @@ function ProfileHeader({ profile }: { profile: Profile }) {
             <>
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <h1 className="text-lg font-bold text-white leading-tight">{profile.name}</h1>
+                  <h1 className="text-lg font-bold text-white leading-tight flex items-center gap-1.5">
+                    {profile.name}
+                    {profile.isVerified && <VerifiedBadge size="sm" />}
+                  </h1>
                   {profile.businessName && (
                     <p className="text-sm text-gray-400">{profile.businessName}</p>
                   )}
@@ -385,6 +389,64 @@ function OwnPostCard({ post }: { post: PostWithUser }) {
   );
 }
 
+// ─── Verification request section ─────────────────────────────────────────────
+
+const STATUS_LABEL: Record<string, { text: string; className: string }> = {
+  pending: { text: 'Verification pending review', className: 'text-yellow-400' },
+  approved: { text: 'Verified', className: 'text-brand-500' },
+  denied: { text: 'Verification denied', className: 'text-red-400' },
+};
+
+function VerificationSection() {
+  const qc = useQueryClient();
+
+  const { data: status, isLoading } = useQuery<{ status: string } | null>({
+    queryKey: ['verificationStatus'],
+    queryFn: () =>
+      api
+        .get('/verification/my-status')
+        .then((r) => r.data)
+        .catch(() => null),
+  });
+
+  const request = useMutation({
+    mutationFn: () => api.post('/verification/request'),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['verificationStatus'] }),
+  });
+
+  if (isLoading) return null;
+
+  const info = status ? STATUS_LABEL[status.status] : null;
+
+  return (
+    <div className="card flex items-center justify-between gap-4">
+      <div className="flex items-center gap-2">
+        <ShieldCheck className="w-5 h-5 text-gray-400 shrink-0" />
+        <div>
+          <p className="text-sm font-medium text-white">Verified Badge</p>
+          {info ? (
+            <p className={`text-xs ${info.className}`}>{info.text}</p>
+          ) : (
+            <p className="text-xs text-gray-400">
+              Get a badge to show you&apos;re a trusted member
+            </p>
+          )}
+        </div>
+      </div>
+      {!status && (
+        <button
+          onClick={() => request.mutate()}
+          disabled={request.isPending}
+          className="btn-secondary text-xs px-3 py-1.5 shrink-0 flex items-center gap-1.5 disabled:opacity-50"
+        >
+          {request.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
+          Request Verification
+        </button>
+      )}
+    </div>
+  );
+}
+
 // ─── Profile page ─────────────────────────────────────────────────────────────
 
 export default function ProfilePage() {
@@ -444,6 +506,8 @@ export default function ProfilePage() {
     <AppShell>
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
         {profile && <ProfileHeader profile={profile} />}
+
+        {profile && !profile.isVerified && <VerificationSection />}
 
         <div className="space-y-3">
           <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide px-1">

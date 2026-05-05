@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { MessagesService } from '../../../src/messages/messages.service';
+import { MessagesGateway } from '../../../src/messages/messages.gateway';
 import { ConversationEntity } from '../../../src/messages/entities/conversation.entity';
 import { MessageEntity } from '../../../src/messages/entities/message.entity';
 
@@ -54,6 +55,10 @@ describe('MessagesService', () => {
         MessagesService,
         { provide: getRepositoryToken(ConversationEntity), useFactory: mockConvRepo },
         { provide: getRepositoryToken(MessageEntity), useFactory: mockMsgRepo },
+        {
+          provide: MessagesGateway,
+          useValue: { notifyNewMessage: jest.fn(), notifyUnreadCount: jest.fn() },
+        },
       ],
     }).compile();
 
@@ -182,6 +187,11 @@ describe('MessagesService', () => {
       msgRepo.create.mockReturnValue(saved);
       msgRepo.save.mockResolvedValue(saved);
       msgRepo.findOne.mockResolvedValue({ ...saved, sender: { id: 'u-1' } });
+
+      // getUnreadCount uses createQueryBuilder (called after send to notify)
+      const convQb = qbMock();
+      convQb.getMany.mockResolvedValue([]);
+      convRepo.createQueryBuilder.mockReturnValue(convQb);
 
       const result = await service.sendMessage('conv-1', 'u-1', 'hi');
       expect(convRepo.save).toHaveBeenCalledWith(expect.objectContaining({ lastMessageAt: saved.createdAt }));

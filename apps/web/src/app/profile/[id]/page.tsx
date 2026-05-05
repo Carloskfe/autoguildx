@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import ReviewSection from '@/components/ReviewSection';
+import VerifiedBadge from '@/components/VerifiedBadge';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
 import type { Profile, Post } from '@autoguildx/shared';
@@ -154,7 +155,10 @@ export default function PublicProfilePage() {
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h1 className="text-lg font-bold text-white leading-tight">{profile.name}</h1>
+                  <h1 className="text-lg font-bold text-white leading-tight flex items-center gap-1.5">
+                    {profile.name}
+                    {profile.isVerified && <VerifiedBadge size="sm" />}
+                  </h1>
                   {profile.businessName && (
                     <p className="text-sm text-gray-400">{profile.businessName}</p>
                   )}

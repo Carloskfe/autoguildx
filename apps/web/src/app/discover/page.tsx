@@ -7,6 +7,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Search, MapPin, Calendar, Package, User, Loader2, Star, X } from 'lucide-react';
 import { clsx } from 'clsx';
 import AppShell from '@/components/layout/AppShell';
+import VerifiedBadge from '@/components/VerifiedBadge';
 import api from '@/lib/api';
 import type { Profile, Listing, Event } from '@autoguildx/shared';
 
@@ -37,8 +38,9 @@ function ProfileResult({ profile }: { profile: Profile }) {
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <p className="text-sm font-semibold text-white group-hover:text-brand-500 transition-colors">
+          <p className="flex items-center gap-1 text-sm font-semibold text-white group-hover:text-brand-500 transition-colors">
             {profile.name}
+            {profile.isVerified && <VerifiedBadge size="sm" />}
           </p>
           {reviewSummary && reviewSummary.total > 0 && (
             <span className="flex items-center gap-0.5">

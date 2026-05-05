@@ -8,6 +8,7 @@ import { Send, Loader2, MessageSquare, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import AppShell from '@/components/layout/AppShell';
 import { useAuth } from '@/hooks/useAuth';
+import { useSocket } from '@/hooks/useSocket';
 import api from '@/lib/api';
 
 interface Profile {
@@ -67,6 +68,7 @@ function MessagesContent() {
   const [activeId, setActiveId] = useState<string | null>(searchParams.get('conversation'));
   const [draft, setDraft] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
+  const socket = useSocket();
 
   useEffect(() => {
     if (!isAuthenticated) router.replace('/login');
@@ -76,14 +78,14 @@ function MessagesContent() {
     queryKey: ['conversations'],
     queryFn: () => api.get('/messages/conversations').then((r) => r.data),
     enabled: isAuthenticated,
-    refetchInterval: 5000,
+    refetchInterval: 60000,
   });
 
   const { data: messages = [], isLoading: msgsLoading } = useQuery<Message[]>({
     queryKey: ['messages', activeId],
     queryFn: () => api.get(`/messages/conversations/${activeId}`).then((r) => r.data),
     enabled: !!activeId && isAuthenticated,
-    refetchInterval: 5000,
+    refetchInterval: 60000,
     staleTime: 0,
   });
 
@@ -99,6 +101,29 @@ function MessagesContent() {
       qc.invalidateQueries({ queryKey: ['unreadCount'] });
     }
   }, [activeId, messages.length, qc]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const onNewMessage = (payload: { conversationId: string; message: Message }) => {
+      qc.setQueryData<Message[]>(['messages', payload.conversationId], (old) => [
+        ...(old ?? []),
+        payload.message,
+      ]);
+    };
+
+    const onConversationUpdated = () => {
+      qc.invalidateQueries({ queryKey: ['conversations'] });
+    };
+
+    socket.on('new_message', onNewMessage);
+    socket.on('conversation_updated', onConversationUpdated);
+
+    return () => {
+      socket.off('new_message', onNewMessage);
+      socket.off('conversation_updated', onConversationUpdated);
+    };
+  }, [socket, qc]);
 
   const send = useMutation({
     mutationFn: (content: string) =>

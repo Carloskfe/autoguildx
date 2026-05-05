@@ -13,5 +13,7 @@ export interface Profile {
   profileVideoUrl?: string;
   followersCount: number;
   followingCount: number;
+  isVerified: boolean;
+  verificationStatus?: 'none' | 'pending' | 'approved' | 'denied';
   createdAt: string;
 }
