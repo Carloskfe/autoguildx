@@ -354,3 +354,23 @@ Run this SQL against your database to make your account an admin:
 UPDATE users SET role = 'admin' WHERE email = 'carloskfe@gmail.com';
 ```
 Then log out and back in so the new JWT carries `role: admin`.
+
+---
+
+## Backlog — Transactional Email Notifications
+
+**Goal:** Re-engage users who are offline by sending email for key events.
+
+**Triggers (priority order):**
+- [ ] New direct message received
+- [ ] Verification request approved or denied
+- [ ] New follower
+- [ ] New review left on your profile or listing
+
+**Design notes:**
+- Hook into `NotificationsService.create()` — email fires alongside every in-app notification, gated by notification type
+- Provider: Resend (`resend` npm package) or SendGrid — single `EmailService` abstraction so the provider is swappable
+- Unsubscribe link required in every email (CAN-SPAM); store `emailNotificationsEnabled: boolean` on `UserEntity` (default true); `PATCH /profiles/me/notifications` to toggle
+- Env vars needed: `EMAIL_API_KEY`, `EMAIL_FROM` (e.g. `noreply@autoguildx.com`)
+- Templates: plain HTML with brand orange accent — no heavy framework needed
+- `EmailModule` should be globally available (similar to `FirebaseModule`)
