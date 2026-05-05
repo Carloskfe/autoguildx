@@ -17,6 +17,7 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ForumsModule } from './forums/forums.module';
 import { VerificationModule } from './verification/verification.module';
+import { AdminModule } from './admin/admin.module';
 import { FirebaseModule } from './firebase/firebase.module';
 import { validate } from './config/env.validation';
 
@@ -61,6 +62,7 @@ import { validate } from './config/env.validation';
     NotificationsModule,
     ForumsModule,
     VerificationModule,
+    AdminModule,
   ],
 })
 export class AppModule {}

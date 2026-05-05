@@ -14,6 +14,7 @@ import {
   MessageSquare,
   Bell,
   Hash,
+  ShieldCheck,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { clsx } from 'clsx';
@@ -45,7 +46,7 @@ const TIER_BADGE: Record<string, { label: string; className: string }> = {
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, role } = useAuth();
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -154,6 +155,21 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <Zap className="w-4 h-4" />
               {badge.label} Plan
             </button>
+          )}
+
+          {role === 'admin' && (
+            <Link
+              href="/admin"
+              className={clsx(
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                pathname.startsWith('/admin')
+                  ? 'bg-surface-border text-white'
+                  : 'text-gray-400 hover:text-white hover:bg-surface-card',
+              )}
+            >
+              <ShieldCheck className="w-5 h-5" />
+              Admin
+            </Link>
           )}
 
           <div className="mt-auto pt-6 flex flex-col gap-1 text-xs text-gray-600">

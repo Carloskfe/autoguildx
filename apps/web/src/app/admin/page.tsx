@@ -1,0 +1,315 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { formatDistanceToNow } from 'date-fns';
+import { Loader2, Users, Package, Calendar, FileText, ShieldCheck, ShieldOff } from 'lucide-react';
+import AppShell from '@/components/layout/AppShell';
+import { useAuth } from '@/hooks/useAuth';
+import api from '@/lib/api';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface Stats {
+  users: number;
+  profiles: number;
+  listings: number;
+  events: number;
+  posts: number;
+}
+
+interface AdminUser {
+  id: string;
+  email: string;
+  role: string;
+  provider: string;
+  createdAt: string;
+  profile?: { name?: string };
+}
+
+interface VerificationRequest {
+  id: string;
+  status: string;
+  createdAt: string;
+  note: string | null;
+  user: { id: string; email: string };
+  profile: { id: string; name: string };
+}
+
+// ─── Stat card ────────────────────────────────────────────────────────────────
+
+function StatCard({
+  label,
+  value,
+  icon: Icon,
+}: {
+  label: string;
+  value: number;
+  icon: React.ElementType;
+}) {
+  return (
+    <div className="card flex items-center gap-4">
+      <div className="w-10 h-10 rounded-lg bg-brand-500/10 flex items-center justify-center shrink-0">
+        <Icon className="w-5 h-5 text-brand-500" />
+      </div>
+      <div>
+        <p className="text-2xl font-black text-white">{value.toLocaleString()}</p>
+        <p className="text-xs text-gray-400">{label}</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Verification tab ─────────────────────────────────────────────────────────
+
+function VerificationTab() {
+  const qc = useQueryClient();
+
+  const { data: requests = [], isLoading } = useQuery<VerificationRequest[]>({
+    queryKey: ['admin', 'verification'],
+    queryFn: () => api.get('/verification/pending').then((r) => r.data),
+  });
+
+  const review = useMutation({
+    mutationFn: ({ id, action, note }: { id: string; action: 'approve' | 'deny'; note?: string }) =>
+      api.patch(`/verification/${id}/review`, { action, note }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'verification'] }),
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="w-6 h-6 animate-spin text-brand-500" />
+      </div>
+    );
+  }
+
+  if (requests.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <ShieldCheck className="w-10 h-10 text-gray-600 mx-auto mb-3" />
+        <p className="text-gray-400 text-sm">No pending verification requests.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {requests.map((req) => (
+        <div key={req.id} className="card flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-white truncate">
+              {req.profile?.name ?? 'Unknown'}
+            </p>
+            <p className="text-xs text-gray-400 truncate">{req.user?.email}</p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Requested {formatDistanceToNow(new Date(req.createdAt), { addSuffix: true })}
+            </p>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <button
+              onClick={() => review.mutate({ id: req.id, action: 'approve' })}
+              disabled={review.isPending}
+              className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1.5 disabled:opacity-50"
+            >
+              {review.isPending ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <ShieldCheck className="w-3.5 h-3.5" />
+              )}
+              Approve
+            </button>
+            <button
+              onClick={() => review.mutate({ id: req.id, action: 'deny' })}
+              disabled={review.isPending}
+              className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5 text-red-400 border-red-900 hover:border-red-700 disabled:opacity-50"
+            >
+              <ShieldOff className="w-3.5 h-3.5" />
+              Deny
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── Users tab ────────────────────────────────────────────────────────────────
+
+const ROLE_COLORS: Record<string, string> = {
+  admin: 'bg-brand-500/20 text-brand-500 border border-brand-500/40',
+  mechanic: 'bg-blue-500/20 text-blue-400 border border-blue-500/40',
+  manufacturer: 'bg-purple-500/20 text-purple-400 border border-purple-500/40',
+  collector: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/40',
+  enthusiast: 'bg-surface-card text-gray-400 border border-surface-border',
+};
+
+function UsersTab() {
+  const qc = useQueryClient();
+  const { userId: currentUserId } = useAuth();
+  const [page, setPage] = useState(1);
+
+  const { data, isLoading } = useQuery<{
+    items: AdminUser[];
+    total: number;
+    page: number;
+    limit: number;
+  }>({
+    queryKey: ['admin', 'users', page],
+    queryFn: () => api.get(`/admin/users?page=${page}&limit=20`).then((r) => r.data),
+  });
+
+  const setRole = useMutation({
+    mutationFn: ({ id, role }: { id: string; role: string }) =>
+      api.patch(`/admin/users/${id}/role`, { role }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'users'] }),
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="w-6 h-6 animate-spin text-brand-500" />
+      </div>
+    );
+  }
+
+  const users = data?.items ?? [];
+  const total = data?.total ?? 0;
+  const totalPages = Math.ceil(total / (data?.limit ?? 20));
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-gray-500 px-1">{total} users total</p>
+
+      {users.map((user) => (
+        <div key={user.id} className="card flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-white truncate">
+              {user.profile?.name ?? user.email}
+            </p>
+            {user.profile?.name && <p className="text-xs text-gray-500 truncate">{user.email}</p>}
+            <div className="flex items-center gap-2 mt-1">
+              <span
+                className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${ROLE_COLORS[user.role] ?? ROLE_COLORS.enthusiast}`}
+              >
+                {user.role}
+              </span>
+              <span className="text-xs text-gray-600">{user.provider}</span>
+              <span className="text-xs text-gray-600">
+                {formatDistanceToNow(new Date(user.createdAt), { addSuffix: true })}
+              </span>
+            </div>
+          </div>
+          {user.id !== currentUserId && (
+            <select
+              value={user.role}
+              onChange={(e) => setRole.mutate({ id: user.id, role: e.target.value })}
+              disabled={setRole.isPending}
+              className="input text-xs py-1 px-2 w-32 shrink-0 disabled:opacity-50"
+            >
+              <option value="enthusiast">Enthusiast</option>
+              <option value="mechanic">Mechanic</option>
+              <option value="manufacturer">Manufacturer</option>
+              <option value="collector">Collector</option>
+              <option value="admin">Admin</option>
+            </select>
+          )}
+        </div>
+      ))}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3 pt-2">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="btn-secondary text-xs px-3 py-1.5 disabled:opacity-40"
+          >
+            Previous
+          </button>
+          <span className="text-xs text-gray-400">
+            {page} / {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            className="btn-secondary text-xs px-3 py-1.5 disabled:opacity-40"
+          >
+            Next
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Admin page ───────────────────────────────────────────────────────────────
+
+type Tab = 'verification' | 'users';
+
+export default function AdminPage() {
+  const { isAuthenticated, role } = useAuth();
+  const router = useRouter();
+  const [tab, setTab] = useState<Tab>('verification');
+
+  useEffect(() => {
+    if (!isAuthenticated) router.replace('/login');
+    else if (role && role !== 'admin') router.replace('/feed');
+  }, [isAuthenticated, role, router]);
+
+  const { data: stats, isLoading: statsLoading } = useQuery<Stats>({
+    queryKey: ['admin', 'stats'],
+    queryFn: () => api.get('/admin/stats').then((r) => r.data),
+    enabled: isAuthenticated && role === 'admin',
+  });
+
+  if (!isAuthenticated || role !== 'admin') return null;
+
+  return (
+    <AppShell>
+      <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+        <div>
+          <h1 className="text-xl font-bold text-white">Admin Dashboard</h1>
+          <p className="text-sm text-gray-400 mt-0.5">Manage users and verification requests</p>
+        </div>
+
+        {/* Stats */}
+        {statsLoading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="card h-16 animate-pulse bg-surface-card" />
+            ))}
+          </div>
+        ) : stats ? (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <StatCard label="Users" value={stats.users} icon={Users} />
+            <StatCard label="Listings" value={stats.listings} icon={Package} />
+            <StatCard label="Events" value={stats.events} icon={Calendar} />
+            <StatCard label="Posts" value={stats.posts} icon={FileText} />
+          </div>
+        ) : null}
+
+        {/* Tabs */}
+        <div>
+          <div className="flex border-b border-surface-border mb-4">
+            {(['verification', 'users'] as Tab[]).map((t) => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className={`px-4 py-2 text-sm font-medium capitalize transition-colors border-b-2 -mb-px ${
+                  tab === t
+                    ? 'border-brand-500 text-white'
+                    : 'border-transparent text-gray-400 hover:text-white'
+                }`}
+              >
+                {t === 'verification' ? 'Verification Requests' : 'Users'}
+              </button>
+            ))}
+          </div>
+
+          {tab === 'verification' ? <VerificationTab /> : <UsersTab />}
+        </div>
+      </div>
+    </AppShell>
+  );
+}
