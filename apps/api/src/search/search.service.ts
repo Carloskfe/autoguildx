@@ -71,9 +71,7 @@ export class SearchService {
       let events = await this.eventRepo.find({ where: eventWhere, take: 20 });
 
       if (locTerm) {
-        events = events.filter((e) =>
-          e.location?.toLowerCase().includes(location!.toLowerCase()),
-        );
+        events = events.filter((e) => e.location?.toLowerCase().includes(location!.toLowerCase()));
       }
 
       results.events = events.slice(0, 10);

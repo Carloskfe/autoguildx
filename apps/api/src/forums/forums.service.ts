@@ -156,7 +156,7 @@ export class ForumsService {
     });
     if (!post) throw new NotFoundException('Post not found');
     const myVote = userId
-      ? (await this.voteRepo.findOne({ where: { forumPostId: postId, userId } }))?.value ?? null
+      ? ((await this.voteRepo.findOne({ where: { forumPostId: postId, userId } }))?.value ?? null)
       : null;
     return { ...post, myVote };
   }
@@ -217,9 +217,7 @@ export class ForumsService {
       await this.commentVoteRepo.save(existing);
       comment.voteScore += delta;
     } else {
-      await this.commentVoteRepo.save(
-        this.commentVoteRepo.create({ commentId, userId, value }),
-      );
+      await this.commentVoteRepo.save(this.commentVoteRepo.create({ commentId, userId, value }));
       comment.voteScore += value;
     }
     return this.commentRepo.save(comment);

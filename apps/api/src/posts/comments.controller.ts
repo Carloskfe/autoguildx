@@ -23,11 +23,7 @@ export class CommentsController {
   @ApiOperation({ summary: 'Get nested comment tree for a post' })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
-  findByPost(
-    @Param('id') id: string,
-    @Query('page') page: number,
-    @Query('limit') limit: number,
-  ) {
+  findByPost(@Param('id') id: string, @Query('page') page: number, @Query('limit') limit: number) {
     return this.commentsService.findByPost(id, page, limit);
   }
 

@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Patch,
-  Param,
-  Body,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Post, Get, Patch, Param, Body, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { VerificationService } from './verification.service';
 import { RequestVerificationDto } from './dto/request-verification.dto';
@@ -26,7 +18,7 @@ export class VerificationController {
   @UseGuards(JwtAuthGuard)
   async requestVerification(
     @CurrentUser() user: { id: string },
-    @Body() dto: RequestVerificationDto,
+    @Body() _dto: RequestVerificationDto,
   ) {
     return this.verificationService.requestVerification(user.id, user.id);
   }

@@ -128,7 +128,8 @@ export class MessagesService {
     });
 
     this.gateway.notifyNewMessage(conv.id, conv.participantAId, conv.participantBId, full);
-    const recipientId = conv.participantAId === senderId ? conv.participantBId : conv.participantAId;
+    const recipientId =
+      conv.participantAId === senderId ? conv.participantBId : conv.participantAId;
     const { count } = await this.getUnreadCount(recipientId);
     this.gateway.notifyUnreadCount(recipientId, count);
 

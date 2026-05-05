@@ -214,11 +214,7 @@ export class CommentsVoteController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'React to a comment (generic endpoint)' })
-  react(
-    @Param('commentId') commentId: string,
-    @CurrentUser() user,
-    @Body() dto: ReactCommentDto,
-  ) {
+  react(@Param('commentId') commentId: string, @CurrentUser() user, @Body() dto: ReactCommentDto) {
     return this.commentsService.reactToComment(commentId, user.id, dto.emoji);
   }
 
