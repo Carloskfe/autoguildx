@@ -100,7 +100,15 @@ All features below are fully implemented and deployed unless noted.
 - `ReviewSection` component wired into `/profile/[id]` and `/marketplace/[id]`
 - Lightweight summary (avg + total) shown on listing cards and search results
 
-### 10. Verified Badges
+### 10. Admin Dashboard
+- `GET /admin/stats` — live counts of users, profiles, listings, events, posts
+- `GET /admin/users` — paginated user list; `PATCH /admin/users/:id/role` to promote/demote
+- All admin API routes guarded by `JwtAuthGuard + RolesGuard + @Roles('admin')`
+- `/admin` frontend page — stats cards, Verification Requests tab (approve/deny), Users tab (role management)
+- Admin link appears in AppShell sidebar only when `role === 'admin'` (parsed from JWT)
+- To activate: `UPDATE users SET role = 'admin' WHERE email = '...';` then re-login
+
+### 11. Verified Badges
 - Profiles can request a verified badge via `POST /verification/request`
 - Admins review requests at `GET /verification/pending` and approve/deny via `PATCH /verification/:id/review`
 - Approved profiles get `isVerified: true` on their profile entity; a `verification_approved` notification is sent

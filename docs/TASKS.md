@@ -325,3 +325,32 @@ All gaps identified during Sprint 1–6 have been closed. See individual sprint 
 - [x] `useUnreadCount` hook — wraps React Query (60s poll) + socket `unread_count_changed` listener
 - [x] `AppShell` — replaces inline 10s unreadCount poll query with `useUnreadCount()` hook
 - [x] Messages page — imports `useSocket`, adds `new_message` / `conversation_updated` socket listeners; reduces poll from 5s to 60s
+
+---
+
+## Sprint 12 — Admin Dashboard ✅ COMPLETE
+
+**Goal:** Give admins a management UI for verification requests and user roles, completing the verified badge loop end-to-end.
+
+### Backend
+- [x] `AdminModule` (`src/admin/`) — `AdminService` + `AdminController` registered in `AppModule`
+- [x] `GET /admin/stats` — counts of users, profiles, listings, events, posts
+- [x] `GET /admin/users?page&limit` — paginated user list with profile join, ordered by createdAt DESC
+- [x] `PATCH /admin/users/:id/role` — promote or demote a user (validates against allowed role values)
+- [x] All admin routes protected with `JwtAuthGuard + RolesGuard + @Roles('admin')`
+- [x] `tests/unit/admin/admin.service.spec.ts` — 7 tests covering getStats, getUsers, setUserRole
+
+### Frontend
+- [x] `useAuth` store updated — added `role: string | null`; parsed from JWT payload on login via `parseJwtRole()`; persisted to localStorage; exposed in `partialize`
+- [x] `AppShell` — Admin link (ShieldCheck icon) shown in desktop sidebar only when `role === 'admin'`
+- [x] `/admin` page — redirects non-authenticated users to `/login`, non-admins to `/feed`
+- [x] Stats row — 4 cards: Users, Listings, Events, Posts (skeleton shimmer while loading)
+- [x] Verification Requests tab — lists pending requests with Approve / Deny buttons; invalidates on action
+- [x] Users tab — paginated user list with role color badge; role dropdown per row (hidden for own account); pagination controls
+
+### To activate
+Run this SQL against your database to make your account an admin:
+```sql
+UPDATE users SET role = 'admin' WHERE email = 'carloskfe@gmail.com';
+```
+Then log out and back in so the new JWT carries `role: admin`.

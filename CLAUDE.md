@@ -322,6 +322,7 @@ Every domain feature follows the same NestJS pattern: `module → controller →
 | Search | `src/search/` | Cross-entity ILike search |
 | Upload | `src/upload/` | S3 presign stub (`POST /upload/presign`) |
 | Verification | `src/verification/` | Verified badge requests, admin review, isVerified flag on profiles |
+| Admin | `src/admin/` | Platform stats, user list + role management — all routes require `role: admin` |
 
 **Auth flow:** `JwtStrategy` (`src/auth/jwt.strategy.ts`) validates Bearer tokens and injects `{ id, email, role }` into `req.user`. Protected routes use `JwtAuthGuard` (`src/common/guards/`). Use `@CurrentUser()` (`src/common/decorators/`) to extract the user in controllers.
 
@@ -364,6 +365,7 @@ All authenticated pages wrap their content with `AppShell` (`src/components/layo
 | `/profile/[id]` | `app/profile/[id]/page.tsx` | ✓ Wired — public profile, follow/unfollow, message, posts, reviews |
 | `/subscription/success` | `app/subscription/success/page.tsx` | Stripe checkout success — invalidates subscription cache |
 | `/subscription/cancel` | `app/subscription/cancel/page.tsx` | Stripe checkout cancel |
+| `/admin` | `app/admin/page.tsx` | ✓ Wired — stats, verification queue, user role management (admin only) |
 
 **Page pattern for authenticated routes:** check `useAuth().isAuthenticated` in `useEffect`, redirect to `/login` if false, disable React Query fetches with `enabled: isAuthenticated`.
 
