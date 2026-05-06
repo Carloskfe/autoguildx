@@ -408,3 +408,25 @@ Set `EMAIL_API_KEY` (Resend API key) and `EMAIL_FROM` (e.g. `AutoGuildX <noreply
 - [x] `/courses/[id]/learn` — split-pane player: lesson sidebar with completion state, content + video iframe, Mark Complete button, prev/next navigation; instructor can add/delete lessons inline
 - [x] AppShell — Courses nav item (GraduationCap icon)
 - [x] `/profile` — CertificatesSection shows earned certificates with certificate numbers
+
+---
+
+## Backlog — Profile Banner & LinkedIn/Facebook-style Layout
+
+**Goal:** Upgrade the user profile page to a richer identity surface consistent with professional networks.
+
+**Design reference:** LinkedIn / Facebook profile layout
+- **Cover banner** — full-width background image (approx 820×312px) above the avatar; uploadable by the user; defaults to a gradient fallback
+- **Avatar** — large circular photo overlapping the bottom edge of the banner (offset upward); camera overlay for upload
+- **Profile header** — name + verified badge, role badge, location, follower/following counts all grouped below the avatar
+- **Action row** — "Edit profile", "Request Verification" (if not verified), "Share profile" — displayed as a button row
+
+**Backend changes needed:**
+- `profileBannerUrl: string` (nullable) on `ProfileEntity`
+- `PATCH /profiles/me` already accepts arbitrary fields — just add the column and DTO field
+- Migration to add the column
+
+**Frontend changes needed:**
+- `/profile` page: replace current avatar-only header with banner + overlapping avatar layout
+- `/profile/[id]` (public profile): same banner layout, read-only
+- Upload flow: camera overlay on banner area → presign → PUT → PATCH profileBannerUrl (reuse existing `uploadFile` helper)
