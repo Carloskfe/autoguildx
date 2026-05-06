@@ -46,75 +46,7 @@ const ROLE_LABELS: Record<string, string> = {
   enthusiast: 'Enthusiast',
 };
 
-// ─── Avatar with upload ────────────────────────────────────────────────────────
-
-function AvatarUpload({ profile }: { profile: Profile }) {
-  const qc = useQueryClient();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-
-  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const url = await uploadFile(file);
-      const isVideo = file.type.startsWith('video/');
-      const patch = isVideo ? { profileVideoUrl: url } : { profileImageUrl: url };
-      const updated = await api.patch('/profiles/me', patch).then((r) => r.data);
-      qc.setQueryData(['profile', 'me'], updated);
-    } finally {
-      setUploading(false);
-      e.target.value = '';
-    }
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={() => inputRef.current?.click()}
-      disabled={uploading}
-      className="relative w-16 h-16 rounded-full shrink-0 group"
-      aria-label="Change profile photo or video"
-    >
-      {profile.profileVideoUrl ? (
-        <video
-          src={profile.profileVideoUrl}
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-16 h-16 rounded-full object-cover"
-        />
-      ) : profile.profileImageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={profile.profileImageUrl}
-          alt={profile.name}
-          className="w-16 h-16 rounded-full object-cover"
-        />
-      ) : (
-        <div className="w-16 h-16 rounded-full bg-brand-500 flex items-center justify-center text-xl font-black text-white">
-          {initials(profile.name)}
-        </div>
-      )}
-      <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-        {uploading ? (
-          <Loader2 className="w-5 h-5 animate-spin text-white" />
-        ) : (
-          <Camera className="w-5 h-5 text-white" />
-        )}
-      </div>
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*,video/mp4,video/webm"
-        className="sr-only"
-        onChange={handleFile}
-      />
-    </button>
-  );
-}
+// ─── Profile header (banner + avatar) ────────────────────────────────────────
 
 // ─── Inline edit form ─────────────────────────────────────────────────────────
 
@@ -263,11 +195,13 @@ function EditProfileForm({
   );
 }
 
-// ─── Profile header ───────────────────────────────────────────────────────────
-
 function ProfileHeader({ profile }: { profile: Profile }) {
   const [editing, setEditing] = useState(false);
   const qc = useQueryClient();
+  const bannerRef = useRef<HTMLInputElement>(null);
+  const avatarRef = useRef<HTMLInputElement>(null);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const update = useMutation({
     mutationFn: (data: EditForm) => api.patch('/profiles/me', data).then((r) => r.data),
@@ -277,88 +211,200 @@ function ProfileHeader({ profile }: { profile: Profile }) {
     },
   });
 
+  async function handleBanner(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingBanner(true);
+    try {
+      const url = await uploadFile(file);
+      const updated = await api
+        .patch('/profiles/me', { profileBannerUrl: url })
+        .then((r) => r.data);
+      qc.setQueryData(['profile', 'me'], updated);
+    } finally {
+      setUploadingBanner(false);
+      e.target.value = '';
+    }
+  }
+
+  async function handleAvatar(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingAvatar(true);
+    try {
+      const url = await uploadFile(file);
+      const isVideo = file.type.startsWith('video/');
+      const patch = isVideo ? { profileVideoUrl: url } : { profileImageUrl: url };
+      const updated = await api.patch('/profiles/me', patch).then((r) => r.data);
+      qc.setQueryData(['profile', 'me'], updated);
+    } finally {
+      setUploadingAvatar(false);
+      e.target.value = '';
+    }
+  }
+
   return (
-    <div className="card space-y-4">
-      <div className="flex items-start gap-4">
-        <AvatarUpload profile={profile} />
-
-        <div className="flex-1 min-w-0">
-          {editing ? null : (
-            <>
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <h1 className="text-lg font-bold text-white leading-tight flex items-center gap-1.5">
-                    {profile.name}
-                    {profile.isVerified && <VerifiedBadge size="sm" />}
-                  </h1>
-                  {profile.businessName && (
-                    <p className="text-sm text-gray-400">{profile.businessName}</p>
-                  )}
-                </div>
-                <button
-                  onClick={() => setEditing(true)}
-                  className="shrink-0 p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-surface-card transition-colors"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </button>
-              </div>
-
-              <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-surface-card border border-surface-border text-gray-300">
-                {ROLE_LABELS[profile.roleType] ?? profile.roleType}
-              </span>
-            </>
+    <div className="bg-surface-card border border-surface-border rounded-xl overflow-hidden">
+      {/* ── Banner ─────────────────────────────────────────────────────────── */}
+      <div
+        className="relative h-40 cursor-pointer group"
+        onClick={() => bannerRef.current?.click()}
+      >
+        {profile.profileBannerUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={profile.profileBannerUrl}
+            alt="profile banner"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-gray-800 via-gray-900 to-gray-950" />
+        )}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+          {uploadingBanner ? (
+            <Loader2 className="w-6 h-6 text-white animate-spin" />
+          ) : (
+            <div className="flex items-center gap-2 bg-black/60 rounded-lg px-3 py-2">
+              <Camera className="w-4 h-4 text-white" />
+              <span className="text-white text-xs font-medium">Change cover photo</span>
+            </div>
           )}
         </div>
+        <input
+          ref={bannerRef}
+          type="file"
+          accept="image/*"
+          className="sr-only"
+          onChange={handleBanner}
+        />
       </div>
 
-      {editing ? (
-        <EditProfileForm
-          profile={profile}
-          onSave={(data) => update.mutate(data)}
-          onCancel={() => setEditing(false)}
-          saving={update.isPending}
-        />
-      ) : (
-        <>
-          {profile.location && (
-            <div className="flex items-center gap-1.5 text-sm text-gray-400">
-              <MapPin className="w-4 h-4 shrink-0" />
-              <span>{profile.location}</span>
+      {/* ── Avatar + actions row ─────────────────────────────────────────── */}
+      <div className="px-4 pb-5">
+        <div className="flex items-end justify-between -mt-10 mb-4">
+          {/* Avatar */}
+          <button
+            type="button"
+            onClick={() => avatarRef.current?.click()}
+            className="relative w-20 h-20 rounded-full group ring-4 ring-gray-900 shrink-0"
+            aria-label="Change profile photo"
+          >
+            {(profile as any).profileVideoUrl ? (
+              <video
+                src={(profile as any).profileVideoUrl}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-20 h-20 rounded-full object-cover"
+              />
+            ) : profile.profileImageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={profile.profileImageUrl}
+                alt={profile.name}
+                className="w-20 h-20 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-brand-500 flex items-center justify-center text-2xl font-black text-white">
+                {initials(profile.name)}
+              </div>
+            )}
+            <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              {uploadingAvatar ? (
+                <Loader2 className="w-5 h-5 animate-spin text-white" />
+              ) : (
+                <Camera className="w-5 h-5 text-white" />
+              )}
             </div>
-          )}
+            <input
+              ref={avatarRef}
+              type="file"
+              accept="image/*,video/mp4,video/webm"
+              className="sr-only"
+              onChange={handleAvatar}
+            />
+          </button>
 
-          {profile.bio && (
-            <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap">
-              {profile.bio}
-            </p>
+          {/* Edit button */}
+          {!editing && (
+            <button
+              onClick={() => setEditing(true)}
+              className="btn-secondary text-xs px-4 py-1.5 flex items-center gap-1.5 mb-1"
+            >
+              <Edit2 className="w-3.5 h-3.5" />
+              Edit profile
+            </button>
           )}
+        </div>
 
-          {profile.tags?.filter(Boolean).length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {profile.tags.filter(Boolean).map((tag) => (
-                <span
-                  key={tag}
-                  className="text-xs px-2 py-1 rounded-full bg-surface-card border border-surface-border text-gray-300"
-                >
-                  {tag}
-                </span>
-              ))}
+        {/* ── Body ─────────────────────────────────────────────────────────── */}
+        {editing ? (
+          <EditProfileForm
+            profile={profile}
+            onSave={(data) => update.mutate(data)}
+            onCancel={() => setEditing(false)}
+            saving={update.isPending}
+          />
+        ) : (
+          <div className="space-y-3">
+            {/* Name + role */}
+            <div>
+              <h1 className="text-xl font-bold text-white flex items-center gap-2">
+                {profile.name}
+                {profile.isVerified && <VerifiedBadge size="md" />}
+              </h1>
+              {profile.businessName && (
+                <p className="text-sm text-gray-400 mt-0.5">{profile.businessName}</p>
+              )}
+              <span className="inline-block mt-2 text-xs px-2.5 py-1 rounded-full bg-surface-card border border-surface-border text-gray-300">
+                {ROLE_LABELS[profile.roleType] ?? profile.roleType}
+              </span>
             </div>
-          )}
 
-          <div className="flex items-center gap-6 pt-1 border-t border-surface-border">
-            <div className="flex items-center gap-1.5 text-sm">
-              <Users className="w-4 h-4 text-gray-500" />
-              <span className="font-semibold text-white">{profile.followersCount}</span>
-              <span className="text-gray-400">followers</span>
+            {/* Location */}
+            {profile.location && (
+              <div className="flex items-center gap-1.5 text-sm text-gray-400">
+                <MapPin className="w-4 h-4 shrink-0" />
+                <span>{profile.location}</span>
+              </div>
+            )}
+
+            {/* Followers / following */}
+            <div className="flex items-center gap-5 text-sm">
+              <div>
+                <span className="font-bold text-white">{profile.followersCount}</span>
+                <span className="text-gray-400 ml-1.5">followers</span>
+              </div>
+              <div>
+                <span className="font-bold text-white">{profile.followingCount}</span>
+                <span className="text-gray-400 ml-1.5">following</span>
+              </div>
             </div>
-            <div className="flex items-center gap-1.5 text-sm">
-              <span className="font-semibold text-white">{profile.followingCount}</span>
-              <span className="text-gray-400">following</span>
-            </div>
+
+            {/* Bio */}
+            {profile.bio && (
+              <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">
+                {profile.bio}
+              </p>
+            )}
+
+            {/* Tags */}
+            {profile.tags?.filter(Boolean).length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {profile.tags.filter(Boolean).map((tag) => (
+                  <span
+                    key={tag}
+                    className="text-xs px-2.5 py-1 rounded-full bg-surface-card border border-surface-border text-gray-300"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
-        </>
-      )}
+        )}
+      </div>
     </div>
   );
 }

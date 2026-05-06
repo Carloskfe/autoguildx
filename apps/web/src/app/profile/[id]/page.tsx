@@ -127,57 +127,77 @@ export default function PublicProfilePage() {
   return (
     <AppShell>
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
-        {/* Profile card */}
-        <div className="card space-y-4">
-          <div className="flex items-start gap-4">
-            {(profile as Profile & { profileVideoUrl?: string }).profileVideoUrl ? (
-              <video
-                src={(profile as Profile & { profileVideoUrl?: string }).profileVideoUrl}
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="w-16 h-16 rounded-full object-cover shrink-0"
-              />
-            ) : profile.profileImageUrl ? (
+        {/* ── Profile banner card ───────────────────────────────────────────── */}
+        <div className="bg-surface-card border border-surface-border rounded-xl overflow-hidden">
+          {/* Banner */}
+          <div className="relative h-40">
+            {(profile as any).profileBannerUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={profile.profileImageUrl}
-                alt={profile.name}
-                className="w-16 h-16 rounded-full object-cover shrink-0"
+                src={(profile as any).profileBannerUrl}
+                alt="profile banner"
+                className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-16 h-16 rounded-full bg-brand-500 flex items-center justify-center text-xl font-black text-white shrink-0">
-                {initials(profile.name)}
-              </div>
+              <div className="w-full h-full bg-gradient-to-br from-gray-800 via-gray-900 to-gray-950" />
             )}
+          </div>
 
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h1 className="text-lg font-bold text-white leading-tight flex items-center gap-1.5">
-                    {profile.name}
-                    {profile.isVerified && <VerifiedBadge size="sm" />}
-                  </h1>
-                  {profile.businessName && (
-                    <p className="text-sm text-gray-400">{profile.businessName}</p>
-                  )}
-                  <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-surface-card border border-surface-border text-gray-300">
-                    {ROLE_LABELS[profile.roleType] ?? profile.roleType}
-                  </span>
-                </div>
+          {/* Avatar + actions */}
+          <div className="px-4 pb-5">
+            <div className="flex items-end justify-between -mt-10 mb-4">
+              {/* Avatar */}
+              <div className="w-20 h-20 rounded-full ring-4 ring-gray-900 shrink-0 overflow-hidden">
+                {(profile as any).profileVideoUrl ? (
+                  <video
+                    src={(profile as any).profileVideoUrl}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-20 h-20 object-cover"
+                  />
+                ) : profile.profileImageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={profile.profileImageUrl}
+                    alt={profile.name}
+                    className="w-20 h-20 object-cover"
+                  />
+                ) : (
+                  <div className="w-20 h-20 bg-brand-500 flex items-center justify-center text-2xl font-black text-white">
+                    {initials(profile.name)}
+                  </div>
+                )}
+              </div>
 
-                {!isOwnProfile && (
-                  <div className="flex items-center gap-2 shrink-0">
+              {/* Action buttons */}
+              <div className="flex items-center gap-2 mb-1">
+                {isOwnProfile ? (
+                  <button
+                    onClick={() => router.push('/profile')}
+                    className="btn-secondary text-xs px-4 py-1.5"
+                  >
+                    Edit profile
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      onClick={handleCopyLink}
+                      className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5"
+                    >
+                      <Link2 className="w-3.5 h-3.5" />
+                      {copied ? 'Copied!' : 'Share'}
+                    </button>
                     <button
                       onClick={handleMessage}
                       disabled={messagePending}
-                      className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg font-medium bg-surface-card border border-surface-border text-gray-300 hover:text-white hover:border-gray-400 transition-colors disabled:opacity-50"
+                      className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5 disabled:opacity-50"
                     >
                       {messagePending ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
                       ) : (
-                        <MessageSquare className="w-4 h-4" />
+                        <MessageSquare className="w-3.5 h-3.5" />
                       )}
                       Message
                     </button>
@@ -186,84 +206,81 @@ export default function PublicProfilePage() {
                         isFollowing ? unfollowMutation.mutate() : followMutation.mutate()
                       }
                       disabled={followMutation.isPending || unfollowMutation.isPending}
-                      className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg font-medium transition-colors disabled:opacity-50 ${
+                      className={`text-xs px-4 py-1.5 rounded-lg font-medium flex items-center gap-1.5 transition-colors disabled:opacity-50 ${
                         isFollowing
                           ? 'bg-surface-card border border-surface-border text-gray-300 hover:text-red-400 hover:border-red-400'
                           : 'btn-primary'
                       }`}
                     >
                       {followMutation.isPending || unfollowMutation.isPending ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
                       ) : isFollowing ? (
                         <>
-                          <UserMinus className="w-4 h-4" /> Unfollow
+                          <UserMinus className="w-3.5 h-3.5" /> Unfollow
                         </>
                       ) : (
                         <>
-                          <UserPlus className="w-4 h-4" /> Follow
+                          <UserPlus className="w-3.5 h-3.5" /> Follow
                         </>
                       )}
                     </button>
-                  </div>
-                )}
-
-                {isOwnProfile && (
-                  <button
-                    onClick={() => router.push('/profile')}
-                    className="shrink-0 btn-secondary text-sm px-3 py-1.5"
-                  >
-                    Edit profile
-                  </button>
+                  </>
                 )}
               </div>
             </div>
-          </div>
 
-          {profile.location && (
-            <div className="flex items-center gap-1.5 text-sm text-gray-400">
-              <MapPin className="w-4 h-4 shrink-0" />
-              <span>{profile.location}</span>
-            </div>
-          )}
-
-          {profile.bio && (
-            <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap">
-              {profile.bio}
-            </p>
-          )}
-
-          {profile.tags?.filter(Boolean).length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {profile.tags.filter(Boolean).map((tag) => (
-                <span
-                  key={tag}
-                  className="text-xs px-2 py-1 rounded-full bg-surface-card border border-surface-border text-gray-300"
-                >
-                  {tag}
+            {/* Profile info */}
+            <div className="space-y-3">
+              <div>
+                <h1 className="text-xl font-bold text-white flex items-center gap-2">
+                  {profile.name}
+                  {profile.isVerified && <VerifiedBadge size="md" />}
+                </h1>
+                {profile.businessName && (
+                  <p className="text-sm text-gray-400 mt-0.5">{profile.businessName}</p>
+                )}
+                <span className="inline-block mt-2 text-xs px-2.5 py-1 rounded-full bg-surface-card border border-surface-border text-gray-300">
+                  {ROLE_LABELS[profile.roleType] ?? profile.roleType}
                 </span>
-              ))}
-            </div>
-          )}
+              </div>
 
-          <div className="flex items-center justify-between pt-1 border-t border-surface-border">
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-1.5 text-sm">
-                <Users className="w-4 h-4 text-gray-500" />
-                <span className="font-semibold text-white">{profile.followersCount}</span>
-                <span className="text-gray-400">followers</span>
+              {profile.location && (
+                <div className="flex items-center gap-1.5 text-sm text-gray-400">
+                  <MapPin className="w-4 h-4 shrink-0" />
+                  <span>{profile.location}</span>
+                </div>
+              )}
+
+              <div className="flex items-center gap-5 text-sm">
+                <div>
+                  <span className="font-bold text-white">{profile.followersCount}</span>
+                  <span className="text-gray-400 ml-1.5">followers</span>
+                </div>
+                <div>
+                  <span className="font-bold text-white">{profile.followingCount}</span>
+                  <span className="text-gray-400 ml-1.5">following</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5 text-sm">
-                <span className="font-semibold text-white">{profile.followingCount}</span>
-                <span className="text-gray-400">following</span>
-              </div>
+
+              {profile.bio && (
+                <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">
+                  {profile.bio}
+                </p>
+              )}
+
+              {profile.tags?.filter(Boolean).length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {profile.tags.filter(Boolean).map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-xs px-2.5 py-1 rounded-full bg-surface-card border border-surface-border text-gray-300"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
-            <button
-              onClick={handleCopyLink}
-              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors"
-            >
-              <Link2 className="w-3.5 h-3.5" />
-              {copied ? 'Copied!' : 'Copy Link'}
-            </button>
           </div>
         </div>
 

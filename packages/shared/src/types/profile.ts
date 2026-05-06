@@ -11,6 +11,7 @@ export interface Profile {
   tags: string[];
   profileImageUrl?: string;
   profileVideoUrl?: string;
+  profileBannerUrl?: string;
   followersCount: number;
   followingCount: number;
   isVerified: boolean;

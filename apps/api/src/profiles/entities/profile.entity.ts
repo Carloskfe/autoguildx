@@ -46,6 +46,9 @@ export class ProfileEntity {
   @Column({ nullable: true })
   profileVideoUrl: string;
 
+  @Column({ nullable: true })
+  profileBannerUrl: string;
+
   @Column({ default: 0 })
   followersCount: number;
 
