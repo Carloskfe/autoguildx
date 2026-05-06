@@ -57,20 +57,34 @@ export class NotificationsService {
     return { updated: true };
   }
 
+  async getEmailSettings(userId: string) {
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      select: ['id', 'emailNotificationsEnabled'],
+    });
+    return { emailNotificationsEnabled: user?.emailNotificationsEnabled ?? true };
+  }
+
+  async updateEmailSettings(userId: string, enabled: boolean) {
+    await this.userRepo.update({ id: userId }, { emailNotificationsEnabled: enabled });
+    return { emailNotificationsEnabled: enabled };
+  }
+
   private async sendEmail(dto: CreateNotificationDto) {
     const EMAIL_TYPES = new Set([
       'verification_approved',
       'verification_denied',
       'new_message',
       'follow',
+      'review',
     ]);
     if (!EMAIL_TYPES.has(dto.type)) return;
 
     const recipient = await this.userRepo.findOne({
       where: { id: dto.userId },
-      select: ['id', 'email'],
+      select: ['id', 'email', 'emailNotificationsEnabled'],
     });
-    if (!recipient?.email) return;
+    if (!recipient?.email || recipient.emailNotificationsEnabled === false) return;
 
     let tpl: { subject: string; html: string } | null = null;
 
@@ -92,6 +106,14 @@ export class NotificationsService {
       });
       const name = (actor as any)?.profile?.name ?? actor?.email ?? 'Someone';
       tpl = templates.newFollower(name);
+    } else if (dto.type === 'review') {
+      const actor = await this.userRepo.findOne({
+        where: { id: dto.actorId },
+        relations: ['profile'],
+      });
+      const name = (actor as any)?.profile?.name ?? actor?.email ?? 'Someone';
+      const rating = (dto.data?.rating as number) ?? 5;
+      tpl = templates.newReview(name, rating);
     }
 
     if (tpl) {

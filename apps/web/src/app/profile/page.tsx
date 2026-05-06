@@ -4,7 +4,18 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { MapPin, Users, Heart, Edit2, Check, X, Loader2, Camera, ShieldCheck } from 'lucide-react';
+import {
+  MapPin,
+  Users,
+  Heart,
+  Edit2,
+  Check,
+  X,
+  Loader2,
+  Camera,
+  ShieldCheck,
+  Bell,
+} from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import VerifiedBadge from '@/components/VerifiedBadge';
 import { useAuth } from '@/hooks/useAuth';
@@ -447,6 +458,55 @@ function VerificationSection() {
   );
 }
 
+// ─── Email notification toggle ────────────────────────────────────────────────
+
+function EmailNotificationsSection() {
+  const qc = useQueryClient();
+
+  const { data, isLoading } = useQuery<{ emailNotificationsEnabled: boolean }>({
+    queryKey: ['emailSettings'],
+    queryFn: () => api.get('/notifications/email-settings').then((r) => r.data),
+  });
+
+  const toggle = useMutation({
+    mutationFn: (enabled: boolean) =>
+      api.patch('/notifications/email-settings', { emailNotificationsEnabled: enabled }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['emailSettings'] }),
+  });
+
+  const enabled = data?.emailNotificationsEnabled ?? true;
+
+  return (
+    <div id="notifications" className="card flex items-center justify-between gap-4">
+      <div className="flex items-center gap-2">
+        <Bell className="w-5 h-5 text-gray-400 shrink-0" />
+        <div>
+          <p className="text-sm font-medium text-white">Email Notifications</p>
+          <p className="text-xs text-gray-400">
+            {enabled
+              ? 'Emails for messages, reviews, follows, and badges'
+              : 'Email notifications are off'}
+          </p>
+        </div>
+      </div>
+      <button
+        onClick={() => toggle.mutate(!enabled)}
+        disabled={isLoading || toggle.isPending}
+        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent
+          transition-colors duration-200 focus:outline-none disabled:opacity-50
+          ${enabled ? 'bg-brand-500' : 'bg-gray-600'}`}
+        role="switch"
+        aria-checked={enabled}
+      >
+        <span
+          className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow
+            transform transition duration-200 ${enabled ? 'translate-x-5' : 'translate-x-0'}`}
+        />
+      </button>
+    </div>
+  );
+}
+
 // ─── Profile page ─────────────────────────────────────────────────────────────
 
 export default function ProfilePage() {
@@ -508,6 +568,8 @@ export default function ProfilePage() {
         {profile && <ProfileHeader profile={profile} />}
 
         {profile && !profile.isVerified && <VerificationSection />}
+
+        <EmailNotificationsSection />
 
         <div className="space-y-3">
           <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide px-1">

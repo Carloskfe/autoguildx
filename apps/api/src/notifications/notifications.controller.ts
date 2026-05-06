@@ -4,6 +4,7 @@ import {
   Patch,
   Post,
   Param,
+  Body,
   Query,
   UseGuards,
   DefaultValuePipe,
@@ -47,5 +48,20 @@ export class NotificationsController {
   @ApiOperation({ summary: 'Mark a single notification as read' })
   markRead(@Param('id') id: string, @CurrentUser() user) {
     return this.notificationsService.markRead(id, user.id);
+  }
+
+  @Get('email-settings')
+  @ApiOperation({ summary: 'Get email notification preference' })
+  getEmailSettings(@CurrentUser() user) {
+    return this.notificationsService.getEmailSettings(user.id);
+  }
+
+  @Patch('email-settings')
+  @ApiOperation({ summary: 'Update email notification preference' })
+  updateEmailSettings(
+    @CurrentUser() user,
+    @Body('emailNotificationsEnabled') enabled: boolean,
+  ) {
+    return this.notificationsService.updateEmailSettings(user.id, enabled);
   }
 }

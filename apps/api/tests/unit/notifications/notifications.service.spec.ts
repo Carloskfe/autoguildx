@@ -11,7 +11,7 @@ const mockRepo = () => ({
   count: jest.fn(),
   create: jest.fn(),
   save: jest.fn(),
-  update: jest.fn(),
+  update: jest.fn().mockResolvedValue({ affected: 1 }),
 });
 
 const mockEmailService = () => ({ send: jest.fn().mockResolvedValue(undefined) });
@@ -73,7 +73,7 @@ describe('NotificationsService', () => {
     it('sends email on verification_approved', async () => {
       repo.create.mockReturnValue(notif({ type: 'verification_approved' }));
       repo.save.mockResolvedValue({});
-      userRepo.findOne.mockResolvedValue({ id: 'u-recipient', email: 'user@test.com' });
+      userRepo.findOne.mockResolvedValue({ id: 'u-recipient', email: 'user@test.com', emailNotificationsEnabled: true });
 
       await service.create({ userId: 'u-recipient', actorId: 'u-actor', type: 'verification_approved' });
 
@@ -85,12 +85,31 @@ describe('NotificationsService', () => {
     it('sends email on verification_denied', async () => {
       repo.create.mockReturnValue(notif({ type: 'verification_denied' }));
       repo.save.mockResolvedValue({});
-      userRepo.findOne.mockResolvedValue({ id: 'u-recipient', email: 'user@test.com' });
+      userRepo.findOne.mockResolvedValue({ id: 'u-recipient', email: 'user@test.com', emailNotificationsEnabled: true });
 
       await service.create({ userId: 'u-recipient', actorId: 'u-actor', type: 'verification_denied' });
 
       expect(emailService.send).toHaveBeenCalledWith(
         expect.objectContaining({ to: 'user@test.com' }),
+      );
+    });
+
+    it('sends email on review type with rating in data', async () => {
+      repo.create.mockReturnValue(notif({ type: 'review' }));
+      repo.save.mockResolvedValue({});
+      userRepo.findOne
+        .mockResolvedValueOnce({ id: 'u-recipient', email: 'user@test.com', emailNotificationsEnabled: true })
+        .mockResolvedValueOnce({ id: 'u-actor', email: 'actor@test.com', profile: { name: 'John' } });
+
+      await service.create({
+        userId: 'u-recipient',
+        actorId: 'u-actor',
+        type: 'review',
+        data: { rating: 4 },
+      });
+
+      expect(emailService.send).toHaveBeenCalledWith(
+        expect.objectContaining({ to: 'user@test.com', subject: expect.stringContaining('4-star') }),
       );
     });
 
@@ -112,6 +131,61 @@ describe('NotificationsService', () => {
       await service.create({ userId: 'u-recipient', actorId: 'u-actor', type: 'verification_approved' });
 
       expect(emailService.send).not.toHaveBeenCalled();
+    });
+
+    it('does not send email when recipient has emailNotificationsEnabled=false', async () => {
+      repo.create.mockReturnValue(notif({ type: 'verification_approved' }));
+      repo.save.mockResolvedValue({});
+      userRepo.findOne.mockResolvedValue({
+        id: 'u-recipient',
+        email: 'user@test.com',
+        emailNotificationsEnabled: false,
+      });
+
+      await service.create({ userId: 'u-recipient', actorId: 'u-actor', type: 'verification_approved' });
+
+      expect(emailService.send).not.toHaveBeenCalled();
+    });
+  });
+
+  // ── getEmailSettings ──────────────────────────────────────────────────────────
+
+  describe('getEmailSettings', () => {
+    it('returns emailNotificationsEnabled=true when user has it enabled', async () => {
+      userRepo.findOne.mockResolvedValue({ id: 'u-1', emailNotificationsEnabled: true });
+      expect(await service.getEmailSettings('u-1')).toEqual({ emailNotificationsEnabled: true });
+    });
+
+    it('returns emailNotificationsEnabled=false when user has it disabled', async () => {
+      userRepo.findOne.mockResolvedValue({ id: 'u-1', emailNotificationsEnabled: false });
+      expect(await service.getEmailSettings('u-1')).toEqual({ emailNotificationsEnabled: false });
+    });
+
+    it('defaults to true when user is not found', async () => {
+      userRepo.findOne.mockResolvedValue(null);
+      expect(await service.getEmailSettings('u-unknown')).toEqual({ emailNotificationsEnabled: true });
+    });
+  });
+
+  // ── updateEmailSettings ───────────────────────────────────────────────────────
+
+  describe('updateEmailSettings', () => {
+    it('updates the preference and returns the new value', async () => {
+      userRepo.update = jest.fn().mockResolvedValue({ affected: 1 });
+      expect(await service.updateEmailSettings('u-1', false)).toEqual({
+        emailNotificationsEnabled: false,
+      });
+      expect(userRepo.update).toHaveBeenCalledWith(
+        { id: 'u-1' },
+        { emailNotificationsEnabled: false },
+      );
+    });
+
+    it('can re-enable notifications', async () => {
+      userRepo.update = jest.fn().mockResolvedValue({ affected: 1 });
+      expect(await service.updateEmailSettings('u-1', true)).toEqual({
+        emailNotificationsEnabled: true,
+      });
     });
   });
 

@@ -24,6 +24,9 @@ export class UserEntity {
   @Column({ nullable: true })
   stripeCustomerId: string;
 
+  @Column({ default: true })
+  emailNotificationsEnabled: boolean;
+
   @OneToOne(() => ProfileEntity, (profile) => profile.user)
   profile: ProfileEntity;
 }

@@ -1,3 +1,5 @@
+const FRONTEND = process.env.FRONTEND_URL ?? 'http://localhost:3000';
+
 const base = (body: string) => `
 <!DOCTYPE html>
 <html>
@@ -11,7 +13,8 @@ const base = (body: string) => `
         <hr style="border:none;border-top:1px solid #2a2a2a;margin:32px 0">
         <p style="font-size:11px;color:#555;margin:0">
           You received this email because you have an account on AutoGuildX.<br>
-          To stop receiving emails, update your notification settings in your profile.
+          <a href="${FRONTEND}/profile#notifications"
+             style="color:#f97316;text-decoration:underline">Unsubscribe from email notifications</a>
         </p>
       </td>
     </tr>
@@ -28,7 +31,7 @@ export const templates = {
         Your verification request has been approved. A verified badge now appears next to your
         name across AutoGuildX — on your profile, in the feed, and in search results.
       </p>
-      <a href="${process.env.FRONTEND_URL ?? 'http://localhost:3000'}/profile"
+      <a href="${FRONTEND}/profile"
          style="display:inline-block;background:#f97316;color:#fff;text-decoration:none;
                 font-weight:700;padding:12px 24px;border-radius:8px;font-size:14px">
         View your profile
@@ -44,7 +47,7 @@ export const templates = {
         Your verification request was reviewed and could not be approved at this time.
         You can submit a new request from your profile page once your account has more activity.
       </p>
-      <a href="${process.env.FRONTEND_URL ?? 'http://localhost:3000'}/profile"
+      <a href="${FRONTEND}/profile"
          style="display:inline-block;background:#f97316;color:#fff;text-decoration:none;
                 font-weight:700;padding:12px 24px;border-radius:8px;font-size:14px">
         Go to your profile
@@ -59,7 +62,7 @@ export const templates = {
       <p style="font-size:15px;line-height:1.6;margin:0 0 20px;color:#ccc">
         <strong style="color:#fff">${senderName}</strong> sent you a message on AutoGuildX.
       </p>
-      <a href="${process.env.FRONTEND_URL ?? 'http://localhost:3000'}/messages"
+      <a href="${FRONTEND}/messages"
          style="display:inline-block;background:#f97316;color:#fff;text-decoration:none;
                 font-weight:700;padding:12px 24px;border-radius:8px;font-size:14px">
         Read message
@@ -74,7 +77,23 @@ export const templates = {
       <p style="font-size:15px;line-height:1.6;margin:0 0 20px;color:#ccc">
         <strong style="color:#fff">${followerName}</strong> started following you on AutoGuildX.
       </p>
-      <a href="${process.env.FRONTEND_URL ?? 'http://localhost:3000'}/profile"
+      <a href="${FRONTEND}/profile"
+         style="display:inline-block;background:#f97316;color:#fff;text-decoration:none;
+                font-weight:700;padding:12px 24px;border-radius:8px;font-size:14px">
+        View your profile
+      </a>
+    `),
+  }),
+
+  newReview: (reviewerName: string, rating: number) => ({
+    subject: `${reviewerName} left you a ${rating}-star review on AutoGuildX`,
+    html: base(`
+      <h1 style="font-size:22px;font-weight:800;margin:0 0 12px">New review</h1>
+      <p style="font-size:15px;line-height:1.6;margin:0 0 20px;color:#ccc">
+        <strong style="color:#fff">${reviewerName}</strong> left you a
+        <strong style="color:#fff">${rating}-star</strong> review on AutoGuildX.
+      </p>
+      <a href="${FRONTEND}/profile"
          style="display:inline-block;background:#f97316;color:#fff;text-decoration:none;
                 font-weight:700;padding:12px 24px;border-radius:8px;font-size:14px">
         View your profile
