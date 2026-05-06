@@ -5,3 +5,4 @@ export * from './types/listing';
 export * from './types/event';
 export * from './types/subscription';
 export * from './types/forum';
+export * from './types/course';

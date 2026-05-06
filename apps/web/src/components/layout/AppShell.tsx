@@ -15,6 +15,7 @@ import {
   Bell,
   Hash,
   ShieldCheck,
+  GraduationCap,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { clsx } from 'clsx';
@@ -29,6 +30,7 @@ const NAV = [
   { href: '/feed', label: 'Feed', icon: Home },
   { href: '/discover', label: 'Discover', icon: Search },
   { href: '/agxtopics', label: 'AGXTopics', icon: Hash },
+  { href: '/courses', label: 'Courses', icon: GraduationCap },
   { href: '/marketplace', label: 'Market', icon: Package },
   { href: '/events', label: 'Events', icon: Calendar },
   { href: '/messages', label: 'Messages', icon: MessageSquare },

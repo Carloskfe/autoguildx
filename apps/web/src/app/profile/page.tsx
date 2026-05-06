@@ -15,13 +15,15 @@ import {
   Camera,
   ShieldCheck,
   Bell,
+  Award,
+  GraduationCap,
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import VerifiedBadge from '@/components/VerifiedBadge';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
 import { uploadFile } from '@/lib/upload';
-import type { Profile, Post } from '@autoguildx/shared';
+import type { Profile, Post, Certificate } from '@autoguildx/shared';
 
 interface PostWithUser extends Post {
   user?: { id: string; email: string };
@@ -507,6 +509,39 @@ function EmailNotificationsSection() {
   );
 }
 
+// ─── Certificates section ─────────────────────────────────────────────────────
+
+function CertificatesSection() {
+  const { data: certs, isLoading } = useQuery<Certificate[]>({
+    queryKey: ['myCertificates'],
+    queryFn: () => api.get('/courses/certificates').then((r) => r.data),
+  });
+
+  if (isLoading || !certs?.length) return null;
+
+  return (
+    <div className="space-y-3">
+      <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide px-1">
+        Certificates
+      </h2>
+      <div className="space-y-2">
+        {certs.map((cert) => (
+          <div key={cert.id} className="card flex items-center gap-3">
+            <Award className="w-5 h-5 text-brand-500 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-white truncate">
+                {(cert.course as any)?.title ?? 'Course'}
+              </p>
+              <p className="text-xs text-gray-500 font-mono">{cert.certificateNumber}</p>
+            </div>
+            <GraduationCap className="w-4 h-4 text-gray-500 shrink-0" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Profile page ─────────────────────────────────────────────────────────────
 
 export default function ProfilePage() {
@@ -570,6 +605,8 @@ export default function ProfilePage() {
         {profile && !profile.isVerified && <VerificationSection />}
 
         <EmailNotificationsSection />
+
+        <CertificatesSection />
 
         <div className="space-y-3">
           <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide px-1">
