@@ -61,7 +61,10 @@ export class CoursesService {
     if (opts.search) qb = qb.andWhere('c.title ILIKE :s', { s: `%${opts.search}%` });
     if (opts.tag) qb = qb.andWhere('c.tags ILIKE :t', { t: `%${opts.tag}%` });
 
-    qb = qb.orderBy('c.createdAt', 'DESC').skip((page - 1) * limit).take(limit);
+    qb = qb
+      .orderBy('c.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
 
     const [courses, total] = await qb.getManyAndCount();
     return { courses, total, page, limit };
@@ -87,7 +90,7 @@ export class CoursesService {
     let completedLessonIds: string[] = [];
 
     if (userId) {
-      enrollment = await this.enrollRepo.findOne({ where: { userId, courseId: id } }) ?? null;
+      enrollment = (await this.enrollRepo.findOne({ where: { userId, courseId: id } })) ?? null;
       if (enrollment) {
         const progress = await this.progressRepo.find({ where: { userId, courseId: id } });
         completedLessonIds = progress.map((p) => p.lessonId);
@@ -97,7 +100,11 @@ export class CoursesService {
     return { ...course, lessons, enrollment, completedLessonIds };
   }
 
-  async update(id: string, instructorId: string, dto: Partial<CreateCourseDto>): Promise<CourseEntity> {
+  async update(
+    id: string,
+    instructorId: string,
+    dto: Partial<CreateCourseDto>,
+  ): Promise<CourseEntity> {
     const course = await this.getCourseAsInstructor(id, instructorId);
     Object.assign(course, dto);
     return this.courseRepo.save(course);
@@ -116,7 +123,11 @@ export class CoursesService {
 
   // ── Lessons ──────────────────────────────────────────────────────────────────
 
-  async addLesson(courseId: string, instructorId: string, dto: CreateLessonDto): Promise<LessonEntity> {
+  async addLesson(
+    courseId: string,
+    instructorId: string,
+    dto: CreateLessonDto,
+  ): Promise<LessonEntity> {
     await this.getCourseAsInstructor(courseId, instructorId);
     const count = await this.lessonRepo.count({ where: { courseId } });
     const lesson = this.lessonRepo.create({
@@ -198,7 +209,8 @@ export class CoursesService {
       this.progressRepo.find({ where: { userId, courseId } }),
     ]);
     const completedIds = completed.map((p) => p.lessonId);
-    const percentage = totalLessons > 0 ? Math.round((completedIds.length / totalLessons) * 100) : 0;
+    const percentage =
+      totalLessons > 0 ? Math.round((completedIds.length / totalLessons) * 100) : 0;
     return { completedIds, total: totalLessons, completed: completedIds.length, percentage };
   }
 

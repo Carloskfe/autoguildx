@@ -129,11 +129,7 @@ export class CoursesController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a lesson' })
-  removeLesson(
-    @Param('id') id: string,
-    @Param('lessonId') lessonId: string,
-    @CurrentUser() user,
-  ) {
+  removeLesson(@Param('id') id: string, @Param('lessonId') lessonId: string, @CurrentUser() user) {
     return this.svc.removeLesson(id, lessonId, user.id);
   }
 

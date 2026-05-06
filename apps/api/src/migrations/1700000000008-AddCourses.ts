@@ -72,10 +72,18 @@ export class AddCourses1700000000008 implements MigrationInterface {
       )
     `);
 
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_courses_published" ON "courses" ("published")`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_courses_instructorId" ON "courses" ("instructorId")`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_enrollments_userId" ON "enrollments" ("userId")`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_lesson_progress_userId_courseId" ON "lesson_progress" ("userId", "courseId")`);
+    await queryRunner.query(
+      `CREATE INDEX IF NOT EXISTS "IDX_courses_published" ON "courses" ("published")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX IF NOT EXISTS "IDX_courses_instructorId" ON "courses" ("instructorId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX IF NOT EXISTS "IDX_enrollments_userId" ON "enrollments" ("userId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX IF NOT EXISTS "IDX_lesson_progress_userId_courseId" ON "lesson_progress" ("userId", "courseId")`,
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

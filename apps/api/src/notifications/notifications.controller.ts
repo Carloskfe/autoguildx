@@ -58,10 +58,7 @@ export class NotificationsController {
 
   @Patch('email-settings')
   @ApiOperation({ summary: 'Update email notification preference' })
-  updateEmailSettings(
-    @CurrentUser() user,
-    @Body('emailNotificationsEnabled') enabled: boolean,
-  ) {
+  updateEmailSettings(@CurrentUser() user, @Body('emailNotificationsEnabled') enabled: boolean) {
     return this.notificationsService.updateEmailSettings(user.id, enabled);
   }
 }
