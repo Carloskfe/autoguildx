@@ -357,20 +357,26 @@ Then log out and back in so the new JWT carries `role: admin`.
 
 ---
 
-## Backlog — Transactional Email Notifications
+## Sprint 13 — Transactional Email Notifications ✅ COMPLETE
 
 **Goal:** Re-engage users who are offline by sending email for key events.
 
-**Triggers (priority order):**
-- [ ] New direct message received
-- [ ] Verification request approved or denied
-- [ ] New follower
-- [ ] New review left on your profile or listing
+### Backend
+- [x] `EmailModule` + `EmailService` — Resend provider via native `fetch`; graceful no-op when `EMAIL_API_KEY` absent; `@Global()` module
+- [x] Email templates: verification approved/denied, new message, new follower, new review
+- [x] `NotificationsService.sendEmail()` — fires alongside in-app notification; gated by type and `emailNotificationsEnabled` preference
+- [x] `emailNotificationsEnabled: boolean` column on `UserEntity` (default `true`); migration `1700000000007-AddEmailNotificationsEnabled.ts`
+- [x] `GET /notifications/email-settings` — returns current preference
+- [x] `PATCH /notifications/email-settings` — toggles preference
+- [x] `review` type wired into email triggers (fires on new profile review with star rating in subject)
+- [x] Unsubscribe link in every email footer (CAN-SPAM) — links to `/profile#notifications`
 
-**Design notes:**
-- Hook into `NotificationsService.create()` — email fires alongside every in-app notification, gated by notification type
-- Provider: Resend (`resend` npm package) or SendGrid — single `EmailService` abstraction so the provider is swappable
-- Unsubscribe link required in every email (CAN-SPAM); store `emailNotificationsEnabled: boolean` on `UserEntity` (default true); `PATCH /profiles/me/notifications` to toggle
-- Env vars needed: `EMAIL_API_KEY`, `EMAIL_FROM` (e.g. `noreply@autoguildx.com`)
-- Templates: plain HTML with brand orange accent — no heavy framework needed
-- `EmailModule` should be globally available (similar to `FirebaseModule`)
+### Frontend
+- [x] `EmailNotificationsSection` toggle card on `/profile` page (anchored at `#notifications`)
+- [x] Toggle fetches current setting, PATCH on click, optimistic UI via query invalidation
+
+### Tests
+- [x] `tests/unit/notifications/notifications.service.spec.ts` — 18 new tests: getEmailSettings, updateEmailSettings, review email trigger, opt-out gating (254 total passing)
+
+### To activate
+Set `EMAIL_API_KEY` (Resend API key) and `EMAIL_FROM` (e.g. `AutoGuildX <noreply@autoguildx.com>`) in production env.

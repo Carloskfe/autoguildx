@@ -171,7 +171,7 @@ All features below are fully implemented and deployed unless noted.
 ## Post-MVP Roadmap
 
 - ~~Verified badges (identity trust layer)~~ — shipped Sprint 11
-- **Transactional email notifications** — re-engage users when offline; triggers: new message received, verification approved/denied, new follower, listing inquiry. Provider: Resend or SendGrid. Requires `EMAIL_API_KEY` + `EMAIL_FROM` env vars; hook into `NotificationsService.create()`.
+- ~~Transactional email notifications~~ — shipped Sprint 13
 - Payment transaction fees (up to 9% on marketplace sales)
 - Logistics / shipping support
 - Courses and certifications
