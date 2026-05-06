@@ -380,3 +380,31 @@ Then log out and back in so the new JWT carries `role: admin`.
 
 ### To activate
 Set `EMAIL_API_KEY` (Resend API key) and `EMAIL_FROM` (e.g. `AutoGuildX <noreply@autoguildx.com>`) in production env.
+
+---
+
+## Sprint 14 — Courses & Certifications ✅ COMPLETE
+
+**Goal:** Let automotive experts create structured courses with lessons; issue certificates on completion.
+
+### Backend
+- [x] `CourseEntity` — title, slug (auto-unique), description, thumbnailUrl, price, tags, published, lessonCount, enrollmentCount
+- [x] `LessonEntity` — courseId, title, content, videoUrl, order, durationMinutes
+- [x] `EnrollmentEntity` — userId + courseId unique pair, completedAt
+- [x] `LessonProgressEntity` — userId + lessonId unique pair, courseId (denormalized)
+- [x] `CertificateEntity` — userId + courseId unique, certificateNumber (`AGX-{year}-{8hexChars}`)
+- [x] `CoursesService` — CRUD, lesson CRUD, enroll, completeLesson (auto-issues cert at 100%), getProgress, getCertificate, getMyCertificates
+- [x] `CoursesController` — 16 REST routes; public browse with OptionalJwtAuthGuard; protected mutation routes with JwtAuthGuard
+- [x] `CoursesModule` registered in `AppModule`; migration `1700000000008-AddCourses`
+- [x] `tests/unit/courses/courses.service.spec.ts` — 26 tests covering all service methods (280 total passing)
+
+### Shared types
+- [x] `packages/shared/src/types/course.ts` — Course, Lesson, Enrollment, Certificate interfaces
+
+### Frontend
+- [x] `/courses` — browseable grid, search, free/paid badge, enrollment count
+- [x] `/courses/new` — create form: title, description, thumbnail upload, price, tag picker
+- [x] `/courses/[id]` — detail: lesson list with completion checkmarks, enroll CTA, progress bar, certificate badge if earned
+- [x] `/courses/[id]/learn` — split-pane player: lesson sidebar with completion state, content + video iframe, Mark Complete button, prev/next navigation; instructor can add/delete lessons inline
+- [x] AppShell — Courses nav item (GraduationCap icon)
+- [x] `/profile` — CertificatesSection shows earned certificates with certificate numbers

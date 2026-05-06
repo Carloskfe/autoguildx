@@ -172,6 +172,7 @@ All features below are fully implemented and deployed unless noted.
 
 - ~~Verified badges (identity trust layer)~~ — shipped Sprint 11
 - ~~Transactional email notifications~~ — shipped Sprint 13
+- ~~Courses and certifications~~ — shipped Sprint 14
 - Payment transaction fees (up to 9% on marketplace sales)
 - Logistics / shipping support
 - Courses and certifications
