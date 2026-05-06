@@ -41,6 +41,15 @@ export class CourseEntity {
   @Column('simple-array', { default: '' })
   tags: string[];
 
+  @Column({ default: 'All Levels' })
+  level: string;
+
+  @Column('simple-array', { default: '' })
+  objectives: string[];
+
+  @Column('simple-array', { default: '' })
+  requirements: string[];
+
   @Column({ default: false })
   published: boolean;
 

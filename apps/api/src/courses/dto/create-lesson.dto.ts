@@ -13,6 +13,10 @@ export class CreateLessonDto {
   videoUrl?: string;
 
   @IsOptional()
+  @IsString()
+  section?: string;
+
+  @IsOptional()
   @IsNumber()
   @Min(0)
   order?: number;

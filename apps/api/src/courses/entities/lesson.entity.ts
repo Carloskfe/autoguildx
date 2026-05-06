@@ -29,6 +29,9 @@ export class LessonEntity {
   @Column({ nullable: true })
   videoUrl: string;
 
+  @Column({ nullable: true })
+  section: string;
+
   @Column({ default: 0 })
   order: number;
 

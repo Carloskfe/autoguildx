@@ -23,6 +23,20 @@ export class CreateCourseDto {
   tags?: string[];
 
   @IsOptional()
+  @IsString()
+  level?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  objectives?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  requirements?: string[];
+
+  @IsOptional()
   @IsBoolean()
   published?: boolean;
 }

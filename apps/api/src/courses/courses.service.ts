@@ -37,6 +37,9 @@ export class CoursesService {
       thumbnailUrl: dto.thumbnailUrl,
       price: dto.price ?? 0,
       tags: dto.tags ?? [],
+      level: dto.level ?? 'All Levels',
+      objectives: dto.objectives ?? [],
+      requirements: dto.requirements ?? [],
       published: dto.published ?? false,
     });
     return this.courseRepo.save(course);
@@ -121,6 +124,7 @@ export class CoursesService {
       title: dto.title,
       content: dto.content,
       videoUrl: dto.videoUrl,
+      section: dto.section,
       order: dto.order ?? count,
       durationMinutes: dto.durationMinutes ?? 0,
     });

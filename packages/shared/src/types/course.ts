@@ -7,6 +7,9 @@ export interface Course {
   thumbnailUrl?: string;
   price: number;
   tags: string[];
+  level: string;
+  objectives: string[];
+  requirements: string[];
   published: boolean;
   lessonCount: number;
   enrollmentCount: number;
@@ -14,7 +17,7 @@ export interface Course {
   instructor?: {
     id: string;
     email: string;
-    profile?: { name?: string; profileImageUrl?: string; isVerified?: boolean };
+    profile?: { name?: string; profileImageUrl?: string; isVerified?: boolean; bio?: string };
   };
 }
 
@@ -24,6 +27,7 @@ export interface Lesson {
   title: string;
   content?: string;
   videoUrl?: string;
+  section?: string;
   order: number;
   durationMinutes: number;
   createdAt: string;
