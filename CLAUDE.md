@@ -308,7 +308,7 @@ Every domain feature follows the same NestJS pattern: `module → controller →
 
 | Module | Path | Key responsibility |
 |---|---|---|
-| Auth | `src/auth/` | Signup/login, Firebase token exchange, JWT issuance |
+| Auth | `src/auth/` | Signup/login, Firebase token exchange, JWT issuance, email verification, password reset, change password, delete account |
 | Profiles | `src/profiles/` | Profile CRUD, follow/unfollow graph, video avatar |
 | Posts | `src/posts/` | Feed posts, reactions, sharing, visibility, link extraction |
 | Comments | `src/posts/` | Threaded comments on posts and forum posts (co-located with Posts module) |
@@ -344,7 +344,11 @@ All authenticated pages wrap their content with `AppShell` (`src/components/layo
 |---|---|---|
 | `/` | `app/page.tsx` | Public landing |
 | `/login` | `app/login/page.tsx` | Email + Google OAuth |
-| `/signup` | `app/signup/page.tsx` | Email + Google OAuth — no role selection, goes straight to onboarding |
+| `/signup` | `app/signup/page.tsx` | Email + Google OAuth — no role selection, redirects to `/verify-email` after email signup |
+| `/verify-email` | `app/verify-email/page.tsx` | Email verification — "check inbox" banner + resend form; verifies token from `?token=` param |
+| `/forgot-password` | `app/forgot-password/page.tsx` | Request password reset email |
+| `/reset-password` | `app/reset-password/page.tsx` | Set new password using `?token=` from reset email |
+| `/settings` | `app/settings/page.tsx` | ✓ Wired — change password, plan management, email notifications, delete account |
 | `/onboarding` | `app/onboarding/page.tsx` | 3-step: role picker → profile details → specialty tags |
 | `/agxtopics` | `app/agxtopics/page.tsx` | ✓ Wired — forum list, category filter, join/leave |
 | `/agxtopics/new` | `app/agxtopics/new/page.tsx` | ✓ Wired — create forum with auto-slug |

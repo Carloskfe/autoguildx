@@ -16,6 +16,7 @@ import {
   Hash,
   ShieldCheck,
   GraduationCap,
+  Settings,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { clsx } from 'clsx';
@@ -157,6 +158,21 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <Zap className="w-4 h-4" />
               {badge.label} Plan
             </button>
+          )}
+
+          {isAuthenticated && (
+            <Link
+              href="/settings"
+              className={clsx(
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                pathname.startsWith('/settings')
+                  ? 'bg-surface-border text-white'
+                  : 'text-gray-400 hover:text-white hover:bg-surface-card',
+              )}
+            >
+              <Settings className="w-5 h-5" />
+              Settings
+            </Link>
           )}
 
           {role === 'admin' && (

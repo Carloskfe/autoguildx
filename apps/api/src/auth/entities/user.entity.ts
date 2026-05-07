@@ -27,6 +27,18 @@ export class UserEntity {
   @Column({ default: true })
   emailNotificationsEnabled: boolean;
 
+  @Column({ default: false })
+  emailVerified: boolean;
+
+  @Column({ nullable: true, select: false })
+  emailVerificationToken: string;
+
+  @Column({ nullable: true, select: false })
+  passwordResetToken: string;
+
+  @Column({ nullable: true })
+  passwordResetExpiry: Date;
+
   @OneToOne(() => ProfileEntity, (profile) => profile.user)
   profile: ProfileEntity;
 }

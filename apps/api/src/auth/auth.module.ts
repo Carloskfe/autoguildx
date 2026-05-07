@@ -12,6 +12,7 @@ import { UserEntity } from './entities/user.entity';
   imports: [
     TypeOrmModule.forFeature([UserEntity]),
     PassportModule,
+    ConfigModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

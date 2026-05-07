@@ -419,3 +419,33 @@ Set `EMAIL_API_KEY` (Resend API key) and `EMAIL_FROM` (e.g. `AutoGuildX <noreply
 - [x] `profileBannerUrl` added to shared `Profile` type
 - [x] `/profile` — full-width 160px banner (click anywhere to upload, hover overlay "Change cover photo"); 80px avatar overlapping banner edge with `ring-4` background separator; "Edit profile" button in action row; name/verified badge/role/location/followers/bio/tags below
 - [x] `/profile/[id]` — same banner layout read-only; Share + Message + Follow/Unfollow action buttons inline in header row (compact, `text-xs`)
+
+---
+
+## Sprint 16 — Auth Hardening + Account Settings ✅ COMPLETE
+
+**Goal:** Email verification on signup, password reset, and a full account settings page — prerequisites for beta launch.
+
+### Backend
+- [x] `emailVerified`, `emailVerificationToken`, `passwordResetToken`, `passwordResetExpiry` columns on `UserEntity`; migration `1700000000011-AddAccountSecurity`
+- [x] `POST /auth/verify-email` — validate token, set `emailVerified = true`, clear token
+- [x] `POST /auth/resend-verification` — regenerate token, resend email (NotFoundException if email not found)
+- [x] `POST /auth/forgot-password` — generate 1-hour reset token, send email (NotFoundException if email not found)
+- [x] `POST /auth/reset-password` — validate token + expiry, update password hash, clear token
+- [x] `PATCH /auth/change-password` — verify current password, update hash (JwtAuthGuard)
+- [x] `DELETE /auth/account` — permanently delete authenticated user (JwtAuthGuard)
+- [x] Email templates: `verifyEmail(url)`, `passwordReset(url)` added to `email.templates.ts`
+- [x] Firebase signup marks `emailVerified: true` automatically
+- [x] `signup`, `login`, `loginWithFirebase` responses now include `emailVerified` field
+
+### Frontend
+- [x] `/verify-email` — "Check your inbox" banner when no token; auto-calls verify API when `?token=` present; success redirects to `/onboarding`; resend form on error
+- [x] `/forgot-password` — email input, calls `/auth/forgot-password`, shows success state with email confirmation
+- [x] `/reset-password` — new password + confirm form, validates token from query param, redirects to `/login` on success
+- [x] `/settings` — account management page: plan/subscription section (current tier + UpgradeModal), change password form, email notifications toggle, danger zone (delete account with `DELETE` confirmation)
+- [x] AppShell — Settings link (gear icon) in desktop sidebar for authenticated users
+- [x] Login page — "Forgot password?" link below password field
+- [x] Signup page — redirects to `/verify-email` instead of `/onboarding` after email signup
+
+### Tests
+- [x] `tests/unit/auth/auth.service.spec.ts` — updated with `EmailService` + `ConfigService` mocks; 27 tests covering all new methods (298 total passing)

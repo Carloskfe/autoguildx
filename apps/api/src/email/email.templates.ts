@@ -100,4 +100,43 @@ export const templates = {
       </a>
     `),
   }),
+
+  verifyEmail: (verifyUrl: string) => ({
+    subject: 'Verify your AutoGuildX email address',
+    html: base(`
+      <h1 style="font-size:22px;font-weight:800;margin:0 0 12px">Verify your email</h1>
+      <p style="font-size:15px;line-height:1.6;margin:0 0 20px;color:#ccc">
+        Thanks for joining AutoGuildX! Click the button below to verify your email address
+        and activate your account. This link expires in 24 hours.
+      </p>
+      <a href="${verifyUrl}"
+         style="display:inline-block;background:#f97316;color:#fff;text-decoration:none;
+                font-weight:700;padding:12px 24px;border-radius:8px;font-size:14px">
+        Verify email address
+      </a>
+      <p style="font-size:13px;color:#666;margin:20px 0 0">
+        If you didn't create an account, you can safely ignore this email.
+      </p>
+    `),
+  }),
+
+  passwordReset: (resetUrl: string) => ({
+    subject: 'Reset your AutoGuildX password',
+    html: base(`
+      <h1 style="font-size:22px;font-weight:800;margin:0 0 12px">Reset your password</h1>
+      <p style="font-size:15px;line-height:1.6;margin:0 0 20px;color:#ccc">
+        We received a request to reset the password for your AutoGuildX account.
+        Click the button below to choose a new password. This link expires in 1 hour.
+      </p>
+      <a href="${resetUrl}"
+         style="display:inline-block;background:#f97316;color:#fff;text-decoration:none;
+                font-weight:700;padding:12px 24px;border-radius:8px;font-size:14px">
+        Reset password
+      </a>
+      <p style="font-size:13px;color:#666;margin:20px 0 0">
+        If you didn't request a password reset, you can safely ignore this email.
+        Your password will not be changed.
+      </p>
+    `),
+  }),
 };

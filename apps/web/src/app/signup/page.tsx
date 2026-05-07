@@ -20,7 +20,7 @@ export default function SignupPage() {
     try {
       const data = await signupWithEmail(email, password);
       login(data.accessToken, data.userId);
-      router.push('/onboarding');
+      router.push('/verify-email');
     } catch {
       setError('Registration failed. Email may already be in use.');
     } finally {
