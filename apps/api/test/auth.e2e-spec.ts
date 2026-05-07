@@ -17,8 +17,12 @@ import { GlobalExceptionFilter } from '../src/common/filters/http-exception.filt
 async function clearDatabase(ds: DataSource) {
   await ds.query(`
     TRUNCATE TABLE
-      "notifications", "post_reactions", "reviews",
-      "messages", "conversations",
+      "notifications", "post_reactions", "comment_reactions",
+      "forum_comment_votes", "forum_votes", "forum_members",
+      "forum_posts", "forums",
+      "certificate", "lesson_progress", "enrollments", "lessons", "courses",
+      "verification_requests",
+      "reviews", "messages", "conversations",
       "profile_followers", "comments", "subscriptions",
       "posts", "listings", "events", "profiles", "users"
     CASCADE
