@@ -55,8 +55,7 @@ async function seed() {
     profile = profileRepo.create({
       userId: user.id,
       name: 'AutoGuildX',
-      bio:
-        'The professional network and marketplace for automotive experts — mechanics, manufacturers, collectors, and enthusiasts.',
+      bio: 'The professional network and marketplace for automotive experts — mechanics, manufacturers, collectors, and enthusiasts.',
       location: 'Worldwide',
       role: 'manufacturer',
       tags: ['Engine', 'Performance', 'Restoration', 'Fabrication', 'Tuning & Performance'],
