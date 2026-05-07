@@ -166,6 +166,7 @@ All features below are fully implemented and deployed unless noted.
 | Marketplace seller dashboard (My Listings, edit, status) | ✅ Sprint 17 |
 | Courses instructor dashboard (edit, publish toggle, certificate download) | ✅ Sprint 18 |
 | Admin team profile + /team landing page | ✅ Sprint 19 |
+| SEO metadata, sitemap, robots.txt, error boundaries | ✅ Sprint 20 |
 | Stripe production env vars + webhook registration | Ops (no code changes) |
 | Real S3 credentials for media uploads | Ops (no code changes) |
 
@@ -178,7 +179,6 @@ All features below are fully implemented and deployed unless noted.
 - ~~Courses and certifications~~ — shipped Sprint 14
 - Payment transaction fees (up to 9% on marketplace sales)
 - Logistics / shipping support
-- Courses and certifications
 - Advanced discovery and matching (AI-based recommendations)
 - Mobile app (React Native)
 

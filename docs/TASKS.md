@@ -508,3 +508,30 @@ Run the seed script against your production database:
 TEAM_SEED_PASSWORD=YourSecurePassword npm run seed:team --workspace=apps/api
 ```
 Then log in as `team@autoguildx.com` and update the profile avatar and banner via `/profile`.
+
+---
+
+## Sprint 20 — SEO + Error Resilience ✅ COMPLETE
+
+**Goal:** Make public pages indexable and the app resilient to unhandled errors before launch.
+
+### SEO
+- [x] Root layout — `title.template` (`%s | AutoGuildX`), `metadataBase`, `twitter:card: summary_large_image`, `og:siteName`
+- [x] `apps/web/public/robots.txt` — allows public pages, blocks auth-only pages; references sitemap
+- [x] `apps/web/src/app/sitemap.ts` — static sitemap covering 7 public routes; respects `NEXT_PUBLIC_SITE_URL` env var
+- [x] `/team` — `team/layout.tsx` exports static metadata (Server Component pattern for `'use client'` page)
+- [x] `/marketplace/[id]` — `generateMetadata` fetches listing title, price, description, og:image (60s revalidate)
+- [x] `/profile/[id]` — `generateMetadata` fetches profile name, bio, og:image (60s revalidate)
+- [x] `/events/[id]` — `generateMetadata` fetches event title and description (60s revalidate)
+- [x] All three dynamic pages refactored: content extracted to `PageClient.tsx`; `page.tsx` is now a Server Component wrapper
+- [x] `API_URL` env var added for server-side fetches in Docker (container-to-container); defaults to `NEXT_PUBLIC_API_URL`
+- [x] `NEXT_PUBLIC_SITE_URL` env var added for sitemap base URL
+- [x] `docker-compose.yml` — `API_URL=http://api:3001/api/v1` injected into web service at runtime
+
+### Error resilience
+- [x] `apps/web/src/app/error.tsx` — global React error boundary (Try again / Go to Feed)
+- [x] `apps/web/src/app/not-found.tsx` — 404 page (Go Home / Browse Marketplace)
+
+### Docs
+- [x] `docs/PRD.md` — removed duplicate "Courses and certifications" from post-MVP roadmap; marked Sprint 20 complete in beta checklist
+- [x] `docs/TASKS.md` — Sprint 20 logged
