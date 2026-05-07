@@ -359,7 +359,9 @@ All authenticated pages wrap their content with `AppShell` (`src/components/layo
 | `/discover` | `app/discover/page.tsx` | ✓ Wired — keyword search, section filter (All/People/Listings/Events), star ratings |
 | `/marketplace` | `app/marketplace/page.tsx` | ✓ Wired — listing grid, type filter, search, star ratings, infinite scroll |
 | `/marketplace/new` | `app/marketplace/new/page.tsx` | ✓ Wired — create form with images, tier limit → UpgradeModal |
-| `/marketplace/[id]` | `app/marketplace/[id]/page.tsx` | ✓ Wired — detail, boost, delete, message seller, share to feed, reviews |
+| `/marketplace/manage` | `app/marketplace/manage/page.tsx` | ✓ Wired — My Listings dashboard: edit, mark sold/active, delete |
+| `/marketplace/[id]/edit` | `app/marketplace/[id]/edit/page.tsx` | ✓ Wired — pre-filled edit form, owner-only |
+| `/marketplace/[id]` | `app/marketplace/[id]/page.tsx` | ✓ Wired — detail, boost, edit, mark sold/active, delete, message seller, seller profile link, share to feed, reviews |
 | `/events` | `app/events/page.tsx` | ✓ Wired — upcoming list, date blocks, type badges, infinite scroll |
 | `/events/new` | `app/events/new/page.tsx` | ✓ Wired — create form |
 | `/events/[id]` | `app/events/[id]/page.tsx` | ✓ Wired — detail, RSVP, delete, share to feed |

@@ -36,6 +36,14 @@ export class ListingsController {
     return this.listingsService.findAll(query);
   }
 
+  @Get('my')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Get current user's listings (all statuses)" })
+  findMy(@CurrentUser() user) {
+    return this.listingsService.findByUser(user.id);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get listing by ID' })
   findOne(@Param('id') id: string) {

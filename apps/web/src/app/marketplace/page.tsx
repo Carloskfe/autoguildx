@@ -4,13 +4,40 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { Search, Star, MapPin, Loader2 } from 'lucide-react';
+import { Search, Star, MapPin, Loader2, LayoutList } from 'lucide-react';
 import { clsx } from 'clsx';
 import AppShell from '@/components/layout/AppShell';
+import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
 import type { Listing } from '@autoguildx/shared';
 
 const PAGE_SIZE = 20;
+
+const CATEGORIES = [
+  'Engine & Drivetrain',
+  'Suspension & Steering',
+  'Brakes',
+  'Body & Exterior',
+  'Interior',
+  'Electrical',
+  'Wheels & Tires',
+  'Exhaust',
+  'Fuel System',
+  'Restoration',
+  'Fabrication',
+  'Tuning & Performance',
+  'Other',
+];
+
+type TypeFilter = '' | 'part' | 'service';
+type SortOption = 'newest' | 'price_asc' | 'price_desc' | 'featured';
+
+const SORT_LABELS: Record<SortOption, string> = {
+  newest: 'Newest',
+  price_asc: 'Price: Low → High',
+  price_desc: 'Price: High → Low',
+  featured: 'Featured first',
+};
 
 // ─── Listing card ─────────────────────────────────────────────────────────────
 
@@ -29,6 +56,15 @@ function ListingCard({ listing }: { listing: Listing }) {
       href={`/marketplace/${listing.id}`}
       className="card block hover:border-brand-500 transition-colors group"
     >
+      {listing.mediaUrls?.filter(Boolean)[0] && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={listing.mediaUrls.filter(Boolean)[0]}
+          alt=""
+          className="w-full h-36 rounded-lg object-cover mb-3"
+        />
+      )}
+
       {listing.isFeatured && (
         <div className="flex items-center gap-1 text-xs text-brand-500 font-medium mb-2">
           <Star className="w-3.5 h-3.5 fill-brand-500" />
@@ -103,10 +139,11 @@ function ListingCard({ listing }: { listing: Listing }) {
 
 // ─── Marketplace page ─────────────────────────────────────────────────────────
 
-type TypeFilter = '' | 'part' | 'service';
-
 export default function MarketplacePage() {
+  const { isAuthenticated } = useAuth();
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [sortOption, setSortOption] = useState<SortOption>('newest');
   const [search, setSearch] = useState('');
   const [q, setQ] = useState('');
 
@@ -114,12 +151,14 @@ export default function MarketplacePage() {
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } =
     useInfiniteQuery<Listing[]>({
-      queryKey: ['listings', { type: typeFilter, q }],
+      queryKey: ['listings', { type: typeFilter, category: categoryFilter, sort: sortOption, q }],
       queryFn: ({ pageParam }) =>
         api
           .get('/listings', {
             params: {
               ...(typeFilter && { type: typeFilter }),
+              ...(categoryFilter && { category: categoryFilter }),
+              ...(sortOption !== 'newest' && { sort: sortOption }),
               ...(q && { q }),
               page: pageParam,
               limit: PAGE_SIZE,
@@ -139,12 +178,22 @@ export default function MarketplacePage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <h1 className="font-bold text-lg">Marketplace</h1>
-          <Link href="/marketplace/new" className="btn-primary text-sm px-4 py-2">
-            + New Listing
-          </Link>
+          <div className="flex items-center gap-2">
+            {isAuthenticated && (
+              <Link
+                href="/marketplace/manage"
+                className="btn-secondary text-sm flex items-center gap-1.5 px-3 py-1.5"
+              >
+                <LayoutList className="w-4 h-4" /> My Listings
+              </Link>
+            )}
+            <Link href="/marketplace/new" className="btn-primary text-sm px-4 py-2">
+              + New Listing
+            </Link>
+          </div>
         </div>
 
-        {/* Search */}
+        {/* Search + sort row */}
         <div className="flex gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
@@ -159,10 +208,21 @@ export default function MarketplacePage() {
           <button onClick={applySearch} className="btn-secondary text-sm px-4 py-2">
             Search
           </button>
+          <select
+            className="input text-sm px-3 py-2"
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value as SortOption)}
+          >
+            {(Object.keys(SORT_LABELS) as SortOption[]).map((s) => (
+              <option key={s} value={s}>
+                {SORT_LABELS[s]}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Type filter */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {(['', 'part', 'service'] as TypeFilter[]).map((t) => (
             <button
               key={t}
@@ -175,6 +235,35 @@ export default function MarketplacePage() {
               )}
             >
               {t === '' ? 'All' : t === 'part' ? 'Parts' : 'Services'}
+            </button>
+          ))}
+        </div>
+
+        {/* Category filter */}
+        <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={() => setCategoryFilter('')}
+            className={clsx(
+              'text-xs px-3 py-1 rounded-full border transition-colors',
+              categoryFilter === ''
+                ? 'bg-brand-500/20 border-brand-500/60 text-brand-400'
+                : 'border-surface-border text-gray-500 hover:text-gray-300 hover:border-gray-500',
+            )}
+          >
+            All Categories
+          </button>
+          {CATEGORIES.map((c) => (
+            <button
+              key={c}
+              onClick={() => setCategoryFilter(categoryFilter === c ? '' : c)}
+              className={clsx(
+                'text-xs px-3 py-1 rounded-full border transition-colors',
+                categoryFilter === c
+                  ? 'bg-brand-500/20 border-brand-500/60 text-brand-400'
+                  : 'border-surface-border text-gray-500 hover:text-gray-300 hover:border-gray-500',
+              )}
+            >
+              {c}
             </button>
           ))}
         </div>

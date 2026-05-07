@@ -35,26 +35,52 @@ export class ListingsService {
     category?: string;
     location?: string;
     q?: string;
+    sort?: string;
     page?: number;
     limit?: number;
   }) {
-    const { type, category, location, q, page = 1, limit = 20 } = query;
+    const { type, category, location, q, sort, page = 1, limit = 20 } = query;
     const where: Record<string, unknown> = { status: 'active' };
     if (type) where.type = type;
     if (category) where.category = category;
     if (location) where.location = ILike(`%${location}%`);
     if (q) where.title = ILike(`%${q}%`);
 
+    let order: Record<string, string>;
+    switch (sort) {
+      case 'price_asc':
+        order = { price: 'ASC' };
+        break;
+      case 'price_desc':
+        order = { price: 'DESC' };
+        break;
+      case 'featured':
+        order = { isFeatured: 'DESC', createdAt: 'DESC' };
+        break;
+      default:
+        order = { createdAt: 'DESC' };
+    }
+
     return this.repo.find({
       where,
-      order: { isFeatured: 'DESC', createdAt: 'DESC' },
+      order,
       skip: (page - 1) * limit,
       take: limit,
     });
   }
 
+  async findByUser(userId: string) {
+    return this.repo.find({
+      where: { userId },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
   async findById(id: string) {
-    const listing = await this.repo.findOne({ where: { id }, relations: ['user'] });
+    const listing = await this.repo.findOne({
+      where: { id },
+      relations: ['user', 'user.profile'],
+    });
     if (!listing) throw new NotFoundException('Listing not found');
     return listing;
   }

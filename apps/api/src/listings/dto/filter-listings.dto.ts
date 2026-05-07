@@ -10,6 +10,10 @@ export class FilterListingsDto {
   type?: string;
   @ApiProperty({ required: false }) @IsOptional() @IsString() category?: string;
   @ApiProperty({ required: false }) @IsOptional() @IsString() location?: string;
+  @ApiProperty({ required: false, enum: ['newest', 'price_asc', 'price_desc', 'featured'] })
+  @IsOptional()
+  @IsIn(['newest', 'price_asc', 'price_desc', 'featured'])
+  sort?: string;
   @ApiProperty({ required: false, default: 1 })
   @IsOptional()
   @Type(() => Number)

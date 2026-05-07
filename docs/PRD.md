@@ -163,7 +163,7 @@ All features below are fully implemented and deployed unless noted.
 | Email verification on signup | ✅ Sprint 16 |
 | Password reset flow | ✅ Sprint 16 |
 | Account settings page (password, plan, notifications, delete) | ✅ Sprint 16 |
-| Marketplace seller dashboard (My Listings, edit, status) | Sprint 17 |
+| Marketplace seller dashboard (My Listings, edit, status) | ✅ Sprint 17 |
 | Courses instructor dashboard (edit, publish toggle, certificate download) | Sprint 18 |
 | Stripe production env vars + webhook registration | Ops (no code changes) |
 | Real S3 credentials for media uploads | Ops (no code changes) |

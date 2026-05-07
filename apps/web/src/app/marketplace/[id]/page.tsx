@@ -16,6 +16,10 @@ import {
   Share2,
   Link2,
   X,
+  Pencil,
+  CheckCircle2,
+  RotateCcw,
+  User,
 } from 'lucide-react';
 import Link from 'next/link';
 import AppShell from '@/components/layout/AppShell';
@@ -26,7 +30,7 @@ import api from '@/lib/api';
 import type { Listing, SubscriptionTier } from '@autoguildx/shared';
 
 interface ListingWithUser extends Listing {
-  user?: { id: string; email: string };
+  user?: { id: string; email: string; profile?: { name?: string } };
 }
 
 export default function ListingDetailPage() {
@@ -107,7 +111,17 @@ export default function ListingDetailPage() {
     mutationFn: () => api.delete(`/listings/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['listings'] });
+      qc.invalidateQueries({ queryKey: ['my-listings'] });
       router.push('/marketplace');
+    },
+  });
+
+  const statusToggle = useMutation({
+    mutationFn: (status: string) =>
+      api.patch(`/listings/${id}`, { status }).then((r) => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['listing', id] });
+      qc.invalidateQueries({ queryKey: ['my-listings'] });
     },
   });
 
@@ -259,9 +273,55 @@ export default function ListingDetailPage() {
         <div className="card space-y-3">
           {isOwn ? (
             <>
-              <p className="text-xs text-gray-500">This is your listing.</p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-gray-500">This is your listing.</p>
+                <span
+                  className={`text-xs px-2 py-0.5 rounded-full border ${
+                    listing.status === 'sold'
+                      ? 'bg-gray-500/20 text-gray-400 border-gray-600'
+                      : 'bg-green-500/20 text-green-400 border-green-500/40'
+                  }`}
+                >
+                  {listing.status ?? 'active'}
+                </span>
+              </div>
 
-              {!listing.isFeatured && (
+              <Link
+                href={`/marketplace/${id}/edit`}
+                className="btn-secondary w-full text-sm py-2.5 flex items-center justify-center gap-2"
+              >
+                <Pencil className="w-4 h-4" /> Edit Listing
+              </Link>
+
+              {listing.status !== 'sold' ? (
+                <button
+                  onClick={() => statusToggle.mutate('sold')}
+                  disabled={statusToggle.isPending}
+                  className="btn-secondary w-full text-sm py-2.5 flex items-center justify-center gap-2 text-green-400 hover:text-green-300 border-green-900 hover:border-green-700 disabled:opacity-50"
+                >
+                  {statusToggle.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="w-4 h-4" />
+                  )}
+                  {statusToggle.isPending ? 'Updating…' : 'Mark as Sold'}
+                </button>
+              ) : (
+                <button
+                  onClick={() => statusToggle.mutate('active')}
+                  disabled={statusToggle.isPending}
+                  className="btn-secondary w-full text-sm py-2.5 flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {statusToggle.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <RotateCcw className="w-4 h-4" />
+                  )}
+                  {statusToggle.isPending ? 'Updating…' : 'Relist (Mark Active)'}
+                </button>
+              )}
+
+              {!listing.isFeatured && listing.status === 'active' && (
                 <>
                   {boostError && (
                     <p className="text-xs text-amber-400 bg-amber-400/10 border border-amber-400/30 rounded-lg px-3 py-2">
@@ -269,18 +329,11 @@ export default function ListingDetailPage() {
                     </p>
                   )}
                   <button
-                    onClick={() => {
-                      setBoostError(null);
-                      boost.mutate();
-                    }}
+                    onClick={() => { setBoostError(null); boost.mutate(); }}
                     disabled={boost.isPending}
                     className="btn-secondary w-full text-sm py-2.5 flex items-center justify-center gap-2 disabled:opacity-50"
                   >
-                    {boost.isPending ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Zap className="w-4 h-4 text-brand-500" />
-                    )}
+                    {boost.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4 text-brand-500" />}
                     {boost.isPending ? 'Boosting…' : 'Boost Listing (7 days)'}
                   </button>
                 </>
@@ -288,8 +341,7 @@ export default function ListingDetailPage() {
 
               {listing.isFeatured && (
                 <p className="text-xs text-brand-500 flex items-center gap-1">
-                  <Star className="w-3.5 h-3.5 fill-brand-500" /> This listing is currently
-                  featured.
+                  <Star className="w-3.5 h-3.5 fill-brand-500" /> This listing is currently featured.
                 </p>
               )}
 
@@ -298,16 +350,23 @@ export default function ListingDetailPage() {
                 disabled={del.isPending}
                 className="btn-secondary w-full text-sm py-2.5 flex items-center justify-center gap-2 text-red-400 hover:text-red-300 border-red-900 hover:border-red-700 disabled:opacity-50"
               >
-                {del.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Trash2 className="w-4 h-4" />
-                )}
+                {del.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                 {del.isPending ? 'Deleting…' : 'Delete Listing'}
               </button>
             </>
           ) : (
             <>
+              {listing.user?.id && (
+                <Link
+                  href={`/profile/${listing.user.id}`}
+                  className="flex items-center gap-2 text-sm text-gray-400 hover:text-brand-500 transition-colors"
+                >
+                  <User className="w-4 h-4" />
+                  {listing.user.profile?.name
+                    ? `View ${listing.user.profile.name}'s profile`
+                    : 'View seller profile'}
+                </Link>
+              )}
               <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
                 Contact Seller
               </h2>
@@ -317,11 +376,7 @@ export default function ListingDetailPage() {
                   disabled={messagePending}
                   className="btn-primary w-full text-sm py-2.5 flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  {messagePending ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <MessageSquare className="w-4 h-4" />
-                  )}
+                  {messagePending ? <Loader2 className="w-4 h-4 animate-spin" /> : <MessageSquare className="w-4 h-4" />}
                   Message Seller
                 </button>
               ) : listing.user?.email ? (

@@ -128,12 +128,62 @@ describe('ListingsService', () => {
       expect(repo.find).toHaveBeenCalledWith(expect.objectContaining({ skip: 20, take: 10 }));
     });
 
-    it('orders by isFeatured desc then createdAt desc', async () => {
+    it('uses createdAt DESC order by default (newest)', async () => {
       repo.find.mockResolvedValue([]);
       await service.findAll({});
       expect(repo.find).toHaveBeenCalledWith(
+        expect.objectContaining({ order: { createdAt: 'DESC' } }),
+      );
+    });
+
+    it('sorts by price ASC when sort=price_asc', async () => {
+      repo.find.mockResolvedValue([]);
+      await service.findAll({ sort: 'price_asc' });
+      expect(repo.find).toHaveBeenCalledWith(
+        expect.objectContaining({ order: { price: 'ASC' } }),
+      );
+    });
+
+    it('sorts by price DESC when sort=price_desc', async () => {
+      repo.find.mockResolvedValue([]);
+      await service.findAll({ sort: 'price_desc' });
+      expect(repo.find).toHaveBeenCalledWith(
+        expect.objectContaining({ order: { price: 'DESC' } }),
+      );
+    });
+
+    it('sorts by featured then createdAt when sort=featured', async () => {
+      repo.find.mockResolvedValue([]);
+      await service.findAll({ sort: 'featured' });
+      expect(repo.find).toHaveBeenCalledWith(
         expect.objectContaining({ order: { isFeatured: 'DESC', createdAt: 'DESC' } }),
       );
+    });
+  });
+
+  describe('findByUser', () => {
+    it('returns all listings for the user regardless of status', async () => {
+      const listings = [
+        { id: 'l-1', userId: 'u-1', status: 'active' },
+        { id: 'l-2', userId: 'u-1', status: 'sold' },
+      ];
+      repo.find.mockResolvedValue(listings);
+
+      const result = await service.findByUser('u-1');
+
+      expect(result).toEqual(listings);
+      expect(repo.find).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { userId: 'u-1' },
+          order: { createdAt: 'DESC' },
+        }),
+      );
+    });
+
+    it('returns empty array when user has no listings', async () => {
+      repo.find.mockResolvedValue([]);
+      const result = await service.findByUser('u-99');
+      expect(result).toEqual([]);
     });
   });
 

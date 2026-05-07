@@ -449,3 +449,24 @@ Set `EMAIL_API_KEY` (Resend API key) and `EMAIL_FROM` (e.g. `AutoGuildX <noreply
 
 ### Tests
 - [x] `tests/unit/auth/auth.service.spec.ts` — updated with `EmailService` + `ConfigService` mocks; 27 tests covering all new methods (298 total passing)
+
+---
+
+## Sprint 17 — Marketplace Beta-Ready ✅ COMPLETE
+
+**Goal:** Sellers can fully manage their listings; browse gets category filter and sort; seller profile is linked from listing detail.
+
+### Backend
+- [x] `GET /listings/my` — returns current user's listings (all statuses, ordered by createdAt DESC)
+- [x] `sort` param added to `GET /listings` (`newest` / `price_asc` / `price_desc` / `featured`)
+- [x] `status` field added to `UpdateListingDto` (`active` / `sold` / `draft`)
+- [x] `findById` now includes `relations: ['user', 'user.profile']` for seller profile name
+
+### Frontend
+- [x] `/marketplace/manage` — My Listings dashboard: thumbnail, title, price, status badge, Edit / Mark as Sold / Mark Active / Delete actions; delete confirmation modal
+- [x] `/marketplace/[id]/edit` — pre-filled edit form (all fields); owner guard redirects non-owners; saves via `PATCH /listings/:id`
+- [x] `/marketplace/page.tsx` — category filter chips (13 categories), sort selector (Newest/Price Low-High/Price High-Low/Featured first), "My Listings" button for authenticated users, thumbnail on listing cards
+- [x] `/marketplace/[id]/page.tsx` — Edit button, Mark as Sold / Relist toggle, status badge for owner; "View seller profile" link for buyers
+
+### Tests
+- [x] `tests/unit/listings/listings.service.spec.ts` — added sort tests (price_asc/price_desc/featured) and findByUser tests (303 total passing)
