@@ -39,6 +39,9 @@ export class UserEntity {
   @Column({ nullable: true })
   passwordResetExpiry: Date;
 
+  @Column({ default: false })
+  isTeamAccount: boolean;
+
   @OneToOne(() => ProfileEntity, (profile) => profile.user)
   profile: ProfileEntity;
 }

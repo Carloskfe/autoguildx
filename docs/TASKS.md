@@ -484,3 +484,27 @@ Set `EMAIL_API_KEY` (Resend API key) and `EMAIL_FROM` (e.g. `AutoGuildX <noreply
 - [x] `/courses/[id]/certificate` — visual printable certificate page (certificate number, course name, instructor, date, Print/Save PDF button)
 - [x] `/courses/page.tsx` — "My Hub" button in header for authenticated users
 - [x] `/courses/[id]/page.tsx` — "Edit Course" + "Manage Lessons" buttons for instructor; "View Certificate" button when certificate earned
+
+---
+
+## Sprint 19 — Admin Team Profile ✅ COMPLETE
+
+**Goal:** AutoGuildX has a verified branded presence on its own platform — a seed account + a public /team landing page.
+
+### Backend
+- [x] `isTeamAccount: boolean` column on `UserEntity` (default false); migration `1700000000012-AddTeamAccount`
+- [x] `ProfilesService.getTeamProfile()` — finds profile via `user.isTeamAccount = true`
+- [x] `GET /profiles/team` — public endpoint returning the team profile
+- [x] `apps/api/src/seed/seed-team.ts` — idempotent seed: creates `team@autoguildx.com` user (role: admin, emailVerified, isTeamAccount) + profile (name: AutoGuildX, bio, tags, isVerified); updates flags if already exists
+- [x] `npm run seed:team` script added to `apps/api/package.json`
+
+### Frontend
+- [x] `/team` — public landing page: hero, mission, values grid, platform overview, team profile card (fetched from `GET /profiles/team`, links to `/profile/[userId]`), Join the Guild CTA, footer
+- [x] AppShell sidebar footer — "About / Team" link added above Privacy Policy
+
+### To activate
+Run the seed script against your production database:
+```bash
+TEAM_SEED_PASSWORD=YourSecurePassword npm run seed:team --workspace=apps/api
+```
+Then log in as `team@autoguildx.com` and update the profile avatar and banner via `/profile`.

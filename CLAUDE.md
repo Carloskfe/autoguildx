@@ -308,7 +308,7 @@ Every domain feature follows the same NestJS pattern: `module → controller →
 
 | Module | Path | Key responsibility |
 |---|---|---|
-| Auth | `src/auth/` | Signup/login, Firebase token exchange, JWT issuance, email verification, password reset, change password, delete account |
+| Auth | `src/auth/` | Signup/login, Firebase token exchange, JWT issuance, email verification, password reset, change password, delete account; `isTeamAccount` flag on UserEntity |
 | Profiles | `src/profiles/` | Profile CRUD, follow/unfollow graph, video avatar |
 | Posts | `src/posts/` | Feed posts, reactions, sharing, visibility, link extraction |
 | Comments | `src/posts/` | Threaded comments on posts and forum posts (co-located with Posts module) |
@@ -378,6 +378,7 @@ All authenticated pages wrap their content with `AppShell` (`src/components/layo
 | `/profile/[id]` | `app/profile/[id]/page.tsx` | ✓ Wired — public profile, follow/unfollow, message, posts, reviews |
 | `/subscription/success` | `app/subscription/success/page.tsx` | Stripe checkout success — invalidates subscription cache |
 | `/subscription/cancel` | `app/subscription/cancel/page.tsx` | Stripe checkout cancel |
+| `/team` | `app/team/page.tsx` | Public — brand landing page: mission, values, team profile card, Join CTA |
 | `/admin` | `app/admin/page.tsx` | ✓ Wired — stats, verification queue, user role management (admin only) |
 
 **Page pattern for authenticated routes:** check `useAuth().isAuthenticated` in `useEffect`, redirect to `/login` if false, disable React Query fetches with `enabled: isAuthenticated`.

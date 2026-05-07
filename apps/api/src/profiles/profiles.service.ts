@@ -86,4 +86,13 @@ export class ProfilesService {
     const following = await this.getFollowing(userId);
     return following.map((p) => p.userId);
   }
+
+  async getTeamProfile(): Promise<ProfileEntity | null> {
+    return this.repo
+      .createQueryBuilder('p')
+      .innerJoin('p.user', 'u')
+      .addSelect(['u.id', 'u.email', 'u.role', 'u.isTeamAccount'])
+      .where('u.isTeamAccount = true')
+      .getOne();
+  }
 }

@@ -19,6 +19,12 @@ export class ProfilesController {
     return this.profilesService.create(user.id, dto);
   }
 
+  @Get('team')
+  @ApiOperation({ summary: 'Get the AutoGuildX team profile' })
+  getTeam() {
+    return this.profilesService.getTeamProfile();
+  }
+
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()

@@ -191,6 +191,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           )}
 
           <div className="mt-auto pt-6 flex flex-col gap-1 text-xs text-gray-600">
+            <Link href="/team" className="hover:text-gray-400 transition-colors">
+              About / Team
+            </Link>
             <Link href="/privacy" className="hover:text-gray-400 transition-colors">
               Privacy Policy
             </Link>
