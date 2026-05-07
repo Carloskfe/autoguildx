@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { GraduationCap, Search, Plus, Users, BookOpen, Star, Loader2, Clock } from 'lucide-react';
+import { GraduationCap, Search, Plus, Users, BookOpen, Star, Loader2, Clock, LayoutList } from 'lucide-react';
 import Link from 'next/link';
 import AppShell from '@/components/layout/AppShell';
 import { useAuth } from '@/hooks/useAuth';
@@ -141,13 +141,22 @@ export default function CoursesPage() {
             </p>
           </div>
           {isAuthenticated && (
-            <Link
-              href="/courses/new"
-              className="btn-primary text-sm px-5 py-2.5 flex items-center gap-2 shrink-0"
-            >
-              <Plus className="w-4 h-4" />
-              Create Course
-            </Link>
+            <div className="flex items-center gap-2 shrink-0">
+              <Link
+                href="/courses/manage"
+                className="btn-secondary text-sm px-4 py-2.5 flex items-center gap-2"
+              >
+                <LayoutList className="w-4 h-4" />
+                My Hub
+              </Link>
+              <Link
+                href="/courses/new"
+                className="btn-primary text-sm px-5 py-2.5 flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Create Course
+              </Link>
+            </div>
           )}
         </div>
 

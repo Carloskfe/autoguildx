@@ -470,3 +470,17 @@ Set `EMAIL_API_KEY` (Resend API key) and `EMAIL_FROM` (e.g. `AutoGuildX <noreply
 
 ### Tests
 - [x] `tests/unit/listings/listings.service.spec.ts` — added sort tests (price_asc/price_desc/featured) and findByUser tests (303 total passing)
+
+---
+
+## Sprint 18 — Courses Beta-Ready ✅ COMPLETE
+
+**Goal:** Instructors can fully manage their courses; students have a learning dashboard; certificate is downloadable.
+
+### Frontend (all backend endpoints already existed)
+- [x] `/courses/manage` — two-tab page: "Teaching" (own courses: thumbnail, stats, publish/unpublish toggle, edit link, delete with confirmation) and "Learning" (enrolled courses with progress bar, continue link, certificate link)
+- [x] `/courses/[id]/edit` — pre-filled course edit form (title, description, level, price, thumbnail, objectives, requirements, tags); instructor-only guard; PATCH on submit
+- [x] `/courses/[id]/learn` — lesson edit added inline in sidebar: pencil icon per lesson opens edit form (title, content, video URL, duration); PATCH /courses/:id/lessons/:lessonId on save
+- [x] `/courses/[id]/certificate` — visual printable certificate page (certificate number, course name, instructor, date, Print/Save PDF button)
+- [x] `/courses/page.tsx` — "My Hub" button in header for authenticated users
+- [x] `/courses/[id]/page.tsx` — "Edit Course" + "Manage Lessons" buttons for instructor; "View Certificate" button when certificate earned

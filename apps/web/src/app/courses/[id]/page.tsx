@@ -420,11 +420,29 @@ export default function CourseDetailPage() {
                 )}
 
                 {isOwner && (
+                  <div className="flex gap-2">
+                    <Link
+                      href={`/courses/${id}/edit`}
+                      className="btn-secondary flex-1 py-2 text-xs text-center block"
+                    >
+                      Edit Course
+                    </Link>
+                    <Link
+                      href={`/courses/${id}/learn`}
+                      className="btn-secondary flex-1 py-2 text-xs text-center block"
+                    >
+                      Manage Lessons
+                    </Link>
+                  </div>
+                )}
+
+                {certificate && (
                   <Link
-                    href={`/courses/${id}/learn`}
-                    className="btn-secondary w-full py-2 text-xs text-center block"
+                    href={`/courses/${id}/certificate`}
+                    className="btn-secondary w-full py-2 text-xs text-center flex items-center justify-center gap-1.5 text-brand-500 border-brand-500/40 hover:border-brand-500"
                   >
-                    Manage Course
+                    <Award className="w-3.5 h-3.5" />
+                    View Certificate
                   </Link>
                 )}
 

@@ -367,6 +367,13 @@ All authenticated pages wrap their content with `AppShell` (`src/components/layo
 | `/events/[id]` | `app/events/[id]/page.tsx` | ✓ Wired — detail, RSVP, delete, share to feed |
 | `/messages` | `app/messages/page.tsx` | ✓ Wired — conversation list + message thread, real-time-ish via polling |
 | `/notifications` | `app/notifications/page.tsx` | ✓ Wired — list with read/unread state and deep links |
+| `/courses` | `app/courses/page.tsx` | ✓ Wired — browse published courses, level filter, search, My Hub button |
+| `/courses/new` | `app/courses/new/page.tsx` | ✓ Wired — create course form (title, description, level, price, thumbnail, objectives, requirements, tags) |
+| `/courses/manage` | `app/courses/manage/page.tsx` | ✓ Wired — Teaching tab (own courses: edit/publish/delete) + Learning tab (enrolled courses + progress + certificate link) |
+| `/courses/[id]` | `app/courses/[id]/page.tsx` | ✓ Wired — course detail, enroll CTA, progress bar, Edit Course / Manage Lessons (instructor), View Certificate button |
+| `/courses/[id]/edit` | `app/courses/[id]/edit/page.tsx` | ✓ Wired — pre-filled course edit form, instructor-only |
+| `/courses/[id]/learn` | `app/courses/[id]/learn/page.tsx` | ✓ Wired — split-pane player: lesson sidebar, Mark Complete, prev/next; instructor can add/edit/delete lessons inline |
+| `/courses/[id]/certificate` | `app/courses/[id]/certificate/page.tsx` | ✓ Wired — printable visual certificate (Print/Save PDF) |
 | `/profile` | `app/profile/page.tsx` | ✓ Wired — own profile, avatar/video upload, inline edit, role picker, posts |
 | `/profile/[id]` | `app/profile/[id]/page.tsx` | ✓ Wired — public profile, follow/unfollow, message, posts, reviews |
 | `/subscription/success` | `app/subscription/success/page.tsx` | Stripe checkout success — invalidates subscription cache |

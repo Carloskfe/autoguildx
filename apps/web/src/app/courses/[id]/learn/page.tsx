@@ -19,6 +19,7 @@ import {
   Play,
   FileText,
   ArrowLeft,
+  Pencil,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
@@ -103,12 +104,35 @@ export default function LearnPage() {
     },
   });
 
-  // ── Add / delete lesson (instructor) ────────────────────────────────────────
+  // ── Add / delete / edit lesson (instructor) ─────────────────────────────────
   const [addingLesson, setAddingLesson] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
   const [newVideo, setNewVideo] = useState('');
   const [newSection, setNewSection] = useState('');
+
+  const [editingLessonId, setEditingLessonId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editContent, setEditContent] = useState('');
+  const [editVideo, setEditVideo] = useState('');
+  const [editDuration, setEditDuration] = useState('');
+
+  function startEdit(lesson: { id: string; title: string; content?: string; videoUrl?: string; durationMinutes?: number }) {
+    setEditingLessonId(lesson.id);
+    setEditTitle(lesson.title);
+    setEditContent(lesson.content ?? '');
+    setEditVideo(lesson.videoUrl ?? '');
+    setEditDuration(String(lesson.durationMinutes ?? 0));
+  }
+
+  const editLesson = useMutation({
+    mutationFn: ({ lessonId, data }: { lessonId: string; data: object }) =>
+      api.patch(`/courses/${id}/lessons/${lessonId}`, data).then((r) => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['course', id] });
+      setEditingLessonId(null);
+    },
+  });
 
   const addLesson = useMutation({
     mutationFn: () =>
@@ -392,36 +416,86 @@ export default function LearnPage() {
                         const active = lesson.id === activeLesson?.id;
                         return (
                           <li key={lesson.id}>
-                            <button
-                              onClick={() => setActiveLessonId(lesson.id)}
-                              className={`w-full text-left px-4 py-3 flex items-start gap-3 transition-colors ${
-                                active
-                                  ? 'bg-brand-500/10 border-l-2 border-brand-500'
-                                  : 'hover:bg-gray-900 border-l-2 border-transparent'
-                              }`}
-                            >
-                              <span className="mt-0.5 shrink-0">
-                                {done ? (
-                                  <CheckCircle2 className="w-4 h-4 text-brand-500" />
-                                ) : lesson.videoUrl ? (
-                                  <Play className="w-4 h-4 text-gray-500" />
-                                ) : (
-                                  <FileText className="w-4 h-4 text-gray-500" />
-                                )}
-                              </span>
-                              <span className="flex-1 min-w-0">
-                                <span
-                                  className={`text-xs leading-snug line-clamp-2 ${active ? 'text-white font-medium' : 'text-gray-400'}`}
+                            {editingLessonId === lesson.id ? (
+                              <div className="px-3 py-2 space-y-2 bg-gray-900 border-l-2 border-brand-500">
+                                <input
+                                  value={editTitle}
+                                  onChange={(e) => setEditTitle(e.target.value)}
+                                  placeholder="Lesson title *"
+                                  className="input w-full text-xs py-1.5"
+                                  autoFocus
+                                />
+                                <textarea
+                                  value={editContent}
+                                  onChange={(e) => setEditContent(e.target.value)}
+                                  placeholder="Content (optional)"
+                                  rows={2}
+                                  className="input w-full text-xs py-1.5 resize-none"
+                                />
+                                <input
+                                  value={editVideo}
+                                  onChange={(e) => setEditVideo(e.target.value)}
+                                  placeholder="Video URL (optional)"
+                                  className="input w-full text-xs py-1.5"
+                                />
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={editDuration}
+                                  onChange={(e) => setEditDuration(e.target.value)}
+                                  placeholder="Duration (min)"
+                                  className="input w-full text-xs py-1.5"
+                                />
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() =>
+                                      editTitle.trim() &&
+                                      editLesson.mutate({
+                                        lessonId: lesson.id,
+                                        data: {
+                                          title: editTitle.trim(),
+                                          content: editContent || undefined,
+                                          videoUrl: editVideo || undefined,
+                                          durationMinutes: parseInt(editDuration) || 0,
+                                        },
+                                      })
+                                    }
+                                    disabled={!editTitle.trim() || editLesson.isPending}
+                                    className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1 disabled:opacity-50"
+                                  >
+                                    {editLesson.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+                                    Save
+                                  </button>
+                                  <button onClick={() => setEditingLessonId(null)} className="btn-secondary text-xs px-2.5 py-1.5">
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className={`flex items-start gap-1 border-l-2 transition-colors ${active ? 'bg-brand-500/10 border-brand-500' : 'hover:bg-gray-900 border-transparent'}`}>
+                                <button
+                                  onClick={() => setActiveLessonId(lesson.id)}
+                                  className="flex-1 text-left px-3 py-3 flex items-start gap-3"
                                 >
-                                  {lesson.title}
-                                </span>
-                                {lesson.durationMinutes > 0 && (
-                                  <span className="block text-xs text-gray-600 mt-0.5">
-                                    {lesson.durationMinutes}m
+                                  <span className="mt-0.5 shrink-0">
+                                    {done ? <CheckCircle2 className="w-4 h-4 text-brand-500" /> : lesson.videoUrl ? <Play className="w-4 h-4 text-gray-500" /> : <FileText className="w-4 h-4 text-gray-500" />}
                                   </span>
+                                  <span className="flex-1 min-w-0">
+                                    <span className={`text-xs leading-snug line-clamp-2 ${active ? 'text-white font-medium' : 'text-gray-400'}`}>{lesson.title}</span>
+                                    {lesson.durationMinutes > 0 && <span className="block text-xs text-gray-600 mt-0.5">{lesson.durationMinutes}m</span>}
+                                  </span>
+                                </button>
+                                {isOwner && (
+                                  <button
+                                    onClick={() => startEdit(lesson)}
+                                    className="p-2 mt-2 text-gray-600 hover:text-brand-400 transition-colors shrink-0"
+                                    title="Edit lesson"
+                                  >
+                                    <Pencil className="w-3 h-3" />
+                                  </button>
                                 )}
-                              </span>
-                            </button>
+                              </div>
+                            )}
                           </li>
                         );
                       })}
