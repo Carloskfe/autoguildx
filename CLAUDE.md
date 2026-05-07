@@ -10,10 +10,11 @@ AutoGuildX is a professional network + marketplace for automotive experts. For f
 2. [Tech Stack](#tech-stack)
 3. [Project Structure](#project-structure)
 4. [Commands](#commands)
-5. [API Architecture](#api-architecture)
-6. [Frontend Architecture](#frontend-architecture)
-7. [Shared Types](#shared-types)
-8. [Testing Requirements](#testing-requirements)
+5. [First-Time Setup](#first-time-setup)
+6. [API Architecture](#api-architecture)
+7. [Frontend Architecture](#frontend-architecture)
+8. [Shared Types](#shared-types)
+9. [Testing Requirements](#testing-requirements)
 
 ---
 
@@ -276,6 +277,19 @@ The `test` script in `apps/api/package.json` also includes a heap cap:
 "test": "NODE_OPTIONS='--max-old-space-size=3072' jest"
 ```
 
+### E2E tests
+
+E2E specs live in `apps/api/test/` and use `jest-e2e.json`. They require a running PostgreSQL instance and use `synchronize: true` (NestJS bootstraps the full `AppModule`).
+
+```bash
+# Requires local DB running (docker-compose.dev.yml)
+npm run test:e2e --workspace=apps/api
+
+# In CI, TEST_DATABASE_URL is injected by the e2e job's postgres service
+```
+
+**`clearDatabase()` rule:** Every e2e spec file must include the full `clearDatabase()` helper that truncates **all** entity tables — including newer ones (forums, courses, enrollments, certificates, verification_requests, etc.). If you add a new entity, add its table name to `clearDatabase()` in both `auth.e2e-spec.ts` and `listings.e2e-spec.ts`. The `CASCADE` keyword handles FK ordering.
+
 ### Before marking any task complete, verify
 
 - [ ] A test file exists at the correct mirrored path under `apps/api/tests/unit/`
@@ -299,6 +313,44 @@ Update all three management documents whenever anything project-relevant changes
 | `docs/PRD.md` | Features shipped (move from roadmap to built scope), non-goals resolved, risks change, new post-MVP items identified |
 
 Never leave a session with docs that contradict the actual codebase state.
+
+---
+
+## First-Time Setup
+
+```bash
+# 1. Copy env templates and fill in real values
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+
+# 2. Start local PostgreSQL (port 5433) + pgAdmin (port 5050)
+docker compose -f docker-compose.dev.yml up -d
+
+# 3. Install all workspace dependencies
+npm install
+
+# 4. Start both apps with hot reload
+npm run dev
+```
+
+**Activate the admin account** (run once against the database, then re-login):
+```sql
+UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
+```
+
+**Seed the AutoGuildX team profile** (run once against the database):
+```bash
+TEAM_SEED_PASSWORD=<secure-password> npm run seed:team --workspace=apps/api
+```
+
+**Third-party services** (all optional for local dev — app degrades gracefully without them):
+
+| Service | Env vars | Effect when absent |
+|---|---|---|
+| Firebase | `FIREBASE_PROJECT_ID/CLIENT_EMAIL/PRIVATE_KEY` (API) + all `NEXT_PUBLIC_FIREBASE_*` (web) | Google OAuth disabled; email signup works |
+| Stripe | `STRIPE_SECRET_KEY`, `STRIPE_PRICE_*`, `STRIPE_WEBHOOK_SECRET` | Subscription upgrade UI shows but checkout fails |
+| AWS S3 | `AWS_*` vars | Upload stub returns placeholder URLs |
+| Resend email | `EMAIL_API_KEY`, `EMAIL_FROM` | Transactional emails silently skipped |
 
 ---
 
