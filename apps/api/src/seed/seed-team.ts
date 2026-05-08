@@ -57,7 +57,7 @@ async function seed() {
       name: 'AutoGuildX',
       bio: 'The professional network and marketplace for automotive experts — mechanics, manufacturers, collectors, and enthusiasts.',
       location: 'Worldwide',
-      role: 'manufacturer',
+      roleType: 'manufacturer',
       tags: ['Engine', 'Performance', 'Restoration', 'Fabrication', 'Tuning & Performance'],
       isVerified: true,
     });
