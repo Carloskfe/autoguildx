@@ -117,7 +117,7 @@ export default function ForumPage() {
         )}
 
         <div className="flex items-center justify-between mb-4">
-          <div className="flex gap-1 bg-surface-800 rounded-lg p-1">
+          <div className="flex gap-1 bg-surface-card rounded-lg p-1">
             {SORTS.map((s) => (
               <button
                 key={s}

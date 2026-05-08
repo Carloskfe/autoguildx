@@ -260,7 +260,8 @@ function ProfileHeader({ profile }: { profile: Profile }) {
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-gray-800 via-gray-900 to-gray-950" />
         )}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+        {/* Desktop: hover overlay */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors items-center justify-center opacity-0 group-hover:opacity-100 hidden md:flex">
           {uploadingBanner ? (
             <Loader2 className="w-6 h-6 text-white animate-spin" />
           ) : (
@@ -268,6 +269,17 @@ function ProfileHeader({ profile }: { profile: Profile }) {
               <Camera className="w-4 h-4 text-white" />
               <span className="text-white text-xs font-medium">Change cover photo</span>
             </div>
+          )}
+        </div>
+        {/* Mobile: persistent camera badge */}
+        <div className="absolute bottom-2 right-2 md:hidden flex items-center gap-1.5 bg-black/70 rounded-lg px-2 py-1 pointer-events-none">
+          {uploadingBanner ? (
+            <Loader2 className="w-3 h-3 text-white animate-spin" />
+          ) : (
+            <>
+              <Camera className="w-3 h-3 text-white" />
+              <span className="text-white text-[10px] font-medium">Change</span>
+            </>
           )}
         </div>
         <input
@@ -310,7 +322,7 @@ function ProfileHeader({ profile }: { profile: Profile }) {
                 {initials(profile.name)}
               </div>
             )}
-            <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center transition-opacity md:opacity-0 md:group-hover:opacity-100">
               {uploadingAvatar ? (
                 <Loader2 className="w-5 h-5 animate-spin text-white" />
               ) : (

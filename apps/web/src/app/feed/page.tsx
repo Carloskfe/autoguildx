@@ -782,38 +782,40 @@ function CreatePostForm() {
 
         <span className="text-xs text-gray-500">{content.length} / 2000</span>
 
-        {/* Visibility picker */}
-        <div className="flex items-center ml-auto">
-          {VISIBILITY_OPTIONS.map((opt) => (
-            <button
-              key={opt.key}
-              type="button"
-              onClick={() => setVisibility(opt.key)}
-              title={opt.label}
-              className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full transition-colors ${
-                visibility === opt.key
-                  ? 'bg-brand-500/20 text-brand-500 border border-brand-500/40'
-                  : 'text-gray-500 hover:text-gray-300'
-              }`}
-            >
-              <opt.Icon className="w-3 h-3" />
-              {visibility === opt.key && <span>{opt.label}</span>}
-            </button>
-          ))}
-        </div>
+        {/* Visibility + submit — grouped so they always wrap together */}
+        <div className="ml-auto flex items-center gap-2">
+          <div className="flex items-center">
+            {VISIBILITY_OPTIONS.map((opt) => (
+              <button
+                key={opt.key}
+                type="button"
+                onClick={() => setVisibility(opt.key)}
+                title={opt.label}
+                className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full transition-colors ${
+                  visibility === opt.key
+                    ? 'bg-brand-500/20 text-brand-500 border border-brand-500/40'
+                    : 'text-gray-500 hover:text-gray-300'
+                }`}
+              >
+                <opt.Icon className="w-3 h-3" />
+                {visibility === opt.key && <span>{opt.label}</span>}
+              </button>
+            ))}
+          </div>
 
-        <button
-          type="submit"
-          disabled={!content.trim() || tooManyLinks || create.isPending || uploading}
-          className="btn-primary text-sm flex items-center gap-2 px-4 py-2 disabled:opacity-50"
-        >
-          {create.isPending ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Send className="w-4 h-4" />
-          )}
-          {create.isPending ? 'Posting…' : 'Post'}
-        </button>
+          <button
+            type="submit"
+            disabled={!content.trim() || tooManyLinks || create.isPending || uploading}
+            className="btn-primary text-sm flex items-center gap-2 px-4 py-2 disabled:opacity-50"
+          >
+            {create.isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
+            {create.isPending ? 'Posting…' : 'Post'}
+          </button>
+        </div>
       </div>
     </form>
   );
