@@ -131,7 +131,7 @@ export default function ManageListingsPage() {
                       {listing.status}
                     </span>
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-gray-400">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-400">
                     <span className="font-medium text-white">{price}</span>
                     <span className="capitalize">{listing.category}</span>
                     {listing.location && (
@@ -150,7 +150,7 @@ export default function ManageListingsPage() {
                 <div className="flex items-center gap-2 shrink-0">
                   <Link
                     href={`/marketplace/${listing.id}/edit`}
-                    className="p-1.5 text-gray-400 hover:text-brand-500 transition-colors"
+                    className="p-2 text-gray-400 hover:text-brand-500 transition-colors"
                     title="Edit"
                   >
                     <Pencil className="w-4 h-4" />
@@ -160,7 +160,7 @@ export default function ManageListingsPage() {
                     <button
                       onClick={() => statusToggle.mutate({ id: listing.id, status: 'sold' })}
                       disabled={statusToggle.isPending}
-                      className="p-1.5 text-gray-400 hover:text-green-400 transition-colors"
+                      className="p-2 text-gray-400 hover:text-green-400 transition-colors"
                       title="Mark as Sold"
                     >
                       <CheckCircle2 className="w-4 h-4" />
@@ -169,7 +169,7 @@ export default function ManageListingsPage() {
                     <button
                       onClick={() => statusToggle.mutate({ id: listing.id, status: 'active' })}
                       disabled={statusToggle.isPending}
-                      className="p-1.5 text-gray-400 hover:text-blue-400 transition-colors"
+                      className="p-2 text-gray-400 hover:text-blue-400 transition-colors"
                       title="Mark as Active"
                     >
                       <RotateCcw className="w-4 h-4" />
@@ -178,7 +178,7 @@ export default function ManageListingsPage() {
 
                   <button
                     onClick={() => setDeleteId(listing.id)}
-                    className="p-1.5 text-gray-400 hover:text-red-400 transition-colors"
+                    className="p-2 text-gray-400 hover:text-red-400 transition-colors"
                     title="Delete"
                   >
                     <Trash2 className="w-4 h-4" />

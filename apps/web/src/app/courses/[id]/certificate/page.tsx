@@ -105,7 +105,7 @@ export default function CertificatePage() {
         {/* Certificate card */}
         <div
           id="certificate"
-          className="bg-[#0c0c0c] border-2 border-brand-500/60 rounded-2xl p-10 text-center space-y-6 print:border-gray-400 print:text-black print:bg-white"
+          className="bg-[#0c0c0c] border-2 border-brand-500/60 rounded-2xl p-6 sm:p-10 text-center space-y-6 print:border-gray-400 print:text-black print:bg-white"
         >
           {/* Logo / brand */}
           <div className="flex flex-col items-center gap-1">

@@ -176,7 +176,7 @@ export default function CoursesManagePage() {
                 <div className="flex items-center gap-1 shrink-0">
                   <Link
                     href={`/courses/${course.id}/edit`}
-                    className="p-1.5 text-gray-400 hover:text-brand-500 transition-colors"
+                    className="p-2 text-gray-400 hover:text-brand-500 transition-colors"
                     title="Edit course"
                   >
                     <Pencil className="w-4 h-4" />
@@ -186,7 +186,7 @@ export default function CoursesManagePage() {
                     onClick={() => togglePublish.mutate(course.id)}
                     disabled={togglePublish.isPending}
                     className={clsx(
-                      'p-1.5 transition-colors',
+                      'p-2 transition-colors',
                       course.published
                         ? 'text-gray-400 hover:text-yellow-400'
                         : 'text-gray-400 hover:text-green-400',
@@ -202,7 +202,7 @@ export default function CoursesManagePage() {
 
                   <button
                     onClick={() => setDeleteId(course.id)}
-                    className="p-1.5 text-gray-400 hover:text-red-400 transition-colors"
+                    className="p-2 text-gray-400 hover:text-red-400 transition-colors"
                     title="Delete"
                   >
                     <Trash2 className="w-4 h-4" />
