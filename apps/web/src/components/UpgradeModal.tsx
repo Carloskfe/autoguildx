@@ -63,7 +63,7 @@ export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-      <div className="w-full max-w-2xl bg-surface border border-surface-border rounded-2xl shadow-2xl">
+      <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-surface border border-surface-border rounded-2xl shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-surface-border">
           <div className="flex items-center gap-2">

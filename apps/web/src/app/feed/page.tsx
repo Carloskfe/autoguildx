@@ -466,23 +466,24 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
             {/* Reaction button */}
             <div className="relative">
               {showReactions && (
-                <div className="absolute bottom-8 left-0 flex items-center gap-1 bg-surface-card border border-surface-border rounded-full px-2 py-1 shadow-lg z-10">
-                  {REACTIONS.map((r) => (
-                    <button
-                      key={r.key}
-                      onClick={() => handleReact(r.key)}
-                      title={r.label}
-                      className="text-lg hover:scale-125 transition-transform"
-                    >
-                      {r.emoji}
-                    </button>
-                  ))}
-                </div>
+                <>
+                  <div className="fixed inset-0 z-[5]" onClick={() => setShowReactions(false)} />
+                  <div className="absolute bottom-8 left-0 flex items-center gap-1 bg-surface-card border border-surface-border rounded-full px-2 py-1 shadow-lg z-10">
+                    {REACTIONS.map((r) => (
+                      <button
+                        key={r.key}
+                        onClick={() => handleReact(r.key)}
+                        title={r.label}
+                        className="text-lg hover:scale-125 transition-transform p-1"
+                      >
+                        {r.emoji}
+                      </button>
+                    ))}
+                  </div>
+                </>
               )}
               <button
                 onClick={() => setShowReactions((v) => !v)}
-                onMouseEnter={() => setShowReactions(true)}
-                onMouseLeave={() => setShowReactions(false)}
                 className={`flex items-center gap-1.5 text-xs transition-colors ${myReaction ? 'text-brand-500' : 'text-gray-400 hover:text-brand-500'}`}
               >
                 <span className="text-sm">{myReactionObj ? myReactionObj.emoji : '👍'}</span>
@@ -524,23 +525,26 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
                   <span>{post.sharesCount ?? 0}</span>
                 </button>
                 {showShareMenu && (
-                  <div className="absolute bottom-7 left-0 bg-surface-card border border-surface-border rounded-lg shadow-lg z-10 min-w-[160px] py-1">
-                    <button
-                      onClick={handleQuickShare}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-border hover:text-white transition-colors"
-                    >
-                      Quick Share
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowShareMenu(false);
-                        setShowShareModal(true);
-                      }}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-border hover:text-white transition-colors"
-                    >
-                      Share with comment
-                    </button>
-                  </div>
+                  <>
+                    <div className="fixed inset-0 z-[5]" onClick={() => setShowShareMenu(false)} />
+                    <div className="absolute bottom-7 left-0 bg-surface-card border border-surface-border rounded-lg shadow-lg z-10 min-w-[160px] py-1">
+                      <button
+                        onClick={handleQuickShare}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-border hover:text-white transition-colors"
+                      >
+                        Quick Share
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowShareMenu(false);
+                          setShowShareModal(true);
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-border hover:text-white transition-colors"
+                      >
+                        Share with comment
+                      </button>
+                    </div>
+                  </>
                 )}
               </div>
             )}

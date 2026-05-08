@@ -121,7 +121,7 @@ export default function NotificationPanel({ onClose }: Props) {
   return (
     <div
       ref={panelRef}
-      className="absolute right-0 top-full mt-2 w-80 max-h-[480px] flex flex-col bg-surface-card border border-surface-border rounded-xl shadow-2xl z-50 overflow-hidden"
+      className="absolute right-0 top-full mt-2 w-80 max-w-[calc(100vw-1rem)] max-h-[480px] flex flex-col bg-surface-card border border-surface-border rounded-xl shadow-2xl z-50 overflow-hidden"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-surface-border shrink-0">
