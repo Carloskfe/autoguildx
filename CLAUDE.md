@@ -350,7 +350,9 @@ TEAM_SEED_PASSWORD=<secure-password> npm run seed:team --workspace=apps/api
 | Firebase | `FIREBASE_PROJECT_ID/CLIENT_EMAIL/PRIVATE_KEY` (API) + all `NEXT_PUBLIC_FIREBASE_*` (web) | Google OAuth disabled; email signup works |
 | Stripe | `STRIPE_SECRET_KEY`, `STRIPE_PRICE_*`, `STRIPE_WEBHOOK_SECRET` | Subscription upgrade UI shows but checkout fails |
 | AWS S3 | `AWS_*` vars | Upload stub returns placeholder URLs |
-| Resend email | `EMAIL_API_KEY`, `EMAIL_FROM` | Transactional emails silently skipped |
+| Resend email | `EMAIL_API_KEY`, `EMAIL_FROM` | Transactional emails silently skipped — **verify-email flow broken in production without this** |
+| SEO / sitemap | `NEXT_PUBLIC_SITE_URL` (web) | Sitemap and og:url default to `https://autoguildx.com` |
+| Docker SSR fetches | `API_URL` (web, runtime) | `generateMetadata` uses this for container-to-container API calls; defaults to `NEXT_PUBLIC_API_URL` |
 
 ---
 
@@ -390,7 +392,7 @@ Every domain feature follows the same NestJS pattern: `module → controller →
 
 ## Frontend Architecture
 
-All authenticated pages wrap their content with `AppShell` (`src/components/layout/AppShell.tsx`), which renders the sticky header, desktop sidebar nav, and mobile bottom nav. AppShell polls for unread message count (10 s) and unread notification count (15 s), and shows live badges on the Messages nav item and the Bell icon.
+All authenticated pages wrap their content with `AppShell` (`src/components/layout/AppShell.tsx`), which renders the sticky header, desktop sidebar nav (8 items), and mobile bottom nav (5 items: Feed · Discover · Market · Messages · Profile). AppShell polls for unread message count (10 s) and unread notification count (15 s), and shows live badges on the Messages nav item and the Bell icon.
 
 | Route | File | Status |
 |---|---|---|
@@ -441,7 +443,11 @@ All authenticated pages wrap their content with `AppShell` (`src/components/layo
 
 **Firebase:** `src/lib/firebase.ts` — lazy init (`getFirebaseApp()` / `getFirebaseAuth()` helpers) so Firebase never runs during Next.js SSR prerendering.
 
-**Styling:** Custom Tailwind tokens in `tailwind.config.ts` — `brand-*` (orange accent) and `surface-*` (dark backgrounds). Reusable component classes (`btn-primary`, `btn-secondary`, `card`, `input`) declared in `globals.css` under `@layer components`. Always use these instead of raw utility strings for interactive elements.
+**Styling:** Custom Tailwind tokens in `tailwind.config.ts` — `brand-*` (orange accent) and `surface-*` (dark backgrounds). Reusable component classes (`btn-primary`, `btn-secondary`, `card`, `input`) declared in `globals.css` under `@layer components`. Always use these instead of raw utility strings for interactive elements. The `.input` class uses `text-base` (16px) — required to prevent iOS Safari auto-zoom on focus. A `scrollbar-hide` utility is defined in `@layer utilities` for horizontal scroll chip rows.
+
+**Dynamic pages with SEO:** `/marketplace/[id]`, `/profile/[id]`, and `/events/[id]` are split into a Server Component `page.tsx` (exports `generateMetadata`, fetches entity for og tags) and a `PageClient.tsx` Client Component (all interactive logic). `generateMetadata` uses `process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL` so server-side fetches work inside Docker containers via the internal network.
+
+**Error pages:** `app/error.tsx` (global React error boundary) and `app/not-found.tsx` (404) are defined at the app root.
 
 ---
 

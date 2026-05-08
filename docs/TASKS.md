@@ -553,3 +553,17 @@ Then log in as `team@autoguildx.com` and update the profile avatar and banner vi
 - [x] **NotificationPanel width** — added `max-w-[calc(100vw-1rem)]` so the 320px panel never overflows the viewport on small phones
 - [x] **UpgradeModal scroll** — added `max-h-[90vh] overflow-y-auto`; 3 stacked tier cards exceed 700px on mobile without it
 - [x] **`scrollbar-hide` utility** — defined in `globals.css` (`@layer utilities`); used by AGXTopics category filter and Discover horizontal scroll chips
+
+### Pass 3 — Profile, compose, AGXTopics
+- [x] **Profile banner upload hint** — hover overlay `hidden md:flex`; added persistent camera badge (`md:hidden`) in bottom-right corner so mobile users know the banner is tappable
+- [x] **Profile avatar overlay** — `md:opacity-0 md:group-hover:opacity-100`; always visible on mobile so users know they can tap to change their photo
+- [x] **Compose toolbar grouping** — visibility picker + Post button wrapped in shared `ml-auto` container; they always stay together when the toolbar wraps to a second row on narrow screens
+- [x] **AGXTopics sort tabs** — replaced undefined `bg-surface-800` Tailwind class with `bg-surface-card`
+
+### Pass 4 — Manage dashboards + certificate
+- [x] **Certificate card padding** — `p-10` → `p-6 sm:p-10`; 40px padding on both sides left only 263px content width on a 375px phone
+- [x] **Marketplace manage action buttons** — `p-1.5` → `p-2` (28px → 32px touch target); meta row `flex` → `flex flex-wrap` so price/category/location/age don't overflow on narrow screens
+- [x] **Courses manage action buttons** — same `p-1.5` → `p-2` touch target fix
+
+### Full page audit result
+Every page audited; issues found and fixed only where real breakage or UX degradation existed. Pages confirmed clean: `/login`, `/signup`, `/onboarding`, `/events` list, `/notifications`, `/team`, `/admin`, `/courses/[id]` (has `lg:hidden` mobile CTA block), `/discover`, `/marketplace/new`, `/events/new`, all AGXTopics forms, `/settings`, auth flows, `ReviewSection`, `ForumCommentThread`.

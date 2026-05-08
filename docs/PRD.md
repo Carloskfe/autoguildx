@@ -167,6 +167,7 @@ All features below are fully implemented and deployed unless noted.
 | Courses instructor dashboard (edit, publish toggle, certificate download) | ✅ Sprint 18 |
 | Admin team profile + /team landing page | ✅ Sprint 19 |
 | SEO metadata, sitemap, robots.txt, error boundaries | ✅ Sprint 20 |
+| Mobile responsiveness — all pages phone-ready | ✅ Sprint 21 |
 | Stripe production env vars + webhook registration | Ops (no code changes) |
 | Real S3 credentials for media uploads | Ops (no code changes) |
 
@@ -188,5 +189,5 @@ All features below are fully implemented and deployed unless noted.
 
 - Low initial supply of listings and profiles
 - Users remain in existing generic platforms (Instagram, eBay, Facebook Marketplace)
-- Trust gap without verified badges
 - Stripe and S3 not yet activated in production (code complete, needs env vars)
+- Email (Resend) not activated — signup verification emails won't send without `EMAIL_API_KEY`
