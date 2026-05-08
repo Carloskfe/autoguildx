@@ -20,7 +20,7 @@ async function clearDatabase(ds: DataSource) {
       "notifications", "post_reactions", "comment_reactions",
       "forum_comment_votes", "forum_votes", "forum_members",
       "forum_posts", "forums",
-      "certificate", "lesson_progress", "enrollments", "lessons", "courses",
+      "certificates", "lesson_progress", "enrollments", "lessons", "courses",
       "verification_requests",
       "reviews", "messages", "conversations",
       "profile_followers", "comments", "subscriptions",
