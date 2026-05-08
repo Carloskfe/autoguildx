@@ -535,3 +535,21 @@ Then log in as `team@autoguildx.com` and update the profile avatar and banner vi
 ### Docs
 - [x] `docs/PRD.md` — removed duplicate "Courses and certifications" from post-MVP roadmap; marked Sprint 20 complete in beta checklist
 - [x] `docs/TASKS.md` — Sprint 20 logged
+
+---
+
+## Sprint 21 — Mobile Responsiveness ✅ COMPLETE
+
+**Goal:** Make all pages fully usable on phone-sized screens before launch.
+
+### Pass 1 — Structural fixes
+- [x] **iOS input zoom** — added `text-base` (16px) to `.input` class in `globals.css`; Safari auto-zooms inputs with font-size < 16px
+- [x] **Mobile bottom nav** — reduced from 8 items to 5 (Feed, Discover, Market, Messages, Profile); AGXTopics/Courses/Events remain in desktop sidebar; labels now `truncate` to prevent overflow
+- [x] **Courses/learn sidebar** — was `hidden md:flex` with no mobile access; now opens as a full-screen overlay via "Lessons" button; defaults to closed on mobile, open on desktop (responsive `useEffect`)
+
+### Pass 2 — Interaction + modal fixes
+- [x] **Feed reaction picker** — removed `onMouseEnter`/`onMouseLeave` hover handlers (useless on touch); added tap-outside dismiss overlay (`fixed inset-0 z-[5]`); emoji buttons have `p-1` padding for larger touch targets
+- [x] **Feed share dropdown** — same tap-outside overlay pattern; tap anywhere outside closes the menu
+- [x] **NotificationPanel width** — added `max-w-[calc(100vw-1rem)]` so the 320px panel never overflows the viewport on small phones
+- [x] **UpgradeModal scroll** — added `max-h-[90vh] overflow-y-auto`; 3 stacked tier cards exceed 700px on mobile without it
+- [x] **`scrollbar-hide` utility** — defined in `globals.css` (`@layer utilities`); used by AGXTopics category filter and Discover horizontal scroll chips
