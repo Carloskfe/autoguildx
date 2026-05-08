@@ -59,11 +59,7 @@ export default function ForgotPasswordPage() {
               required
             />
             {error && <p className="text-red-400 text-sm">{error}</p>}
-            <button
-              className="btn-primary w-full"
-              type="submit"
-              disabled={status === 'loading'}
-            >
+            <button className="btn-primary w-full" type="submit" disabled={status === 'loading'}>
               {status === 'loading' ? 'Sending…' : 'Send reset link'}
             </button>
             <p className="text-center text-sm text-gray-400">

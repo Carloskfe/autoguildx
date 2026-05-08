@@ -52,7 +52,11 @@ export default function EditListingPage() {
     location: '',
   });
 
-  const { data: listing, isLoading, isError } = useQuery<Listing>({
+  const {
+    data: listing,
+    isLoading,
+    isError,
+  } = useQuery<Listing>({
     queryKey: ['listing', id],
     queryFn: () => api.get(`/listings/${id}`).then((r) => r.data),
     enabled: !!id,
@@ -151,7 +155,10 @@ export default function EditListingPage() {
     <AppShell>
       <div className="max-w-xl mx-auto px-4 py-6">
         <div className="flex items-center gap-3 mb-6">
-          <Link href={`/marketplace/${id}`} className="text-gray-400 hover:text-white transition-colors">
+          <Link
+            href={`/marketplace/${id}`}
+            className="text-gray-400 hover:text-white transition-colors"
+          >
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <h1 className="font-bold text-lg">Edit Listing</h1>
@@ -195,7 +202,13 @@ export default function EditListingPage() {
             <label className="text-sm font-medium text-gray-300 mb-1 block">
               Title <span className="text-red-400">*</span>
             </label>
-            <input className="input w-full text-sm" value={form.title} onChange={set('title')} maxLength={150} required />
+            <input
+              className="input w-full text-sm"
+              value={form.title}
+              onChange={set('title')}
+              maxLength={150}
+              required
+            />
           </div>
 
           {/* Category */}
@@ -203,10 +216,17 @@ export default function EditListingPage() {
             <label className="text-sm font-medium text-gray-300 mb-1 block">
               Category <span className="text-red-400">*</span>
             </label>
-            <select className="input w-full text-sm" value={form.category} onChange={set('category')} required>
+            <select
+              className="input w-full text-sm"
+              value={form.category}
+              onChange={set('category')}
+              required
+            >
               <option value="">Select a category…</option>
               {CATEGORIES.map((c) => (
-                <option key={c} value={c}>{c}</option>
+                <option key={c} value={c}>
+                  {c}
+                </option>
               ))}
             </select>
           </div>
@@ -232,7 +252,9 @@ export default function EditListingPage() {
               Price <span className="text-gray-500">(optional)</span>
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+                $
+              </span>
               <input
                 className="input w-full text-sm pl-7"
                 type="number"
@@ -250,13 +272,22 @@ export default function EditListingPage() {
             <label className="text-sm font-medium text-gray-300 mb-1 block">
               Vehicle Tags <span className="text-gray-500">(comma-separated)</span>
             </label>
-            <input className="input w-full text-sm" value={form.vehicleTags} onChange={set('vehicleTags')} />
+            <input
+              className="input w-full text-sm"
+              value={form.vehicleTags}
+              onChange={set('vehicleTags')}
+            />
           </div>
 
           {/* Location */}
           <div>
             <label className="text-sm font-medium text-gray-300 mb-1 block">Location</label>
-            <input className="input w-full text-sm" value={form.location} onChange={set('location')} maxLength={100} />
+            <input
+              className="input w-full text-sm"
+              value={form.location}
+              onChange={set('location')}
+              maxLength={100}
+            />
           </div>
 
           {/* Images */}
@@ -288,11 +319,21 @@ export default function EditListingPage() {
                 disabled={uploadingImage}
                 className="btn-secondary text-sm flex items-center gap-2 px-4 py-2 disabled:opacity-50"
               >
-                {uploadingImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
+                {uploadingImage ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ImageIcon className="w-4 h-4" />
+                )}
                 {uploadingImage ? 'Uploading…' : 'Add Photo'}
               </button>
             )}
-            <input ref={imageInputRef} type="file" accept="image/*" className="sr-only" onChange={handleImagePick} />
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              onChange={handleImagePick}
+            />
           </div>
 
           {update.isError && (
@@ -300,7 +341,11 @@ export default function EditListingPage() {
           )}
 
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={() => router.back()} className="btn-secondary flex-1 text-sm py-2.5">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="btn-secondary flex-1 text-sm py-2.5"
+            >
               Cancel
             </button>
             <button

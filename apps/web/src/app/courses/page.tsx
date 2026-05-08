@@ -2,7 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { GraduationCap, Search, Plus, Users, BookOpen, Star, Loader2, Clock, LayoutList } from 'lucide-react';
+import {
+  GraduationCap,
+  Search,
+  Plus,
+  Users,
+  BookOpen,
+  Star,
+  Loader2,
+  Clock,
+  LayoutList,
+} from 'lucide-react';
 import Link from 'next/link';
 import AppShell from '@/components/layout/AppShell';
 import { useAuth } from '@/hooks/useAuth';

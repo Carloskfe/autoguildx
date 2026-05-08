@@ -69,7 +69,9 @@ export default function SettingsPage() {
   // Email notifications toggle
   const emailToggle = useMutation({
     mutationFn: (enabled: boolean) =>
-      api.patch('/notifications/email-settings', { emailNotificationsEnabled: enabled }).then((r) => r.data),
+      api
+        .patch('/notifications/email-settings', { emailNotificationsEnabled: enabled })
+        .then((r) => r.data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['emailSettings'] }),
   });
 
@@ -113,10 +115,7 @@ export default function SettingsPage() {
               <p className="text-sm text-gray-400">Current plan</p>
               <p className="font-medium text-white">{TIER_LABELS[tier]} Plan</p>
             </div>
-            <button
-              onClick={() => setShowUpgrade(true)}
-              className="btn-secondary text-sm"
-            >
+            <button onClick={() => setShowUpgrade(true)} className="btn-secondary text-sm">
               {tier === 'free' ? 'Upgrade' : 'Manage plan'}
             </button>
           </div>
@@ -158,11 +157,7 @@ export default function SettingsPage() {
             />
             {pwError && <p className="text-red-400 text-sm">{pwError}</p>}
             {pwMessage && <p className="text-green-400 text-sm">{pwMessage}</p>}
-            <button
-              className="btn-primary"
-              type="submit"
-              disabled={changePwMutation.isPending}
-            >
+            <button className="btn-primary" type="submit" disabled={changePwMutation.isPending}>
               {changePwMutation.isPending ? 'Saving…' : 'Update password'}
             </button>
           </form>
@@ -206,7 +201,7 @@ export default function SettingsPage() {
             <input
               className="input border-red-900/50 focus:border-red-500"
               type="text"
-              placeholder='Type DELETE to confirm'
+              placeholder="Type DELETE to confirm"
               value={deleteConfirm}
               onChange={(e) => setDeleteConfirm(e.target.value)}
             />

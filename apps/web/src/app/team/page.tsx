@@ -90,7 +90,8 @@ export default function TeamPage() {
         </h1>
         <p className="text-gray-400 text-lg max-w-xl leading-relaxed">
           AutoGuildX is a professional network and marketplace for automotive experts — built to
-          give mechanics, manufacturers, collectors, and enthusiasts a home that matches their craft.
+          give mechanics, manufacturers, collectors, and enthusiasts a home that matches their
+          craft.
         </p>
         <div className="flex flex-wrap gap-3 justify-center pt-2">
           <Link href="/signup" className="btn-primary text-base px-7 py-3">
@@ -149,9 +150,21 @@ export default function TeamPage() {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
             {[
-              { icon: Users, label: 'Profiles', desc: 'Verified expert profiles with reviews and follow graph' },
-              { icon: Package, label: 'Marketplace', desc: 'Buy and sell parts, services, and vehicles' },
-              { icon: GraduationCap, label: 'Courses', desc: 'Learn from certified instructors and earn credentials' },
+              {
+                icon: Users,
+                label: 'Profiles',
+                desc: 'Verified expert profiles with reviews and follow graph',
+              },
+              {
+                icon: Package,
+                label: 'Marketplace',
+                desc: 'Buy and sell parts, services, and vehicles',
+              },
+              {
+                icon: GraduationCap,
+                label: 'Courses',
+                desc: 'Learn from certified instructors and earn credentials',
+              },
             ].map(({ icon: Icon, label, desc }) => (
               <div key={label} className="space-y-3">
                 <div className="w-12 h-12 rounded-xl bg-surface-card border border-surface-border flex items-center justify-center mx-auto">
@@ -234,13 +247,14 @@ export default function TeamPage() {
       {/* CTA */}
       <section className="border-t border-surface-border">
         <div className="max-w-xl mx-auto px-6 py-24 text-center space-y-6">
-          <h2 className="text-4xl font-black text-white leading-tight">
-            Ready to join the Guild?
-          </h2>
+          <h2 className="text-4xl font-black text-white leading-tight">Ready to join the Guild?</h2>
           <p className="text-gray-400">
             Free to join. Build your profile, list your parts, share your knowledge.
           </p>
-          <Link href="/signup" className="btn-primary text-base px-10 py-3.5 inline-block font-semibold">
+          <Link
+            href="/signup"
+            className="btn-primary text-base px-10 py-3.5 inline-block font-semibold"
+          >
             Create Your Account
           </Link>
           <p className="text-xs text-gray-600">
@@ -256,10 +270,18 @@ export default function TeamPage() {
       <footer className="border-t border-surface-border px-6 py-8 flex flex-wrap items-center justify-between gap-4 text-xs text-gray-600">
         <span className="text-brand-500 font-bold">AutoGuildX</span>
         <div className="flex gap-5">
-          <Link href="/privacy" className="hover:text-gray-400 transition-colors">Privacy</Link>
-          <Link href="/terms" className="hover:text-gray-400 transition-colors">Terms</Link>
-          <Link href="/cookies" className="hover:text-gray-400 transition-colors">Cookies</Link>
-          <Link href="/disclaimer" className="hover:text-gray-400 transition-colors">Disclaimer</Link>
+          <Link href="/privacy" className="hover:text-gray-400 transition-colors">
+            Privacy
+          </Link>
+          <Link href="/terms" className="hover:text-gray-400 transition-colors">
+            Terms
+          </Link>
+          <Link href="/cookies" className="hover:text-gray-400 transition-colors">
+            Cookies
+          </Link>
+          <Link href="/disclaimer" className="hover:text-gray-400 transition-colors">
+            Disclaimer
+          </Link>
         </div>
         <span>© 2026 AutoGuildX</span>
       </footer>

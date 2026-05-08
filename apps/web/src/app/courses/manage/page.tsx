@@ -97,7 +97,9 @@ export default function CoursesManagePage() {
                   : 'border-transparent text-gray-500 hover:text-gray-300',
               )}
             >
-              {t === 'teaching' ? `Teaching (${myCourses.length})` : `Learning (${enrollments.length})`}
+              {t === 'teaching'
+                ? `Teaching (${myCourses.length})`
+                : `Learning (${enrollments.length})`}
             </button>
           ))}
         </div>
@@ -223,7 +225,9 @@ export default function CoursesManagePage() {
             {!loadingEnrollments && enrollments.length === 0 && (
               <div className="text-center py-16 space-y-3">
                 <BookOpen className="w-10 h-10 text-gray-700 mx-auto" />
-                <p className="text-gray-400 text-sm">You haven&apos;t enrolled in any courses yet.</p>
+                <p className="text-gray-400 text-sm">
+                  You haven&apos;t enrolled in any courses yet.
+                </p>
                 <Link href="/courses" className="btn-primary text-sm inline-block px-5">
                   Browse courses
                 </Link>
@@ -345,7 +349,9 @@ function EnrolledCourseRow({ enrollment }: { enrollment: EnrolledCourse }) {
       {progress && (
         <div className="space-y-1">
           <div className="flex justify-between text-xs text-gray-500">
-            <span>{progress.completed}/{progress.total} lessons</span>
+            <span>
+              {progress.completed}/{progress.total} lessons
+            </span>
             <span className={done ? 'text-green-400 font-medium' : ''}>
               {done ? '✓ Complete' : `${pct}%`}
             </span>

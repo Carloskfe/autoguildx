@@ -69,9 +69,7 @@ export default function VerifyEmailPage() {
               <button className="btn-secondary w-full" type="submit">
                 Resend verification email
               </button>
-              {resendStatus && (
-                <p className="text-sm text-center text-brand-400">{resendStatus}</p>
-              )}
+              {resendStatus && <p className="text-sm text-center text-brand-400">{resendStatus}</p>}
             </form>
           </>
         )}
@@ -111,9 +109,7 @@ export default function VerifyEmailPage() {
               <button className="btn-primary w-full" type="submit">
                 Resend verification email
               </button>
-              {resendStatus && (
-                <p className="text-sm text-center text-brand-400">{resendStatus}</p>
-              )}
+              {resendStatus && <p className="text-sm text-center text-brand-400">{resendStatus}</p>}
             </form>
           </>
         )}

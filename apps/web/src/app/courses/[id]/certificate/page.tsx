@@ -22,7 +22,11 @@ export default function CertificatePage() {
     if (!isAuthenticated) router.replace('/login');
   }, [isAuthenticated, router]);
 
-  const { data: cert, isLoading, isError } = useQuery<CertificateWithCourse | null>({
+  const {
+    data: cert,
+    isLoading,
+    isError,
+  } = useQuery<CertificateWithCourse | null>({
     queryKey: ['courseCert', id],
     queryFn: () =>
       api
@@ -137,9 +141,7 @@ export default function CertificatePage() {
               <p className="text-sm font-semibold text-white print:text-black">{issueDate}</p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
-                Certificate ID
-              </p>
+              <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Certificate ID</p>
               <p className="text-sm font-mono font-semibold text-brand-400 print:text-gray-700">
                 {cert.certificateNumber}
               </p>
@@ -155,8 +157,8 @@ export default function CertificatePage() {
 
         {/* Share nudge */}
         <div className="text-center text-xs text-gray-500 print:hidden">
-          Use <strong className="text-gray-400">Print / Save PDF</strong> to download or share
-          your certificate.
+          Use <strong className="text-gray-400">Print / Save PDF</strong> to download or share your
+          certificate.
         </div>
       </div>
     </AppShell>

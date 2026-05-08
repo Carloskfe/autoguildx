@@ -65,10 +65,7 @@ export default function ManageListingsPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link
-              href="/marketplace"
-              className="text-gray-400 hover:text-white transition-colors"
-            >
+            <Link href="/marketplace" className="text-gray-400 hover:text-white transition-colors">
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <h1 className="text-xl font-bold">My Listings</h1>
@@ -200,10 +197,7 @@ export default function ManageListingsPage() {
             <h2 className="font-semibold text-white">Delete listing?</h2>
             <p className="text-sm text-gray-400">This cannot be undone.</p>
             <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setDeleteId(null)}
-                className="btn-secondary text-sm px-4 py-2"
-              >
+              <button onClick={() => setDeleteId(null)} className="btn-secondary text-sm px-4 py-2">
                 Cancel
               </button>
               <button
