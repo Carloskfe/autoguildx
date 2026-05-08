@@ -38,6 +38,14 @@ const NAV = [
   { href: '/profile', label: 'Profile', icon: User },
 ];
 
+const MOBILE_NAV = [
+  { href: '/feed', label: 'Feed', icon: Home },
+  { href: '/discover', label: 'Discover', icon: Search },
+  { href: '/marketplace', label: 'Market', icon: Package },
+  { href: '/messages', label: 'Messages', icon: MessageSquare },
+  { href: '/profile', label: 'Profile', icon: User },
+];
+
 const TIER_BADGE: Record<string, { label: string; className: string }> = {
   free: { label: 'Free', className: 'bg-surface-card text-gray-400 border border-surface-border' },
   owner: { label: 'Owner', className: 'bg-brand-500/20 text-brand-500 border border-brand-500/40' },
@@ -216,12 +224,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Mobile bottom nav */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-surface/95 backdrop-blur border-t border-surface-border flex justify-around py-2">
-        {NAV.map(({ href, label, icon: Icon }) => (
+        {MOBILE_NAV.map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
             href={href}
             className={clsx(
-              'flex flex-col items-center gap-0.5 text-xs px-3 py-1 rounded-lg transition-colors',
+              'flex flex-col items-center gap-0.5 text-xs px-2 py-1 rounded-lg transition-colors min-w-0',
               pathname.startsWith(href) ? 'text-brand-500' : 'text-gray-500',
             )}
           >
@@ -233,7 +241,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 </span>
               )}
             </span>
-            {label}
+            <span className="truncate">{label}</span>
           </Link>
         ))}
       </nav>

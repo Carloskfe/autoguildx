@@ -62,7 +62,10 @@ export default function LearnPage() {
   const lessons = course?.lessons ?? [];
   const [activeLessonId, setActiveLessonId] = useState<string | null>(searchParams.get('lesson'));
   const [activeTab, setActiveTab] = useState<'overview' | 'resources'>('overview');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  useEffect(() => {
+    if (window.innerWidth >= 768) setSidebarOpen(true);
+  }, []);
 
   useEffect(() => {
     if (!activeLessonId && lessons.length > 0) {
@@ -117,7 +120,13 @@ export default function LearnPage() {
   const [editVideo, setEditVideo] = useState('');
   const [editDuration, setEditDuration] = useState('');
 
-  function startEdit(lesson: { id: string; title: string; content?: string; videoUrl?: string; durationMinutes?: number }) {
+  function startEdit(lesson: {
+    id: string;
+    title: string;
+    content?: string;
+    videoUrl?: string;
+    durationMinutes?: number;
+  }) {
     setEditingLessonId(lesson.id);
     setEditTitle(lesson.title);
     setEditContent(lesson.content ?? '');
@@ -222,9 +231,10 @@ export default function LearnPage() {
 
         <button
           onClick={() => setSidebarOpen((v) => !v)}
-          className="text-xs text-gray-400 hover:text-white border border-surface-border rounded px-2.5 py-1 transition-colors shrink-0 hidden md:block"
+          className="text-xs text-gray-400 hover:text-white border border-surface-border rounded px-2.5 py-1 transition-colors shrink-0"
         >
-          {sidebarOpen ? 'Hide' : 'Show'} content
+          <span className="md:hidden">Lessons</span>
+          <span className="hidden md:inline">{sidebarOpen ? 'Hide' : 'Show'} lessons</span>
         </button>
       </header>
 
@@ -385,11 +395,18 @@ export default function LearnPage() {
 
         {/* ── Curriculum sidebar ─────────────────────────────────────────────── */}
         {sidebarOpen && (
-          <aside className="w-80 shrink-0 border-l border-surface-border overflow-y-auto hidden md:flex flex-col bg-gray-950">
-            <div className="px-4 py-3 border-b border-surface-border">
+          <aside className="fixed inset-0 z-50 flex flex-col bg-gray-950 md:static md:inset-auto md:z-auto md:w-80 md:shrink-0 md:border-l md:border-surface-border overflow-y-auto">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-surface-border shrink-0">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
                 Course Content
               </p>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="md:hidden p-1 text-gray-400 hover:text-white transition-colors"
+                aria-label="Close lessons"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
             <div className="flex-1 overflow-y-auto">
@@ -463,26 +480,49 @@ export default function LearnPage() {
                                     disabled={!editTitle.trim() || editLesson.isPending}
                                     className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1 disabled:opacity-50"
                                   >
-                                    {editLesson.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+                                    {editLesson.isPending ? (
+                                      <Loader2 className="w-3 h-3 animate-spin" />
+                                    ) : (
+                                      <Check className="w-3 h-3" />
+                                    )}
                                     Save
                                   </button>
-                                  <button onClick={() => setEditingLessonId(null)} className="btn-secondary text-xs px-2.5 py-1.5">
+                                  <button
+                                    onClick={() => setEditingLessonId(null)}
+                                    className="btn-secondary text-xs px-2.5 py-1.5"
+                                  >
                                     <X className="w-3 h-3" />
                                   </button>
                                 </div>
                               </div>
                             ) : (
-                              <div className={`flex items-start gap-1 border-l-2 transition-colors ${active ? 'bg-brand-500/10 border-brand-500' : 'hover:bg-gray-900 border-transparent'}`}>
+                              <div
+                                className={`flex items-start gap-1 border-l-2 transition-colors ${active ? 'bg-brand-500/10 border-brand-500' : 'hover:bg-gray-900 border-transparent'}`}
+                              >
                                 <button
                                   onClick={() => setActiveLessonId(lesson.id)}
                                   className="flex-1 text-left px-3 py-3 flex items-start gap-3"
                                 >
                                   <span className="mt-0.5 shrink-0">
-                                    {done ? <CheckCircle2 className="w-4 h-4 text-brand-500" /> : lesson.videoUrl ? <Play className="w-4 h-4 text-gray-500" /> : <FileText className="w-4 h-4 text-gray-500" />}
+                                    {done ? (
+                                      <CheckCircle2 className="w-4 h-4 text-brand-500" />
+                                    ) : lesson.videoUrl ? (
+                                      <Play className="w-4 h-4 text-gray-500" />
+                                    ) : (
+                                      <FileText className="w-4 h-4 text-gray-500" />
+                                    )}
                                   </span>
                                   <span className="flex-1 min-w-0">
-                                    <span className={`text-xs leading-snug line-clamp-2 ${active ? 'text-white font-medium' : 'text-gray-400'}`}>{lesson.title}</span>
-                                    {lesson.durationMinutes > 0 && <span className="block text-xs text-gray-600 mt-0.5">{lesson.durationMinutes}m</span>}
+                                    <span
+                                      className={`text-xs leading-snug line-clamp-2 ${active ? 'text-white font-medium' : 'text-gray-400'}`}
+                                    >
+                                      {lesson.title}
+                                    </span>
+                                    {lesson.durationMinutes > 0 && (
+                                      <span className="block text-xs text-gray-600 mt-0.5">
+                                        {lesson.durationMinutes}m
+                                      </span>
+                                    )}
                                   </span>
                                 </button>
                                 {isOwner && (
