@@ -567,3 +567,17 @@ Then log in as `team@autoguildx.com` and update the profile avatar and banner vi
 
 ### Full page audit result
 Every page audited; issues found and fixed only where real breakage or UX degradation existed. Pages confirmed clean: `/login`, `/signup`, `/onboarding`, `/events` list, `/notifications`, `/team`, `/admin`, `/courses/[id]` (has `lg:hidden` mobile CTA block), `/discover`, `/marketplace/new`, `/events/new`, all AGXTopics forms, `/settings`, auth flows, `ReviewSection`, `ForumCommentThread`.
+
+---
+
+## Sprint 22 — Production Docker Deployment ✅ COMPLETE
+
+**Goal:** VPS-ready production stack with nginx reverse proxy, Let's Encrypt SSL, and a one-command deploy script.
+
+- [x] `docker-compose.prod.yml` — standalone production compose; nginx on 80/443 terminates SSL; api and web have no external port bindings; postgres password driven by env var; `DOMAIN_NAME` drives CORS, build args, and sitemap URL
+- [x] `nginx/nginx.conf.template` — processed by nginx Docker image's built-in envsubst on startup; routes `/api/*` and `/socket.io/*` to api container (with WebSocket upgrade), everything else to web container; HTTP→HTTPS redirect with ACME challenge pass-through
+- [x] `scripts/init-letsencrypt.sh` — first-time certificate setup: creates dummy cert, starts nginx, runs certbot webroot challenge for domain + www subdomain, reloads nginx with real cert
+- [x] `scripts/deploy.sh` — rolling deploy: `git pull`, rebuild images, restart api (migrations auto-run on startup), health-check poll (60s timeout), restart web, prune old images
+- [x] `.env.prod.example` — documents required production env vars (`DOMAIN_NAME`, `POSTGRES_PASSWORD`, `EMAIL`)
+- [x] `.gitignore` — added `certbot/` (private keys) and `.env.prod`
+- [x] `CLAUDE.md` — Production deployment section added with step-by-step commands and env var table

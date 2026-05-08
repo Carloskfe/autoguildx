@@ -170,7 +170,7 @@ docker compose -f docker-compose.dev.yml up -d
 
 # pgAdmin UI at http://localhost:5050  (admin@autoguildx.dev / admin)
 
-# Full production stack — builds all images from monorepo root
+# Local full-stack smoke test (no SSL, localhost only)
 docker compose up --build
 
 # Rebuild a single service
@@ -186,6 +186,38 @@ docker compose build web
 
 **Swagger UI (dev):** `http://localhost:3001/api/docs`
 **Swagger UI (Docker):** `http://localhost:3002/api/docs`
+
+### Production deployment (VPS + nginx + SSL)
+
+```bash
+# 1. Copy and fill in production env vars
+cp .env.prod.example .env.prod
+# Edit .env.prod: set DOMAIN_NAME, POSTGRES_PASSWORD, EMAIL
+# Also fill in apps/api/.env and apps/web/.env with real secrets
+
+# 2. First-time SSL certificate (run once after DNS points to the server)
+export DOMAIN_NAME=autoguildx.com
+export EMAIL=admin@autoguildx.com
+bash scripts/init-letsencrypt.sh
+
+# 3. Start full production stack
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
+
+# 4. Subsequent deploys (pull code, rebuild, restart)
+bash scripts/deploy.sh
+```
+
+**Production compose file:** `docker-compose.prod.yml` — adds `nginx` (ports 80/443, SSL termination) and `certbot` (auto-renews every 12h). API and web have no externally exposed ports; all traffic goes through nginx.
+
+**Nginx config:** `nginx/nginx.conf.template` — processed by the nginx Docker image's built-in envsubst on startup. Routes: `/api/*` → api container, `/socket.io/*` → api container (WebSocket upgrade), everything else → web container.
+
+**Key env vars in `.env.prod`:**
+
+| Var | Purpose |
+|---|---|
+| `DOMAIN_NAME` | e.g. `autoguildx.com` — drives nginx config, CORS, og:url, sitemap |
+| `POSTGRES_PASSWORD` | Production DB password (replaces hardcoded `password` in dev) |
+| `EMAIL` | Let's Encrypt expiry notification address |
 
 ### CI (GitHub Actions — `.github/workflows/ci.yml`)
 

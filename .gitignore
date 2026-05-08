@@ -3,8 +3,12 @@ dist/
 .next/
 .env
 *.env.local
+.env.prod
 .DS_Store
 *.log
 coverage/
 pgdata/
 .turbo/
+
+# SSL certificates — never commit private keys
+certbot/

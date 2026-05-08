@@ -168,6 +168,7 @@ All features below are fully implemented and deployed unless noted.
 | Admin team profile + /team landing page | ✅ Sprint 19 |
 | SEO metadata, sitemap, robots.txt, error boundaries | ✅ Sprint 20 |
 | Mobile responsiveness — all pages phone-ready | ✅ Sprint 21 |
+| Production Docker stack (nginx + SSL + deploy script) | ✅ Sprint 22 |
 | Stripe production env vars + webhook registration | Ops (no code changes) |
 | Real S3 credentials for media uploads | Ops (no code changes) |
 
