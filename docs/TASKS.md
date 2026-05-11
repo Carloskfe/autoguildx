@@ -4,6 +4,12 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ---
 
+## Backlog (unscheduled)
+
+- [ ] **Admin user deletion** — `DELETE /admin/users/:id` endpoint (hard-deletes user + cascades to profile, posts, listings, etc.); confirmation modal in `/admin` Users tab with "Type DELETE to confirm" guard. Self-deletion already exists in `/settings`; this adds admin-initiated deletion for moderation purposes.
+
+---
+
 ## Sprint 1 — Foundation ✅ COMPLETE
 
 **Goal:** Working monorepo, full backend API, CI/CD, Docker.
