@@ -584,15 +584,15 @@ Every page audited; issues found and fixed only where real breakage or UX degrad
 **DNS:** Already live in Cloudflare — gray proxy (do not orange-cloud, Traefik handles SSL)
 **Traefik:** v2.11 at `/opt/traefik/` — do NOT touch. Shared `proxy` Docker network already exists.
 
-### Code changes (next session)
+### Code changes ✅ COMPLETE
 
-- [ ] Create `docker-compose.server.yml` at repo root — Traefik labels, `agx_net` + `proxy` networks, no nginx (see CLAUDE.md for full spec)
-- [ ] Update `apps/web/Dockerfile` build stage — add `ENV NEXT_PUBLIC_API_URL=https://autoguildx.com/api`, `ENV NEXT_PUBLIC_OAUTH_URL=https://autoguildx.com/api`, `ENV INTERNAL_API_URL=http://api:4000` before `npm run build` (NEXT_PUBLIC_* baked at compile time)
-- [ ] Update `apps/api/Dockerfile` — verify `dist/data-source.js` is included in production build output (required for migration:run:prod)
-- [ ] Add migration scripts to `apps/api/package.json`: `"migration:run:prod": "node node_modules/typeorm/cli.js migration:run -d dist/data-source.js"` and `"migration:revert:prod"`
-- [ ] Make Stripe initialization conditional in `SubscriptionsService` + webhooks controller — `this.stripe = stripeKey ? new Stripe(stripeKey) : null`; add `requireStripe()` guard method; replace all `this.stripe.xxx` calls. Prevents crash at startup when key is absent.
-- [ ] Create `.github/workflows/cd.yml` — SSH deploy via `appleboy/ssh-action@v1.2.0` on push to main; runs `git pull`, `docker compose up -d --build`, migration, image prune
-- [ ] Verify/fix NestJS global prefix vs Traefik `/api` strip — Traefik strips `/api` before forwarding; NestJS may need prefix changed from `api/v1` to `v1` to avoid route mismatch. Check `apps/api/src/main.ts`.
+- [x] Create `docker-compose.server.yml` at repo root — Traefik labels, `agx_net` + `proxy` networks, no strip prefix (NestJS prefix `api/v1` + frontend base URL `/api/v1` means full path forwarded unchanged)
+- [x] Update `apps/web/Dockerfile` build stage — ARG+ENV for all NEXT_PUBLIC vars (API URL, site URL, all Firebase vars); renamed `runner` stage to `production`
+- [x] Update `apps/api/Dockerfile` — renamed `runner` to `production`; EXPOSE 4000; fixed `data-source.ts` migrations path from `'src/migrations/*.ts'` to `__dirname + '/migrations/*.ts'` + `.js` for prod compatibility
+- [x] Add `migration:run:prod` + `migration:revert:prod` to root `package.json` (used by `docker compose exec`) and `apps/api/package.json` (local use)
+- [x] Stripe initialization already conditional — `SubscriptionsService` already has `this.stripe = key ? new Stripe(key) : null` and null guards; no changes needed
+- [x] Create `.github/workflows/cd.yml` — SSH deploy via `appleboy/ssh-action@v1.2.0` on push to main
+- [x] NestJS prefix is `api/v1`; Traefik does NOT strip `/api` — full path forwarded unchanged. `NEXT_PUBLIC_API_URL` hardcoded to `https://autoguildx.com/api/v1` in docker-compose.server.yml build args
 
 ### Ops (done on server — not code changes)
 

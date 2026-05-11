@@ -34,6 +34,6 @@ export const AppDataSource = new DataSource({
     ForumVoteEntity,
     ForumCommentVoteEntity,
   ],
-  migrations: ['src/migrations/*.ts'],
+  migrations: [__dirname + '/migrations/*.ts', __dirname + '/migrations/*.js'],
   synchronize: false,
 });

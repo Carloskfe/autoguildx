@@ -9,7 +9,9 @@
     "dev": "concurrently \"npm run dev --workspace=apps/web\" \"npm run dev --workspace=apps/api\"",
     "build": "npm run build --workspace=packages/shared && npm run build --workspace=apps/web && npm run build --workspace=apps/api",
     "lint": "npm run lint --workspaces",
-    "test": "npm run test --workspaces"
+    "test": "npm run test --workspaces",
+    "migration:run:prod": "node node_modules/.bin/typeorm migration:run -d apps/api/dist/data-source.js",
+    "migration:revert:prod": "node node_modules/.bin/typeorm migration:revert -d apps/api/dist/data-source.js"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

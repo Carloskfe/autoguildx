@@ -1,0 +1,27 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy to production (Contabo)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: 84.247.140.175
+          username: root
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -e
+            cd /opt/autoguildx
+            git pull origin main
+            docker compose --env-file .env.production -f docker-compose.server.yml up -d --build --remove-orphans
+            docker compose --env-file .env.production -f docker-compose.server.yml exec -T api npm run migration:run:prod
+            docker image prune -f

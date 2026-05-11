@@ -16,7 +16,7 @@ COPY apps/api ./apps/api
 RUN npm run build --workspace=packages/shared && \
     npm run build --workspace=apps/api
 
-FROM node:24-alpine AS runner
+FROM node:24-alpine AS production
 WORKDIR /app
 ENV NODE_ENV=production
 
@@ -28,5 +28,5 @@ COPY --from=builder /app/packages/shared/package.json ./packages/shared/package.
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
 
-EXPOSE 3001
+EXPOSE 4000
 CMD ["node", "apps/api/dist/main"]
