@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   GraduationCap,
   Settings,
+  MapIcon,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { clsx } from 'clsx';
@@ -24,18 +25,19 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUnreadCount } from '@/hooks/useUnreadCount';
 import UpgradeModal from '@/components/UpgradeModal';
 import NotificationPanel from '@/components/NotificationPanel';
+import TourGuide, { TOUR_KEY } from '@/components/TourGuide';
 import api from '@/lib/api';
 import type { SubscriptionTier } from '@autoguildx/shared';
 
 const NAV = [
-  { href: '/feed', label: 'Feed', icon: Home },
+  { href: '/feed', label: 'Feed', icon: Home, tourId: 'tour-nav-feed' },
   { href: '/discover', label: 'Discover', icon: Search },
   { href: '/agxtopics', label: 'AGXTopics', icon: Hash },
-  { href: '/courses', label: 'Courses', icon: GraduationCap },
-  { href: '/marketplace', label: 'Market', icon: Package },
+  { href: '/courses', label: 'Courses', icon: GraduationCap, tourId: 'tour-nav-courses' },
+  { href: '/marketplace', label: 'Market', icon: Package, tourId: 'tour-nav-market' },
   { href: '/events', label: 'Events', icon: Calendar },
   { href: '/messages', label: 'Messages', icon: MessageSquare },
-  { href: '/profile', label: 'Profile', icon: User },
+  { href: '/profile', label: 'Profile', icon: User, tourId: 'tour-nav-profile' },
 ];
 
 const MOBILE_NAV = [
@@ -60,6 +62,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, role } = useAuth();
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [tourRun, setTourRun] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    // Tour targets the desktop sidebar — only run on md+ screens
+    if (window.innerWidth < 768) return;
+    if (!localStorage.getItem(TOUR_KEY)) setTourRun(true);
+  }, [isAuthenticated]);
 
   const { data: subscription } = useQuery<{ tier: SubscriptionTier; active: boolean }>({
     queryKey: ['subscription'],
@@ -132,9 +142,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex flex-1">
         {/* Desktop sidebar */}
         <nav className="hidden md:flex flex-col gap-1 w-56 shrink-0 p-4 border-r border-surface-border sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto">
-          {NAV.map(({ href, label, icon: Icon }) => (
+          {NAV.map(({ href, label, icon: Icon, tourId }) => (
             <Link
               key={href}
+              id={tourId}
               href={href}
               className={clsx(
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
@@ -199,6 +210,18 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           )}
 
           <div className="mt-auto pt-6 flex flex-col gap-1 text-xs text-gray-600">
+            {isAuthenticated && (
+              <button
+                onClick={() => {
+                  localStorage.removeItem(TOUR_KEY);
+                  setTourRun(true);
+                }}
+                className="flex items-center gap-1.5 hover:text-gray-400 transition-colors text-left"
+              >
+                <MapIcon className="w-3 h-3" />
+                Take a tour
+              </button>
+            )}
             <Link href="/team" className="hover:text-gray-400 transition-colors">
               About / Team
             </Link>
@@ -247,6 +270,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </nav>
 
       {showUpgrade && <UpgradeModal currentTier={tier} onClose={() => setShowUpgrade(false)} />}
+      <TourGuide run={tourRun} onEnd={() => setTourRun(false)} />
     </div>
   );
 }

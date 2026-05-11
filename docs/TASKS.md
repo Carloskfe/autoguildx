@@ -8,7 +8,7 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 - [ ] **Admin user deletion** — `DELETE /admin/users/:id` endpoint (hard-deletes user + cascades to profile, posts, listings, etc.); confirmation modal in `/admin` Users tab with "Type DELETE to confirm" guard. Self-deletion already exists in `/settings`; this adds admin-initiated deletion for moderation purposes.
 
-- [ ] **First-time user onboarding tour** — Step-by-step guided tour shown once on first visit to the authenticated app. Re-openable via a "Take a tour" link in the AppShell sidebar footer.
+- [x] **First-time user onboarding tour** — Step-by-step guided tour shown once on first visit to the authenticated app. Re-openable via a "Take a tour" link in the AppShell sidebar footer.
   - **Library:** React Joyride (`react-joyride`) — React-native, TypeScript-ready, works with Next.js App Router
   - **Trigger:** `localStorage` key `agx_tour_seen`; set to `true` after tour completes or is dismissed. Check on mount in `AppShell` (only when `isAuthenticated`).
   - **Re-open:** "Take a tour" link in AppShell sidebar footer (above "About / Team"); sets `agx_tour_seen = false` then mounts tour
