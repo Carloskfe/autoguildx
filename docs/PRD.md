@@ -169,6 +169,7 @@ All features below are fully implemented and deployed unless noted.
 | SEO metadata, sitemap, robots.txt, error boundaries | ✅ Sprint 20 |
 | Mobile responsiveness — all pages phone-ready | ✅ Sprint 21 |
 | Production Docker stack (nginx + SSL + deploy script) | ✅ Sprint 22 |
+| Traefik-based Contabo deployment + GitHub Actions CD | Sprint 23 |
 | Stripe production env vars + webhook registration | Ops (no code changes) |
 | Real S3 credentials for media uploads | Ops (no code changes) |
 
@@ -183,6 +184,7 @@ All features below are fully implemented and deployed unless noted.
 - Logistics / shipping support
 - Advanced discovery and matching (AI-based recommendations)
 - Mobile app (React Native)
+- Admin-initiated user account deletion (admins can hard-delete any user account from the admin dashboard; self-deletion already exists in `/settings`)
 
 ---
 

@@ -187,37 +187,86 @@ docker compose build web
 **Swagger UI (dev):** `http://localhost:3001/api/docs`
 **Swagger UI (Docker):** `http://localhost:3002/api/docs`
 
-### Production deployment (VPS + nginx + SSL)
+### Production deployment (Contabo VPS + Traefik)
+
+**Server:** `84.247.140.175` (Contabo Cloud VPS 30 SSD — 8 vCPU / 24 GB RAM / 400 GB SSD)
+**OS:** Ubuntu 24.04 LTS · SSH: `ssh root@84.247.140.175`
+**App directory:** `/opt/autoguildx/`
+
+The server is **shared with Noetia** — they are fully isolated. Never touch `/opt/traefik/` or `/opt/noetia/`.
+
+**Traefik v2.11** is already running at `/opt/traefik/` and owns ports 80/443 with Let's Encrypt SSL. A Docker network named `proxy` already exists. Services join `proxy` and carry Traefik labels — no nginx or certbot needed.
+
+**DNS** is live in Cloudflare (gray proxy — `autoguildx.com` → `84.247.140.175`). Do not switch to orange-cloud; Traefik handles SSL and Cloudflare proxy would break it.
 
 ```bash
-# 1. Copy and fill in production env vars
-cp .env.prod.example .env.prod
-# Edit .env.prod: set DOMAIN_NAME, POSTGRES_PASSWORD, EMAIL
-# Also fill in apps/api/.env and apps/web/.env with real secrets
+# First-time deploy (run on server)
+git clone <repo-url> /opt/autoguildx
+cd /opt/autoguildx
+# Create .env.production with all vars (see table below)
+docker compose --env-file .env.production -f docker-compose.server.yml up -d --build
+docker compose --env-file .env.production -f docker-compose.server.yml exec -T api npm run migration:run:prod
 
-# 2. First-time SSL certificate (run once after DNS points to the server)
-export DOMAIN_NAME=autoguildx.com
-export EMAIL=admin@autoguildx.com
-bash scripts/init-letsencrypt.sh
+# Subsequent deploys (automated via GitHub Actions CD on push to main)
+git pull origin main
+docker compose --env-file .env.production -f docker-compose.server.yml up -d --build --remove-orphans
+docker compose --env-file .env.production -f docker-compose.server.yml exec -T api npm run migration:run:prod
+docker image prune -f
 
-# 3. Start full production stack
-docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
-
-# 4. Subsequent deploys (pull code, rebuild, restart)
-bash scripts/deploy.sh
+# Verify
+docker ps --format "table {{.Names}}\t{{.Status}}"
+curl -sk https://autoguildx.com/api/health
 ```
 
-**Production compose file:** `docker-compose.prod.yml` — adds `nginx` (ports 80/443, SSL termination) and `certbot` (auto-renews every 12h). API and web have no externally exposed ports; all traffic goes through nginx.
+**Production compose file:** `docker-compose.server.yml` (Sprint 23) — defines `agx_net` (internal) + joins shared `proxy` network. Services: `web` (Next.js, port 3000), `api` (NestJS, port 4000), `db` (PostgreSQL 16, internal only). Traefik routes: `/api/*` → api (strips `/api` prefix), `/socket.io/*` → api (WebSocket upgrade), everything else → web. www redirects to apex.
 
-**Nginx config:** `nginx/nginx.conf.template` — processed by the nginx Docker image's built-in envsubst on startup. Routes: `/api/*` → api container, `/socket.io/*` → api container (WebSocket upgrade), everything else → web container.
+> **Critical — always pass `--env-file .env.production`** to every `docker compose` command. Docker does not auto-load `.env.production` — only a file literally named `.env` is loaded automatically.
 
-**Key env vars in `.env.prod`:**
+> **NEXT_PUBLIC_* vars are baked at build time** in the web Dockerfile (not injected at runtime). The build stage sets `ENV NEXT_PUBLIC_API_URL=https://autoguildx.com/api` directly.
+
+> **Traefik strips `/api`** before forwarding to NestJS. Verify that the NestJS global prefix in `main.ts` is `v1` (not `api/v1`) so routes resolve correctly.
+
+> **API port is 4000 in production** (Traefik label `server.port=4000`). Dev port is 3001.
+
+> **`docker compose exec` requires `-T`** for non-interactive use (CI migration runs). Without it, the command hangs in environments without a TTY.
+
+> Use **Traefik v2.11, not v3**. Traefik v3 has a Docker API version negotiation bug on this server's Docker daemon that causes silent failures.
+
+**Key env vars in `.env.production`** (created at `/opt/autoguildx/.env.production`, never committed):
 
 | Var | Purpose |
 |---|---|
-| `DOMAIN_NAME` | e.g. `autoguildx.com` — drives nginx config, CORS, og:url, sitemap |
-| `POSTGRES_PASSWORD` | Production DB password (replaces hardcoded `password` in dev) |
-| `EMAIL` | Let's Encrypt expiry notification address |
+| `DB_NAME` | `autoguildx` |
+| `DB_USER` | `autoguildx` |
+| `DB_PASS` | Strong random password (`openssl rand -base64 32`) |
+| `DB_HOST` | `db` — must be set explicitly; missing → ECONNREFUSED |
+| `WEB_URL` | `https://autoguildx.com` |
+| `API_URL` | `https://autoguildx.com` |
+| `JWT_SECRET` | Long random string |
+| `JWT_EXPIRES_IN` | `15m` |
+| `FIREBASE_PROJECT_ID / CLIENT_EMAIL / PRIVATE_KEY` | Firebase Admin SDK |
+| `RESEND_API_KEY` | Resend email provider |
+| `EMAIL_FROM` | `AutoGuildX <noreply@autoguildx.com>` |
+| `STRIPE_SECRET_KEY` | `sk_live_...` or `sk_test_...` (optional — app degrades gracefully) |
+| `STRIPE_WEBHOOK_SECRET` | `whsec_...` |
+| `AWS_REGION / ACCESS_KEY_ID / SECRET_ACCESS_KEY / S3_BUCKET` | S3 file uploads |
+
+**CD pipeline:** `.github/workflows/cd.yml` (Sprint 23) — triggers on push to `main`, SSHes into the server via `appleboy/ssh-action`, runs pull + rebuild + migrate + prune. Requires `DEPLOY_SSH_KEY` GitHub secret (private key at `/root/.ssh/deploy_key` on server).
+
+**Verification after deploy:**
+```bash
+curl -sk https://autoguildx.com/api/health
+# CORS check:
+curl -sk -X OPTIONS https://autoguildx.com/api/health \
+  -H "Origin: https://autoguildx.com" \
+  -H "Access-Control-Request-Method: POST" -I
+# Container logs:
+docker logs autoguildx-api-1 --tail=30
+docker logs autoguildx-web-1 --tail=30
+docker logs traefik --tail=20
+```
+
+> `docker-compose.prod.yml` (Sprint 22, nginx + certbot approach) remains in the repo but is superseded by `docker-compose.server.yml` for the actual Contabo deployment.
 
 ### CI (GitHub Actions — `.github/workflows/ci.yml`)
 

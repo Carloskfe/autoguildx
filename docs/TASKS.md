@@ -570,6 +570,47 @@ Every page audited; issues found and fixed only where real breakage or UX degrad
 
 ---
 
+## Sprint 23 — Production Server Deployment (Traefik/Contabo)
+
+**Goal:** Deploy AutoGuildX to the shared Contabo VPS. Traffic routed via Traefik v2.11 (already running alongside Noetia). CI/CD via GitHub Actions SSH deploy on push to main.
+
+**Server:** `84.247.140.175` · Ubuntu 24.04 · `/opt/autoguildx/` · SSH as root
+**DNS:** Already live in Cloudflare — gray proxy (do not orange-cloud, Traefik handles SSL)
+**Traefik:** v2.11 at `/opt/traefik/` — do NOT touch. Shared `proxy` Docker network already exists.
+
+### Code changes (next session)
+
+- [ ] Create `docker-compose.server.yml` at repo root — Traefik labels, `agx_net` + `proxy` networks, no nginx (see CLAUDE.md for full spec)
+- [ ] Update `apps/web/Dockerfile` build stage — add `ENV NEXT_PUBLIC_API_URL=https://autoguildx.com/api`, `ENV NEXT_PUBLIC_OAUTH_URL=https://autoguildx.com/api`, `ENV INTERNAL_API_URL=http://api:4000` before `npm run build` (NEXT_PUBLIC_* baked at compile time)
+- [ ] Update `apps/api/Dockerfile` — verify `dist/data-source.js` is included in production build output (required for migration:run:prod)
+- [ ] Add migration scripts to `apps/api/package.json`: `"migration:run:prod": "node node_modules/typeorm/cli.js migration:run -d dist/data-source.js"` and `"migration:revert:prod"`
+- [ ] Make Stripe initialization conditional in `SubscriptionsService` + webhooks controller — `this.stripe = stripeKey ? new Stripe(stripeKey) : null`; add `requireStripe()` guard method; replace all `this.stripe.xxx` calls. Prevents crash at startup when key is absent.
+- [ ] Create `.github/workflows/cd.yml` — SSH deploy via `appleboy/ssh-action@v1.2.0` on push to main; runs `git pull`, `docker compose up -d --build`, migration, image prune
+- [ ] Verify/fix NestJS global prefix vs Traefik `/api` strip — Traefik strips `/api` before forwarding; NestJS may need prefix changed from `api/v1` to `v1` to avoid route mismatch. Check `apps/api/src/main.ts`.
+
+### Ops (done on server — not code changes)
+
+- [ ] SSH in: `ssh root@84.247.140.175`
+- [ ] Clone repo: `git clone <repo-url> /opt/autoguildx`
+- [ ] Create `/opt/autoguildx/.env.production` — all vars (DB_NAME, DB_USER, DB_PASS, DB_HOST=db, WEB_URL, API_URL, JWT_SECRET, Firebase, Resend, Stripe, AWS). Generate secrets: `openssl rand -base64 32`
+- [ ] Add `DEPLOY_SSH_KEY` to GitHub repo secrets — key is at `/root/.ssh/deploy_key` on server: `ssh root@84.247.140.175 'cat /root/.ssh/deploy_key'`
+- [ ] First-time deploy: `docker compose --env-file .env.production -f docker-compose.server.yml up -d --build`
+- [ ] Run migrations: `docker compose --env-file .env.production -f docker-compose.server.yml exec -T api npm run migration:run:prod`
+- [ ] Verify: `docker ps` · `curl -sk https://autoguildx.com/api/health` · CORS check (see CLAUDE.md)
+
+### Verification commands
+```bash
+docker ps --format "table {{.Names}}\t{{.Status}}"
+curl -sk https://autoguildx.com/api/health
+curl -sk -X OPTIONS https://autoguildx.com/api/health \
+  -H "Origin: https://autoguildx.com" \
+  -H "Access-Control-Request-Method: POST" -I
+docker logs autoguildx-api-1 --tail=30
+docker logs autoguildx-web-1 --tail=30
+```
+
+---
+
 ## Sprint 22 — Production Docker Deployment ✅ COMPLETE
 
 **Goal:** VPS-ready production stack with nginx reverse proxy, Let's Encrypt SSL, and a one-command deploy script.
