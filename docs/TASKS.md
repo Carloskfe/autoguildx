@@ -6,7 +6,7 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ## Backlog (unscheduled)
 
-- [ ] **Admin user deletion** — `DELETE /admin/users/:id` endpoint (hard-deletes user + cascades to profile, posts, listings, etc.); confirmation modal in `/admin` Users tab with "Type DELETE to confirm" guard. Self-deletion already exists in `/settings`; this adds admin-initiated deletion for moderation purposes.
+- [x] **Admin user deletion** — `DELETE /admin/users/:id` endpoint (hard-deletes user + cascades to profile, posts, listings, etc.); confirmation modal in `/admin` Users tab with "Type DELETE to confirm" guard. Self-deletion already exists in `/settings`; this adds admin-initiated deletion for moderation purposes.
 
 - [x] **First-time user onboarding tour** — Step-by-step guided tour shown once on first visit to the authenticated app. Re-openable via a "Take a tour" link in the AppShell sidebar footer.
   - **Library:** React Joyride (`react-joyride`) — React-native, TypeScript-ready, works with Next.js App Router
