@@ -6,6 +6,14 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ## Backlog (unscheduled)
 
+- [ ] **Paid course checkout** — Gate enrollment on payment for courses with `price > 0`. Currently any user can enroll in a paid course for free.
+  - **Backend:** `POST /courses/:id/checkout` → create a Stripe Checkout Session (one-time payment, not subscription); on success webhook (`checkout.session.completed`) verify `metadata.courseId` + `metadata.userId` and call `CoursesService.enroll()`. Reuse the existing `SubscriptionsModule` Stripe instance or create a dedicated helper.
+  - **Backend:** `CoursesService.enroll()` must reject paid courses without a completed payment — add a `paidOnly` guard that throws `ForbiddenException('Payment required')` unless the caller is the instructor or the webhook path.
+  - **Frontend:** On `/courses/[id]`, replace the direct `enroll.mutate()` call for paid courses with a redirect to the Stripe Checkout session URL. Keep the direct enroll path for free courses (`price === 0`).
+  - **Frontend:** Add `/courses/[id]/success` and `/courses/[id]/cancel` pages (or reuse the existing `/subscription/success|cancel` pattern) to handle post-checkout redirect.
+  - **Ops:** Requires `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` in `.env.production`. Register `POST /courses/webhook` (or reuse `/subscriptions/webhook` with type discrimination) in Stripe dashboard.
+  - **Note:** Free courses (`price === 0`) must remain unaffected — no checkout, direct enroll as today.
+
 - [x] **Admin user deletion** — `DELETE /admin/users/:id` endpoint (hard-deletes user + cascades to profile, posts, listings, etc.); confirmation modal in `/admin` Users tab with "Type DELETE to confirm" guard. Self-deletion already exists in `/settings`; this adds admin-initiated deletion for moderation purposes.
 
 - [x] **First-time user onboarding tour** — Step-by-step guided tour shown once on first visit to the authenticated app. Re-openable via a "Take a tour" link in the AppShell sidebar footer.
