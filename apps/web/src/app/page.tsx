@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Car, Wrench, GraduationCap } from 'lucide-react';
+import { Car, Wrench, CalendarDays, GraduationCap } from 'lucide-react';
 
 export default function LandingPage() {
   return (
@@ -42,16 +42,16 @@ export default function LandingPage() {
       <section className="border-t border-surface-border px-6 py-16">
         <div className="max-w-5xl mx-auto space-y-8">
 
-          {/* 2-column cards */}
-          <div className="grid md:grid-cols-2 gap-8">
+          {/* 3-column cards */}
+          <div className="grid md:grid-cols-3 gap-8">
             <div className="card">
               <div className="w-10 h-10 rounded-lg bg-brand-500/10 flex items-center justify-center mb-4">
                 <Car className="w-5 h-5 text-brand-500" />
               </div>
-              <h3 className="font-bold text-lg mb-2">Build Your Presence &amp; Connect</h3>
+              <h3 className="font-bold text-lg mb-2">Build Your Presence</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Showcase your work and builds in a professional profile. Follow other builders,
-                attend events, and grow your reputation in a community that knows your craft.
+                Showcase your work, expertise, and builds in a professional profile tailored to
+                the automotive niche.
               </p>
             </div>
             <div className="card">
@@ -62,6 +62,16 @@ export default function LandingPage() {
               <p className="text-gray-400 text-sm leading-relaxed">
                 Browse a curated marketplace of rare parts and specialized services from verified
                 experts.
+              </p>
+            </div>
+            <div className="card">
+              <div className="w-10 h-10 rounded-lg bg-brand-500/10 flex items-center justify-center mb-4">
+                <CalendarDays className="w-5 h-5 text-brand-500" />
+              </div>
+              <h3 className="font-bold text-lg mb-2">Events &amp; Community</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Discover local and national automotive events, RSVP with your community, and
+                connect with the people who share your passion.
               </p>
             </div>
           </div>
