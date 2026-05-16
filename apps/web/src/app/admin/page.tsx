@@ -1,10 +1,19 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { Loader2, Users, Package, Calendar, FileText, ShieldCheck, ShieldOff } from 'lucide-react';
+import {
+  Loader2,
+  Users,
+  Package,
+  Calendar,
+  FileText,
+  ShieldCheck,
+  ShieldOff,
+  Trash2,
+} from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
@@ -135,6 +144,74 @@ function VerificationTab() {
   );
 }
 
+// ─── Delete confirm modal ─────────────────────────────────────────────────────
+
+function DeleteUserModal({
+  user,
+  onClose,
+  onConfirm,
+  isPending,
+}: {
+  user: AdminUser;
+  onClose: () => void;
+  onConfirm: () => void;
+  isPending: boolean;
+}) {
+  const [input, setInput] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
+      <div className="bg-surface-card border border-red-900 rounded-2xl w-full max-w-sm p-6 space-y-4">
+        <div>
+          <h2 className="text-base font-bold text-white">Delete user permanently?</h2>
+          <p className="text-sm text-gray-400 mt-1">
+            This will hard-delete{' '}
+            <span className="text-white font-medium">{user.profile?.name ?? user.email}</span> and
+            all their data. This cannot be undone.
+          </p>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs text-gray-400">
+            Type <span className="font-mono text-red-400 font-bold">DELETE</span> to confirm
+          </label>
+          <input
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="DELETE"
+            className="input w-full font-mono"
+            onKeyDown={(e) => e.key === 'Enter' && input === 'DELETE' && onConfirm()}
+          />
+        </div>
+
+        <div className="flex gap-3 pt-1">
+          <button onClick={onClose} className="btn-secondary flex-1 text-sm" disabled={isPending}>
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={input !== 'DELETE' || isPending}
+            className="flex-1 text-sm px-4 py-2 rounded-xl font-semibold bg-red-600 hover:bg-red-500 text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Trash2 className="w-4 h-4" />
+            )}
+            Delete user
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Users tab ────────────────────────────────────────────────────────────────
 
 const ROLE_COLORS: Record<string, string> = {
@@ -149,6 +226,7 @@ function UsersTab() {
   const qc = useQueryClient();
   const { userId: currentUserId } = useAuth();
   const [page, setPage] = useState(1);
+  const [pendingDelete, setPendingDelete] = useState<AdminUser | null>(null);
 
   const { data, isLoading } = useQuery<{
     items: AdminUser[];
@@ -166,6 +244,15 @@ function UsersTab() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'users'] }),
   });
 
+  const deleteUser = useMutation({
+    mutationFn: (id: string) => api.delete(`/admin/users/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'users'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'stats'] });
+      setPendingDelete(null);
+    },
+  });
+
   if (isLoading) {
     return (
       <div className="flex justify-center py-12">
@@ -179,67 +266,86 @@ function UsersTab() {
   const totalPages = Math.ceil(total / (data?.limit ?? 20));
 
   return (
-    <div className="space-y-3">
-      <p className="text-xs text-gray-500 px-1">{total} users total</p>
-
-      {users.map((user) => (
-        <div key={user.id} className="card flex items-center justify-between gap-4">
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-white truncate">
-              {user.profile?.name ?? user.email}
-            </p>
-            {user.profile?.name && <p className="text-xs text-gray-500 truncate">{user.email}</p>}
-            <div className="flex items-center gap-2 mt-1">
-              <span
-                className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${ROLE_COLORS[user.role] ?? ROLE_COLORS.enthusiast}`}
-              >
-                {user.role}
-              </span>
-              <span className="text-xs text-gray-600">{user.provider}</span>
-              <span className="text-xs text-gray-600">
-                {formatDistanceToNow(new Date(user.createdAt), { addSuffix: true })}
-              </span>
-            </div>
-          </div>
-          {user.id !== currentUserId && (
-            <select
-              value={user.role}
-              onChange={(e) => setRole.mutate({ id: user.id, role: e.target.value })}
-              disabled={setRole.isPending}
-              className="input text-xs py-1 px-2 w-32 shrink-0 disabled:opacity-50"
-            >
-              <option value="enthusiast">Enthusiast</option>
-              <option value="mechanic">Mechanic</option>
-              <option value="manufacturer">Manufacturer</option>
-              <option value="collector">Collector</option>
-              <option value="admin">Admin</option>
-            </select>
-          )}
-        </div>
-      ))}
-
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3 pt-2">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="btn-secondary text-xs px-3 py-1.5 disabled:opacity-40"
-          >
-            Previous
-          </button>
-          <span className="text-xs text-gray-400">
-            {page} / {totalPages}
-          </span>
-          <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-            className="btn-secondary text-xs px-3 py-1.5 disabled:opacity-40"
-          >
-            Next
-          </button>
-        </div>
+    <>
+      {pendingDelete && (
+        <DeleteUserModal
+          user={pendingDelete}
+          onClose={() => setPendingDelete(null)}
+          onConfirm={() => deleteUser.mutate(pendingDelete.id)}
+          isPending={deleteUser.isPending}
+        />
       )}
-    </div>
+      <div className="space-y-3">
+        <p className="text-xs text-gray-500 px-1">{total} users total</p>
+
+        {users.map((user) => (
+          <div key={user.id} className="card flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-white truncate">
+                {user.profile?.name ?? user.email}
+              </p>
+              {user.profile?.name && <p className="text-xs text-gray-500 truncate">{user.email}</p>}
+              <div className="flex items-center gap-2 mt-1">
+                <span
+                  className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${ROLE_COLORS[user.role] ?? ROLE_COLORS.enthusiast}`}
+                >
+                  {user.role}
+                </span>
+                <span className="text-xs text-gray-600">{user.provider}</span>
+                <span className="text-xs text-gray-600">
+                  {formatDistanceToNow(new Date(user.createdAt), { addSuffix: true })}
+                </span>
+              </div>
+            </div>
+            {user.id !== currentUserId && (
+              <div className="flex items-center gap-2 shrink-0">
+                <select
+                  value={user.role}
+                  onChange={(e) => setRole.mutate({ id: user.id, role: e.target.value })}
+                  disabled={setRole.isPending}
+                  className="input text-xs py-1 px-2 w-32 disabled:opacity-50"
+                >
+                  <option value="enthusiast">Enthusiast</option>
+                  <option value="mechanic">Mechanic</option>
+                  <option value="manufacturer">Manufacturer</option>
+                  <option value="collector">Collector</option>
+                  <option value="admin">Admin</option>
+                </select>
+                <button
+                  onClick={() => setPendingDelete(user)}
+                  title="Delete user"
+                  className="p-1.5 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-3 pt-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="btn-secondary text-xs px-3 py-1.5 disabled:opacity-40"
+            >
+              Previous
+            </button>
+            <span className="text-xs text-gray-400">
+              {page} / {totalPages}
+            </span>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="btn-secondary text-xs px-3 py-1.5 disabled:opacity-40"
+            >
+              Next
+            </button>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 

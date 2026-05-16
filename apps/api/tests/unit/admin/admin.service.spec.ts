@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { NotFoundException } from '@nestjs/common';
+import { getRepositoryToken, getDataSourceToken } from '@nestjs/typeorm';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { AdminService } from '../../../src/admin/admin.service';
 import { UserEntity } from '../../../src/auth/entities/user.entity';
 import { ProfileEntity } from '../../../src/profiles/entities/profile.entity';
@@ -13,6 +13,11 @@ const mockRepo = () => ({
   findAndCount: jest.fn(),
   findOne: jest.fn(),
   save: jest.fn(),
+  delete: jest.fn(),
+});
+
+const mockDataSource = () => ({
+  manager: { query: jest.fn().mockResolvedValue(undefined) },
 });
 
 describe('AdminService', () => {
@@ -22,6 +27,7 @@ describe('AdminService', () => {
   let listingRepo: ReturnType<typeof mockRepo>;
   let eventRepo: ReturnType<typeof mockRepo>;
   let postRepo: ReturnType<typeof mockRepo>;
+  let dataSource: ReturnType<typeof mockDataSource>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -32,6 +38,7 @@ describe('AdminService', () => {
         { provide: getRepositoryToken(ListingEntity), useFactory: mockRepo },
         { provide: getRepositoryToken(EventEntity), useFactory: mockRepo },
         { provide: getRepositoryToken(PostEntity), useFactory: mockRepo },
+        { provide: getDataSourceToken(), useFactory: mockDataSource },
       ],
     }).compile();
 
@@ -41,6 +48,7 @@ describe('AdminService', () => {
     listingRepo = module.get(getRepositoryToken(ListingEntity));
     eventRepo = module.get(getRepositoryToken(EventEntity));
     postRepo = module.get(getRepositoryToken(PostEntity));
+    dataSource = module.get(getDataSourceToken());
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -125,6 +133,40 @@ describe('AdminService', () => {
 
       const result = await service.setUserRole('u1', 'enthusiast');
       expect(result.role).toBe('enthusiast');
+    });
+  });
+
+  // ── deleteUser ───────────────────────────────────────────────────────────────
+
+  describe('deleteUser', () => {
+    it('deletes user and runs all cleanup queries', async () => {
+      userRepo.findOne.mockResolvedValue({ id: 'u2', email: 'b@test.com' });
+      userRepo.delete.mockResolvedValue({ affected: 1 });
+
+      await service.deleteUser('u2', 'admin1');
+
+      expect(dataSource.manager.query).toHaveBeenCalledTimes(11);
+      expect(userRepo.delete).toHaveBeenCalledWith('u2');
+    });
+
+    it('throws ForbiddenException when admin tries to delete themselves', async () => {
+      await expect(service.deleteUser('admin1', 'admin1')).rejects.toThrow(ForbiddenException);
+      expect(userRepo.findOne).not.toHaveBeenCalled();
+      expect(userRepo.delete).not.toHaveBeenCalled();
+    });
+
+    it('throws NotFoundException when user does not exist', async () => {
+      userRepo.findOne.mockResolvedValue(null);
+
+      await expect(service.deleteUser('ghost', 'admin1')).rejects.toThrow(NotFoundException);
+      expect(userRepo.delete).not.toHaveBeenCalled();
+    });
+
+    it('does not call delete when user is not found', async () => {
+      userRepo.findOne.mockResolvedValue(null);
+
+      await expect(service.deleteUser('ghost', 'admin1')).rejects.toThrow();
+      expect(dataSource.manager.query).not.toHaveBeenCalled();
     });
   });
 });
