@@ -36,12 +36,18 @@
       "expo-apple-authentication",
       [
         "expo-image-picker",
-        { "photosPermission": "AutoGuildX needs access to your photos to upload profile images." }
+        {
+          "photosPermission": "AutoGuildX needs access to your photos to upload profile images."
+        }
       ],
       [
         "expo-camera",
-        { "cameraPermission": "AutoGuildX needs camera access to capture photos." }
-      ]
+        {
+          "cameraPermission": "AutoGuildX needs camera access to capture photos."
+        }
+      ],
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
