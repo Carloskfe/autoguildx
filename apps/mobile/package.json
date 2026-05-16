@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "scripts": {
-    "start": "EXPO_ROUTER_APP_ROOT=$(pwd)/app EXPO_ROUTER_IMPORT_MODE=sync expo start",
-    "tunnel": "EXPO_ROUTER_APP_ROOT=$(pwd)/app EXPO_ROUTER_IMPORT_MODE=sync expo start --tunnel",
-    "android": "EXPO_ROUTER_APP_ROOT=$(pwd)/app EXPO_ROUTER_IMPORT_MODE=sync expo start --android",
-    "ios": "EXPO_ROUTER_APP_ROOT=$(pwd)/app EXPO_ROUTER_IMPORT_MODE=sync expo start --ios",
-    "web": "EXPO_ROUTER_APP_ROOT=$(pwd)/app EXPO_ROUTER_IMPORT_MODE=sync expo start --web"
+    "start": "EXPO_ROUTER_APP_ROOT=./app EXPO_ROUTER_IMPORT_MODE=sync expo start",
+    "tunnel": "EXPO_ROUTER_APP_ROOT=./app EXPO_ROUTER_IMPORT_MODE=sync expo start --tunnel",
+    "android": "EXPO_ROUTER_APP_ROOT=./app EXPO_ROUTER_IMPORT_MODE=sync expo start --android",
+    "ios": "EXPO_ROUTER_APP_ROOT=./app EXPO_ROUTER_IMPORT_MODE=sync expo start --ios",
+    "web": "EXPO_ROUTER_APP_ROOT=./app EXPO_ROUTER_IMPORT_MODE=sync expo start --web"
   },
   "dependencies": {
     "@autoguildx/shared": "file:../../packages/shared",
