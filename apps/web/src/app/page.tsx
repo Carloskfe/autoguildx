@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Car, Wrench, GraduationCap } from 'lucide-react';
 
 export default function LandingPage() {
   return (
@@ -39,26 +40,54 @@ export default function LandingPage() {
 
       {/* Value props */}
       <section className="border-t border-surface-border px-6 py-16">
-        <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-8">
-          {[
-            {
-              title: 'Build Your Presence',
-              desc: 'Showcase your work, expertise, and builds in a professional profile tailored to the automotive niche.',
-            },
-            {
-              title: 'Find Trusted Parts',
-              desc: 'Browse a curated marketplace of rare parts and specialized services from verified experts.',
-            },
-            {
-              title: 'Connect With Peers',
-              desc: 'Follow builders, attend events, and grow your reputation in the community that knows your craft.',
-            },
-          ].map((item) => (
-            <div key={item.title} className="card">
-              <h3 className="font-bold text-lg mb-2">{item.title}</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
+        <div className="max-w-5xl mx-auto space-y-8">
+
+          {/* 2-column cards */}
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="card">
+              <div className="w-10 h-10 rounded-lg bg-brand-500/10 flex items-center justify-center mb-4">
+                <Car className="w-5 h-5 text-brand-500" />
+              </div>
+              <h3 className="font-bold text-lg mb-2">Build Your Presence &amp; Connect</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Showcase your work and builds in a professional profile. Follow other builders,
+                attend events, and grow your reputation in a community that knows your craft.
+              </p>
             </div>
-          ))}
+            <div className="card">
+              <div className="w-10 h-10 rounded-lg bg-brand-500/10 flex items-center justify-center mb-4">
+                <Wrench className="w-5 h-5 text-brand-500" />
+              </div>
+              <h3 className="font-bold text-lg mb-2">Find Trusted Parts</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Browse a curated marketplace of rare parts and specialized services from verified
+                experts.
+              </p>
+            </div>
+          </div>
+
+          {/* Courses banner */}
+          <div className="card border-brand-500/30 bg-brand-500/5 flex flex-col md:flex-row md:items-center gap-6">
+            <div className="flex items-start gap-4 flex-1">
+              <div className="w-12 h-12 rounded-xl bg-brand-500/10 flex items-center justify-center shrink-0">
+                <GraduationCap className="w-6 h-6 text-brand-500" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg mb-1">Develop or Reshape Your Skills</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  Learn from certified experts or teach what you know. Complete courses and earn
+                  certificates that live on your profile.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/courses"
+              className="btn-primary text-sm px-6 py-2.5 shrink-0 text-center"
+            >
+              Browse Courses
+            </Link>
+          </div>
+
         </div>
       </section>
 

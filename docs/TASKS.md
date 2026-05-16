@@ -91,7 +91,7 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
   **After setup:** no rebuild needed for Facebook. Apple requires verifying the domain association file is served at `https://autoguildx.com/.well-known/apple-developer-domain-association.txt` — Firebase handles this automatically via the `/__/auth/handler` route hosted by Firebase Hosting (not needed if using popup flow, which we do).
 
-- [ ] **Landing page — redesigned value props + courses section** — Rework `apps/web/src/app/page.tsx` value props section and add a courses banner.
+- [x] **Landing page — redesigned value props + courses section** — Rework `apps/web/src/app/page.tsx` value props section and add a courses banner.
 
   **1. Merge into a 2-card grid** (was 3 equal cards). "Build Your Presence" and "Connect With Peers" become one combined card:
 
