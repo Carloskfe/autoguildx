@@ -6,27 +6,30 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ## Backlog (unscheduled)
 
-- [ ] **Landing page — icons + courses section** — Two changes to `apps/web/src/app/page.tsx`:
+- [ ] **Landing page — redesigned value props + courses section** — Rework `apps/web/src/app/page.tsx` value props section and add a courses banner.
 
-  **1. Add icons to the three existing value prop cards** (lucide-react, automotive-themed):
-  - *Build Your Presence* → `Car` icon — showcasing builds and profiles
-  - *Find Trusted Parts* → `Wrench` icon — tools, parts, torque
-  - *Connect With Peers* → `Gauge` icon — community performance and reputation
+  **1. Merge into a 2-card grid** (was 3 equal cards). "Build Your Presence" and "Connect With Peers" become one combined card:
 
-  Each card gets a brand-orange icon badge (same pattern as stat cards in `/admin`):
+  | Card | Icon | Title | Description |
+  |---|---|---|---|
+  | Left | `Car` | **Build Your Presence & Connect** | Showcase your work and builds in a professional profile. Follow other builders, attend events, and grow your reputation in a community that knows your craft. |
+  | Right | `Wrench` | **Find Trusted Parts** | Browse a curated marketplace of rare parts and specialized services from verified experts. |
+
+  Each card gets a brand-orange icon badge:
   ```tsx
   <div className="w-10 h-10 rounded-lg bg-brand-500/10 flex items-center justify-center mb-4">
     <Icon className="w-5 h-5 text-brand-500" />
   </div>
   ```
+  Grid changes from `md:grid-cols-3` to `md:grid-cols-2`.
 
-  **2. Add a full-width "Develop or Reshape Your Skills" banner** below the 3-card section, above the footer. Single wide card spanning the full `max-w-5xl` container, with:
-  - `GraduationCap` icon (lg, brand orange)
+  **2. Add a full-width "Develop or Reshape Your Skills" banner** below the 2-card grid, above the footer. Single wide card spanning the full `max-w-5xl` container:
+  - `GraduationCap` icon (brand orange, large)
   - Headline: **"Develop or Reshape Your Skills"**
   - Subtitle: *"Learn from certified experts or teach what you know. Complete courses and earn certificates that live on your profile."*
   - CTA button → `/courses` ("Browse Courses")
-  - Layout: icon + text on the left, button on the right (desktop); stacked on mobile
-  - Visual treatment: `border border-brand-500/30 bg-brand-500/5` to distinguish from the plain cards above
+  - Layout: icon + text left, button right on desktop; stacked on mobile
+  - Visual: `border border-brand-500/30 bg-brand-500/5` to distinguish from the plain cards above
 
 - [ ] **Paid course checkout** — Gate enrollment on payment for courses with `price > 0`. Currently any user can enroll in a paid course for free.
   - **Backend:** `POST /courses/:id/checkout` → create a Stripe Checkout Session (one-time payment, not subscription); on success webhook (`checkout.session.completed`) verify `metadata.courseId` + `metadata.userId` and call `CoursesService.enroll()`. Reuse the existing `SubscriptionsModule` Stripe instance or create a dedicated helper.
