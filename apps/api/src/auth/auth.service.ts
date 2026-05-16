@@ -5,8 +5,8 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
@@ -24,6 +24,7 @@ export class AuthService {
     private jwtService: JwtService,
     private emailService: EmailService,
     private configService: ConfigService,
+    @InjectDataSource() private dataSource: DataSource,
   ) {}
 
   async signup(dto: SignupDto) {
@@ -151,6 +152,29 @@ export class AuthService {
   async deleteAccount(userId: string) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
+
+    const q = this.dataSource.manager.query.bind(this.dataSource.manager);
+
+    await q(`DELETE FROM "forum_posts" WHERE "userId" = $1`, [userId]);
+    await q(`DELETE FROM "forum_members" WHERE "userId" = $1`, [userId]);
+    await q(`DELETE FROM "notifications" WHERE "userId" = $1`, [userId]);
+    await q(`DELETE FROM "post_reactions" WHERE "userId" = $1`, [userId]);
+    await q(`DELETE FROM "reviews" WHERE "reviewerId" = $1`, [userId]);
+    await q(
+      `DELETE FROM "messages" WHERE "senderId" = $1 OR "conversationId" IN (
+        SELECT id FROM "conversations" WHERE "participantAId" = $1 OR "participantBId" = $1
+      )`,
+      [userId],
+    );
+    await q(
+      `DELETE FROM "conversations" WHERE "participantAId" = $1 OR "participantBId" = $1`,
+      [userId],
+    );
+    await q(`DELETE FROM "enrollments" WHERE "userId" = $1`, [userId]);
+    await q(`DELETE FROM "lesson_progress" WHERE "userId" = $1`, [userId]);
+    await q(`DELETE FROM "certificates" WHERE "userId" = $1`, [userId]);
+    await q(`DELETE FROM "verification_requests" WHERE "userId" = $1`, [userId]);
+
     await this.userRepo.delete(userId);
     return { message: 'Account deleted' };
   }

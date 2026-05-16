@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
+import { getRepositoryToken, getDataSourceToken } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import {
   ConflictException,
@@ -34,10 +34,15 @@ const mockConfigService = () => ({
   get: jest.fn().mockImplementation((key: string, fallback?: string) => fallback ?? 'http://localhost:3000'),
 });
 
+const mockDataSource = () => ({
+  manager: { query: jest.fn().mockResolvedValue(undefined) },
+});
+
 describe('AuthService', () => {
   let service: AuthService;
   let userRepo: ReturnType<typeof mockUserRepo>;
   let emailService: ReturnType<typeof mockEmailService>;
+  let dataSource: ReturnType<typeof mockDataSource>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -47,12 +52,14 @@ describe('AuthService', () => {
         { provide: JwtService, useFactory: mockJwtService },
         { provide: EmailService, useFactory: mockEmailService },
         { provide: ConfigService, useFactory: mockConfigService },
+        { provide: getDataSourceToken(), useFactory: mockDataSource },
       ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
     userRepo = module.get(getRepositoryToken(UserEntity));
     emailService = module.get(EmailService);
+    dataSource = module.get(getDataSourceToken());
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -339,14 +346,16 @@ describe('AuthService', () => {
     it('throws NotFoundException when user not found', async () => {
       userRepo.findOne.mockResolvedValue(null);
       await expect(service.deleteAccount('uid-x')).rejects.toThrow(NotFoundException);
+      expect(dataSource.manager.query).not.toHaveBeenCalled();
     });
 
-    it('deletes the user', async () => {
+    it('runs cleanup queries then deletes the user', async () => {
       userRepo.findOne.mockResolvedValue({ id: 'uid-1' });
       userRepo.delete.mockResolvedValue({});
 
       const result = await service.deleteAccount('uid-1');
 
+      expect(dataSource.manager.query).toHaveBeenCalledTimes(11);
       expect(userRepo.delete).toHaveBeenCalledWith('uid-1');
       expect(result.message).toBeTruthy();
     });
