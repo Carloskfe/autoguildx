@@ -16,7 +16,7 @@ export class AddForums1700000000013 implements MigrationInterface {
     );
     await queryRunner.query(
       `ALTER TABLE "comments"
-       ADD CONSTRAINT IF NOT EXISTS "FK_comments_parent"
+       ADD CONSTRAINT "FK_comments_parent"
        FOREIGN KEY ("parentId") REFERENCES "comments"("id") ON DELETE CASCADE`,
     );
 
