@@ -6,6 +6,28 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ## Backlog (unscheduled)
 
+- [ ] **Landing page — icons + courses section** — Two changes to `apps/web/src/app/page.tsx`:
+
+  **1. Add icons to the three existing value prop cards** (lucide-react, automotive-themed):
+  - *Build Your Presence* → `Car` icon — showcasing builds and profiles
+  - *Find Trusted Parts* → `Wrench` icon — tools, parts, torque
+  - *Connect With Peers* → `Gauge` icon — community performance and reputation
+
+  Each card gets a brand-orange icon badge (same pattern as stat cards in `/admin`):
+  ```tsx
+  <div className="w-10 h-10 rounded-lg bg-brand-500/10 flex items-center justify-center mb-4">
+    <Icon className="w-5 h-5 text-brand-500" />
+  </div>
+  ```
+
+  **2. Add a full-width "Develop or Reshape Your Skills" banner** below the 3-card section, above the footer. Single wide card spanning the full `max-w-5xl` container, with:
+  - `GraduationCap` icon (lg, brand orange)
+  - Headline: **"Develop or Reshape Your Skills"**
+  - Subtitle: *"Learn from certified experts or teach what you know. Complete courses and earn certificates that live on your profile."*
+  - CTA button → `/courses` ("Browse Courses")
+  - Layout: icon + text on the left, button on the right (desktop); stacked on mobile
+  - Visual treatment: `border border-brand-500/30 bg-brand-500/5` to distinguish from the plain cards above
+
 - [ ] **Paid course checkout** — Gate enrollment on payment for courses with `price > 0`. Currently any user can enroll in a paid course for free.
   - **Backend:** `POST /courses/:id/checkout` → create a Stripe Checkout Session (one-time payment, not subscription); on success webhook (`checkout.session.completed`) verify `metadata.courseId` + `metadata.userId` and call `CoursesService.enroll()`. Reuse the existing `SubscriptionsModule` Stripe instance or create a dedicated helper.
   - **Backend:** `CoursesService.enroll()` must reject paid courses without a completed payment — add a `paidOnly` guard that throws `ForbiddenException('Payment required')` unless the caller is the instructor or the webhook path.
