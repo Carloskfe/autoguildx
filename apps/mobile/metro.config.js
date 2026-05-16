@@ -15,4 +15,11 @@ config.resolver.nodeModulesPaths = [
   path.resolve(monorepoRoot, 'node_modules'),
 ];
 
+// Force all React/RN imports to resolve from apps/mobile so there's only one copy
+config.resolver.extraNodeModules = {
+  'react': path.resolve(projectRoot, 'node_modules/react'),
+  'react-native': path.resolve(projectRoot, 'node_modules/react-native'),
+  'react-native/': path.resolve(projectRoot, 'node_modules/react-native/'),
+};
+
 module.exports = config;
