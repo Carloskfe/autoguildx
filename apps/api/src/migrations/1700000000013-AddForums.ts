@@ -29,7 +29,7 @@ export class AddForums1700000000013 implements MigrationInterface {
         "description" text NOT NULL,
         "category" character varying NOT NULL,
         "rules" text,
-        "createdByUserId" character varying NOT NULL,
+        "createdByUserId" uuid NOT NULL,
         "memberCount" integer NOT NULL DEFAULT 0,
         "postCount" integer NOT NULL DEFAULT 0,
         "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
@@ -43,7 +43,7 @@ export class AddForums1700000000013 implements MigrationInterface {
       CREATE TABLE IF NOT EXISTS "forum_posts" (
         "id" uuid NOT NULL DEFAULT gen_random_uuid(),
         "forumId" uuid NOT NULL,
-        "userId" character varying NOT NULL,
+        "userId" uuid NOT NULL,
         "title" character varying NOT NULL,
         "content" text NOT NULL,
         "mediaUrls" text NOT NULL DEFAULT '',
@@ -68,7 +68,7 @@ export class AddForums1700000000013 implements MigrationInterface {
       CREATE TABLE IF NOT EXISTS "forum_members" (
         "id" uuid NOT NULL DEFAULT gen_random_uuid(),
         "forumId" uuid NOT NULL,
-        "userId" character varying NOT NULL,
+        "userId" uuid NOT NULL,
         "joinedAt" TIMESTAMP NOT NULL DEFAULT now(),
         CONSTRAINT "PK_forum_members" PRIMARY KEY ("id"),
         CONSTRAINT "UQ_forum_members_forum_user" UNIQUE ("forumId", "userId"),
@@ -82,7 +82,7 @@ export class AddForums1700000000013 implements MigrationInterface {
       CREATE TABLE IF NOT EXISTS "forum_votes" (
         "id" uuid NOT NULL DEFAULT gen_random_uuid(),
         "forumPostId" uuid NOT NULL,
-        "userId" character varying NOT NULL,
+        "userId" uuid NOT NULL,
         "value" integer NOT NULL,
         "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
         CONSTRAINT "PK_forum_votes" PRIMARY KEY ("id"),
@@ -97,7 +97,7 @@ export class AddForums1700000000013 implements MigrationInterface {
       CREATE TABLE IF NOT EXISTS "forum_comment_votes" (
         "id" uuid NOT NULL DEFAULT gen_random_uuid(),
         "commentId" uuid NOT NULL,
-        "userId" character varying NOT NULL,
+        "userId" uuid NOT NULL,
         "value" integer NOT NULL,
         "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
         CONSTRAINT "PK_forum_comment_votes" PRIMARY KEY ("id"),
