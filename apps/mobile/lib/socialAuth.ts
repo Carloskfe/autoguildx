@@ -39,13 +39,12 @@ async function exchangeWithBackend(idToken: string) {
 // Replace with your Web Client ID from Firebase Console →
 // Authentication → Sign-in method → Google → Web client ID
 export const GOOGLE_WEB_CLIENT_ID = '252834809264-eo1nbf0i80t2996luiqvqdluokvucbrd.apps.googleusercontent.com';
+export const GOOGLE_ANDROID_CLIENT_ID = '252834809264-phdq37jh5fms4qclt9i6fvamp6lohebl.apps.googleusercontent.com';
 
 export function useGoogleAuth() {
   return Google.useAuthRequest({
     webClientId: GOOGLE_WEB_CLIENT_ID,
-    // androidClientId needs a separate Android OAuth client from Google Cloud Console.
-    // Until that is created, use the web client ID so the hook initialises without crashing.
-    androidClientId: GOOGLE_WEB_CLIENT_ID,
+    androidClientId: GOOGLE_ANDROID_CLIENT_ID,
     selectAccount: true,
   });
 }
