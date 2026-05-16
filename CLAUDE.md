@@ -230,7 +230,7 @@ curl -sk https://autoguildx.com/api/health
 
 > **`docker compose exec` requires `-T`** for non-interactive use (CI migration runs). Without it, the command hangs in environments without a TTY.
 
-> Use **Traefik v2.11, not v3**. Traefik v3 has a Docker API version negotiation bug on this server's Docker daemon that causes silent failures.
+> **Traefik v2.11 is pinned — do not upgrade to v3.** This is a hard technical incompatibility: Traefik v3 has a Docker API version negotiation bug with this server's Docker daemon that causes silent routing failures. The shared `traefik.yml` at `/opt/traefik/` uses v2.x syntax; all Traefik labels in `docker-compose.server.yml` must stay v2-compatible (label syntax changed in v3, e.g. middleware config). Noetia may run v3 — that does not apply here.
 
 > **SSH port is 222** — port 22 is closed in UFW. Always use `ssh -p 222 root@84.247.140.175`. The CD workflow must also pass `port: 222` to `appleboy/ssh-action`.
 
