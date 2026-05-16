@@ -6,7 +6,30 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ## Backlog (unscheduled)
 
-- [ ] **React Native mobile app** — Native iOS and Android app for AutoGuildX. The existing API (`https://autoguildx.com/api/v1`) and JWT auth system are already mobile-ready — no backend changes needed to start.
+- [-] **React Native mobile app** — Native iOS and Android app for AutoGuildX. **Scaffold complete and running on physical Android device via Expo Go.**
+
+  **Completed so far:**
+  - `apps/mobile/` — Expo SDK 54, Expo Router v6, isolated from npm workspaces (avoids React deduplication crashes)
+  - Package: `com.autoguildx.app` (Android + iOS)
+  - `google-services.json` wired (gitignored); OAuth client registered
+  - Metro config: custom `router-ctx.android.js` redirect fixes `require.context` in monorepo
+  - Babel config: inlines `EXPO_ROUTER_APP_ROOT` + `EXPO_ROUTER_IMPORT_MODE` for Metro workers
+  - Auth screens: Login (email + Google/Facebook/Apple buttons), Signup, Forgot Password
+  - Tab screens: Feed, Discover, Marketplace, Messages, Profile
+  - `useAuth` store (Zustand + SecureStore), Axios API client, dark theme (#0f0f0f / #f97316)
+  - Social auth: Google wired (`androidClientId` placeholder — needs real Android OAuth client for production); Facebook/Apple show alert until configured
+
+  **Remaining for MVP:**
+  - Google Sign-In on Android: create Android OAuth 2.0 client in Google Cloud Console (package `com.autoguildx.app` + SHA-1 fingerprint) → replace `androidClientId` placeholder in `lib/socialAuth.ts`
+  - Wire up remaining screens with real data (feed, marketplace, messages, etc. are scaffold-only)
+  - EAS Build setup for TestFlight / Play Store distribution
+  - `TEAM_SEED_PASSWORD` and admin SQL still needed on the server (Sprint 23 ops)
+
+  **Key monorepo gotchas (documented for next session):**
+  - `apps/mobile` is EXCLUDED from npm workspaces to prevent React deduplication — run `npm install` from `apps/mobile/` directly, not from root
+  - `npm run tunnel` starts Expo with correct env vars; use `--clear` after package changes
+  - `google-services.json` is gitignored — keep locally at `apps/mobile/google-services.json`
+  - Expected versions: `react@19.1.0`, `react-native@0.81.5`, `expo@~54.0.33`
 
   **Package identifiers:**
   - Android: `com.autoguildx.app`
