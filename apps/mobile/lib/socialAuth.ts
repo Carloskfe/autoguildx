@@ -43,6 +43,9 @@ export const GOOGLE_WEB_CLIENT_ID = '252834809264-eo1nbf0i80t2996luiqvqdluokvucb
 export function useGoogleAuth() {
   return Google.useAuthRequest({
     webClientId: GOOGLE_WEB_CLIENT_ID,
+    // androidClientId needs a separate Android OAuth client from Google Cloud Console.
+    // Until that is created, use the web client ID so the hook initialises without crashing.
+    androidClientId: GOOGLE_WEB_CLIENT_ID,
     selectAccount: true,
   });
 }
