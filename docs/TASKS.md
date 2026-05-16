@@ -6,6 +6,26 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ## Backlog (unscheduled)
 
+- [ ] **Enable Facebook & Apple login (ops only — no code changes needed)** — The frontend (`firebase.ts`, login page, signup page) and backend (`POST /auth/firebase`) are fully implemented for all three social providers. Only external configuration is missing.
+
+  **Facebook — steps:**
+  1. Create a Facebook App at [developers.facebook.com](https://developers.facebook.com) → My Apps → Create App → Consumer
+  2. Add the "Facebook Login" product to the app
+  3. In Firebase Console → Authentication → Sign-in providers → Facebook: enable it and paste the **App ID** and **App Secret** from your Facebook App
+  4. Copy the OAuth redirect URI shown in Firebase and paste it into Facebook App → Facebook Login → Settings → Valid OAuth Redirect URIs
+  5. In Facebook App → Settings → Basic: add `autoguildx.com` to App Domains
+  6. Set app to Live mode in Facebook dashboard
+
+  **Apple — steps:**
+  1. Requires an **Apple Developer account ($99/year)** at [developer.apple.com](https://developer.apple.com)
+  2. Register an App ID (Identifiers → App IDs) with "Sign In with Apple" capability enabled
+  3. Create a Service ID (Identifiers → Services IDs) — this is the OAuth client ID Firebase uses; set the domain to `autoguildx.com` and the return URL to `https://autoguildx.com/__/auth/handler`
+  4. Create a Sign In with Apple private key (Keys → create key, enable Sign In with Apple, download the `.p8` file)
+  5. In Firebase Console → Authentication → Sign-in providers → Apple: enable it and paste the Service ID, Team ID, Key ID, and private key content
+  6. Rebuild the web container after enabling in Firebase (no env var changes needed — Firebase config is already in `.env.production`)
+
+  **After setup:** no rebuild needed for Facebook. Apple requires verifying the domain association file is served at `https://autoguildx.com/.well-known/apple-developer-domain-association.txt` — Firebase handles this automatically via the `/__/auth/handler` route hosted by Firebase Hosting (not needed if using popup flow, which we do).
+
 - [ ] **Landing page — redesigned value props + courses section** — Rework `apps/web/src/app/page.tsx` value props section and add a courses banner.
 
   **1. Merge into a 2-card grid** (was 3 equal cards). "Build Your Presence" and "Connect With Peers" become one combined card:
