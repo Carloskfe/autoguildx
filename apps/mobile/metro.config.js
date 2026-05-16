@@ -15,11 +15,14 @@ config.resolver.nodeModulesPaths = [
   path.resolve(monorepoRoot, 'node_modules'),
 ];
 
-// Force all React/RN imports to resolve from apps/mobile so there's only one copy
-config.resolver.extraNodeModules = {
-  'react': path.resolve(projectRoot, 'node_modules/react'),
-  'react-native': path.resolve(projectRoot, 'node_modules/react-native'),
-  'react-native/': path.resolve(projectRoot, 'node_modules/react-native/'),
-};
+// Force ALL node_module resolutions to apps/mobile/node_modules first,
+// so there is exactly one copy of react/react-native regardless of where
+// the importing package lives (root vs apps/mobile hoisted packages).
+config.resolver.extraNodeModules = new Proxy(
+  {},
+  {
+    get: (target, name) => path.resolve(projectRoot, 'node_modules', String(name)),
+  },
+);
 
 module.exports = config;
