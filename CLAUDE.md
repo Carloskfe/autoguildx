@@ -190,7 +190,7 @@ docker compose build web
 ### Production deployment (Contabo VPS + Traefik)
 
 **Server:** `84.247.140.175` (Contabo Cloud VPS 30 SSD — 8 vCPU / 24 GB RAM / 400 GB SSD)
-**OS:** Ubuntu 24.04 LTS · SSH: `ssh root@84.247.140.175`
+**OS:** Ubuntu 24.04 LTS · SSH: `ssh -p 222 root@84.247.140.175`
 **App directory:** `/opt/autoguildx/`
 
 The server is **shared with Noetia** — they are fully isolated. Never touch `/opt/traefik/` or `/opt/noetia/`.
@@ -231,6 +231,14 @@ curl -sk https://autoguildx.com/api/health
 > **`docker compose exec` requires `-T`** for non-interactive use (CI migration runs). Without it, the command hangs in environments without a TTY.
 
 > Use **Traefik v2.11, not v3**. Traefik v3 has a Docker API version negotiation bug on this server's Docker daemon that causes silent failures.
+
+> **SSH port is 222** — port 22 is closed in UFW. Always use `ssh -p 222 root@84.247.140.175`. The CD workflow must also pass `port: 222` to `appleboy/ssh-action`.
+
+> **Never paste multi-line content over SSH.** Terminal line wrapping corrupts files. Use `nano`, single-line Python (`python3 -c "open(...).write(...)"`), or base64-encode locally then decode on server (`echo <BASE64> | base64 -d > /path/file`).
+
+> **`HOSTNAME: "0.0.0.0"` on the web container** — Next.js reads the `HOSTNAME` env var for bind address; Docker sets it to the container ID, causing Next.js to bind to a single interface and Traefik to get 502s. This is already set in `docker-compose.server.yml`.
+
+> **Healthchecks must use `127.0.0.1`, not `localhost`** — Alpine busybox wget resolves `localhost` to `::1` (IPv6). If the app only listens on IPv4, the healthcheck fails, Traefik drops the route, and all users get 404s.
 
 **Key env vars in `.env.production`** (created at `/opt/autoguildx/.env.production`, never committed):
 
