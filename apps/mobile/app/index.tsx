@@ -1,10 +1,17 @@
-import { View, Text } from 'react-native';
+import { Redirect } from 'expo-router';
+import { useAuth } from '../hooks/useAuth';
+import { View, ActivityIndicator } from 'react-native';
 
 export default function Index() {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f0f0f' }}>
-      <Text style={{ color: '#f97316', fontSize: 28, fontWeight: '900' }}>AutoGuildX</Text>
-      <Text style={{ color: '#fff', fontSize: 16, marginTop: 8 }}>Routing works ✓</Text>
-    </View>
-  );
+  const { isAuthenticated, isLoaded } = useAuth();
+
+  if (!isLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f0f0f' }}>
+        <ActivityIndicator color="#f97316" />
+      </View>
+    );
+  }
+
+  return <Redirect href={isAuthenticated ? '/(tabs)/feed' : '/(auth)/login'} />;
 }
