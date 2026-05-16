@@ -6,6 +6,48 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ## Backlog (unscheduled)
 
+- [ ] **React Native mobile app** — Native iOS and Android app for AutoGuildX. The existing API (`https://autoguildx.com/api/v1`) and JWT auth system are already mobile-ready — no backend changes needed to start.
+
+  **Package identifiers:**
+  - Android: `com.autoguildx.app`
+  - iOS Bundle ID: `com.autoguildx.app`
+
+  **Recommended stack:**
+  - React Native (Expo managed workflow for faster iteration)
+  - React Navigation v6 — stack + tab navigation
+  - TanStack React Query — same data-fetching pattern as web
+  - Zustand — same auth store pattern as web (`token`, `userId`, `role`)
+  - Axios — same API client pattern, auto-attach JWT
+  - Socket.IO client — real-time messages (same `/messages` namespace)
+  - `@react-native-firebase/auth` — Google, Facebook, Apple login
+  - Expo SecureStore — replace `localStorage` for token persistence
+
+  **Core screens (MVP):**
+  - Auth: Login, Signup, Forgot Password, Verify Email
+  - Feed: post list, compose, reactions, comments
+  - Marketplace: listing grid, filters, detail, create/edit
+  - Profile: own profile, public profile, follow/unfollow
+  - Messages: conversation list, thread, real-time
+  - Notifications: list, read/unread
+  - Discover: search with filters
+  - Events: list, detail, RSVP
+  - Courses: browse, detail, learn player, certificate
+  - AGXTopics: forum list, post list, post detail
+  - Settings: change password, delete account, notifications toggle
+
+  **What's already available from the web app:**
+  - All API endpoints and DTOs (reuse `@autoguildx/shared` types)
+  - JWT auth flow (email + all social providers)
+  - Socket.IO real-time messaging
+  - Firebase config (reuse same Firebase project, add mobile apps in console)
+
+  **Ops before publishing:**
+  - Add Android app in Firebase Console (package: `com.autoguildx.app`) for Google Sign-In on Android
+  - Add iOS app in Firebase Console (bundle ID: `com.autoguildx.app`) for Google Sign-In on iOS
+  - Google Play Console: create app with package `com.autoguildx.app`
+  - Apple App Store Connect: create app with bundle ID `com.autoguildx.app` (requires Apple Developer account)
+  - Add mobile app OAuth redirect URIs to Facebook App settings
+
 - [ ] **Enable Facebook & Apple login (ops only — no code changes needed)** — The frontend (`firebase.ts`, login page, signup page) and backend (`POST /auth/firebase`) are fully implemented for all three social providers. Only external configuration is missing.
 
   **Facebook — steps:**
