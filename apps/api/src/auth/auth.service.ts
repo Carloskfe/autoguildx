@@ -166,10 +166,9 @@ export class AuthService {
       )`,
       [userId],
     );
-    await q(
-      `DELETE FROM "conversations" WHERE "participantAId" = $1 OR "participantBId" = $1`,
-      [userId],
-    );
+    await q(`DELETE FROM "conversations" WHERE "participantAId" = $1 OR "participantBId" = $1`, [
+      userId,
+    ]);
     await q(`DELETE FROM "enrollments" WHERE "userId" = $1`, [userId]);
     await q(`DELETE FROM "lesson_progress" WHERE "userId" = $1`, [userId]);
     await q(`DELETE FROM "certificates" WHERE "userId" = $1`, [userId]);

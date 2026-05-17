@@ -5,12 +5,8 @@ export class AddForums1700000000013 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     // ── Extend comments table for threading + forum support ─────────────────
-    await queryRunner.query(
-      `ALTER TABLE "comments" ADD COLUMN IF NOT EXISTS "parentId" uuid`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "comments" ADD COLUMN IF NOT EXISTS "forumPostId" uuid`,
-    );
+    await queryRunner.query(`ALTER TABLE "comments" ADD COLUMN IF NOT EXISTS "parentId" uuid`);
+    await queryRunner.query(`ALTER TABLE "comments" ADD COLUMN IF NOT EXISTS "forumPostId" uuid`);
     await queryRunner.query(
       `ALTER TABLE "comments" ADD COLUMN IF NOT EXISTS "voteScore" integer NOT NULL DEFAULT 0`,
     );

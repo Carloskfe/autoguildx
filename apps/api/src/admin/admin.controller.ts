@@ -1,4 +1,14 @@
-import { Controller, Delete, Get, HttpCode, Patch, Param, Body, UseGuards, Query } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Patch,
+  Param,
+  Body,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
 import { SetRoleDto } from './dto/set-role.dto';
