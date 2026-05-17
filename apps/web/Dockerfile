@@ -34,7 +34,7 @@ ENV NEXT_PUBLIC_FIREBASE_APP_ID=${NEXT_PUBLIC_FIREBASE_APP_ID}
 COPY package.json package-lock.json ./
 COPY packages/shared/package.json ./packages/shared/
 COPY apps/web/package.json ./apps/web/
-RUN npm ci
+RUN npm install --legacy-peer-deps
 
 # Copy source
 COPY packages/shared ./packages/shared
