@@ -6,6 +6,47 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ## Backlog (unscheduled)
 
+- [ ] **UI/UX overhaul — Rich profile + automotive brand identity** — The current dark theme (#0f0f0f / #f97316) is functional but generic. This sprint should elevate the platform to feel like it belongs alongside major US automotive brands.
+
+  **Profile page redesign (LinkedIn + Facebook hybrid):**
+  - Keep existing banner (160px) + avatar overlap + video avatar — already built
+  - Add **profile sections** below the bio, editable inline:
+    - *Expertise* — tag-style chips with skill levels (Beginner / Intermediate / Expert)
+    - *Experience* — timeline entries: shop name, role, years (like LinkedIn work history)
+    - *Specialty builds* — featured project cards with photo, year, make/model, description
+    - *Certifications* — ASE, manufacturer certs, course completions (auto-populated from Courses module)
+    - *Equipment & Tools* — what they work with (lift brands, diagnostic tools, brands they trust)
+  - New `ProfileSectionEntity` + migration to store arbitrary sections per profile
+  - Public profile `/profile/[id]` renders the same sections read-only
+
+  **Color & brand direction — research notes:**
+  Studied major US automotive industry players for inspiration:
+
+  | Brand | Palette | Feel |
+  |---|---|---|
+  | **Holley Performance** | Black + orange accent | Aggressive, performance-first |
+  | **Snap-on Tools** | Red + black + chrome | Premium, precision, trust |
+  | **Summit Racing** | Red + white + dark gray | Accessible, catalog-style |
+  | **Barrett-Jackson** | Black + gold + white | Luxury auction, premium |
+  | **Hagerty** | Navy + cream + warm red | Classic, sophisticated, collector |
+  | **SEMA Show** | Black + electric blue + silver | Trade/professional, modern |
+  | **Petersen Automotive Museum** | Dark charcoal + orange-red | Editorial, bold |
+
+  **Recommended direction for AutoGuildX:**
+  - Keep the **dark base** — it's consistent with the performance/trade segment and works on all screens
+  - Evolve the orange accent from `#f97316` toward a **deeper amber/burnt orange** (`#e8610a` or `#d4550f`) — warmer, less "startup", more industrial
+  - Add a **chrome/silver secondary** (`#9ca3af` → `#b8c4cc`) for metallic accents on cards and borders
+  - Typography: move toward a **slightly condensed bold** for headings — Barrett-Jackson/Holley-style authority
+  - Cards: add subtle **texture or gradient** on hover states to break the flat look
+  - Profile banners: encourage users toward automotive photography — dark car shots, garage interiors
+
+  **Implementation scope:**
+  - Update `tailwind.config.ts` color tokens
+  - Update `globals.css` component classes
+  - Redesign profile page layout with new sections
+  - Update AppShell header to feel more premium
+  - Update landing page hero typography
+
 - [ ] **Smoke-test password reset flow end-to-end** — All code exists and is wired up, but the flow has never been manually verified on production.
   - Go to `https://autoguildx.com/forgot-password` → enter a real email → check inbox for reset email
   - Verify the link in the email points to `https://autoguildx.com/reset-password?token=...` (not localhost)
