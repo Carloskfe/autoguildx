@@ -43,8 +43,9 @@ export const GOOGLE_ANDROID_CLIENT_ID = '252834809264-phdq37jh5fms4qclt9i6fvamp6
 
 export function useGoogleAuth() {
   return Google.useAuthRequest({
+    expoClientId: GOOGLE_WEB_CLIENT_ID,   // used in Expo Go (host.exp.exponent)
     webClientId: GOOGLE_WEB_CLIENT_ID,
-    androidClientId: GOOGLE_ANDROID_CLIENT_ID,
+    androidClientId: GOOGLE_ANDROID_CLIENT_ID, // used in production builds
     selectAccount: true,
   });
 }
