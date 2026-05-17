@@ -19,6 +19,7 @@ jobs:
           username: root
           port: 222
           key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 30m
           script: |
             set -e
             cd /opt/autoguildx
