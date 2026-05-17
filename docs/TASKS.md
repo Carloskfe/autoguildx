@@ -755,7 +755,7 @@ Every page audited; issues found and fixed only where real breakage or UX degrad
 
 ---
 
-## Sprint 23 — Production Server Deployment (Traefik/Contabo)
+## Sprint 23 — Production Server Deployment (Traefik/Contabo) ✅ COMPLETE
 
 **Goal:** Deploy AutoGuildX to the shared Contabo VPS. Traffic routed via Traefik v2.11 (already running alongside Noetia). CI/CD via GitHub Actions SSH deploy on push to main.
 
@@ -773,15 +773,20 @@ Every page audited; issues found and fixed only where real breakage or UX degrad
 - [x] Create `.github/workflows/cd.yml` — SSH deploy via `appleboy/ssh-action@v1.2.0` on push to main
 - [x] NestJS prefix is `api/v1`; Traefik does NOT strip `/api` — full path forwarded unchanged. `NEXT_PUBLIC_API_URL` hardcoded to `https://autoguildx.com/api/v1` in docker-compose.server.yml build args
 
-### Ops (done on server — not code changes)
+### Ops ✅ COMPLETE
 
-- [ ] SSH in: `ssh root@84.247.140.175`
-- [ ] Clone repo: `git clone <repo-url> /opt/autoguildx`
-- [ ] Create `/opt/autoguildx/.env.production` — all vars (DB_NAME, DB_USER, DB_PASS, DB_HOST=db, WEB_URL, API_URL, JWT_SECRET, Firebase, Resend, Stripe, AWS). Generate secrets: `openssl rand -base64 32`
-- [ ] Add `DEPLOY_SSH_KEY` to GitHub repo secrets — key is at `/root/.ssh/deploy_key` on server: `ssh root@84.247.140.175 'cat /root/.ssh/deploy_key'`
-- [ ] First-time deploy: `docker compose --env-file .env.production -f docker-compose.server.yml up -d --build`
-- [ ] Run migrations: `docker compose --env-file .env.production -f docker-compose.server.yml exec -T api npm run migration:run:prod`
-- [ ] Verify: `docker ps` · `curl -sk https://autoguildx.com/api/health` · CORS check (see CLAUDE.md)
+- [x] SSH in: `ssh -p 222 root@84.247.140.175`
+- [x] Repo already cloned at `/opt/autoguildx`; `.env.production` already present
+- [x] `DEPLOY_SSH_KEY` added to GitHub repo secrets (key at `/root/.ssh/deploy_key` on server)
+- [x] First-time deploy completed — containers running: `autoguildx-web-1`, `autoguildx-api-1`, `autoguildx-db-1`
+- [x] Migrations ran successfully
+- [x] Verified: `curl -sk https://autoguildx.com/api/v1/health` → `{"status":"ok"}`; web returns HTTP 200
+
+### CI/CD fixes applied during Sprint 23 ops
+- [x] `npm ci` → `npm install --prefer-offline` in CI workflow and API Dockerfile (fsevents macOS-only dep absent from Linux lock file)
+- [x] Prettier formatting fixed in `admin.controller.ts`, `admin.service.ts`, `auth.service.ts`, `migrations/1700000000013-AddForums.ts`, `apps/web/src/app/page.tsx`
+- [x] CD `command_timeout` increased to `30m` (Docker build exceeds default 10m)
+- [x] `eslint.ignoreDuringBuilds: true` added to `next.config.mjs` — ESLint already runs in CI; skipped in Docker to avoid TypeScript peer-dep resolution issue in monorepo build context
 
 ### Verification commands
 ```bash
