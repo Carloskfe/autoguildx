@@ -41,7 +41,6 @@ export default function LandingPage() {
       {/* Value props */}
       <section className="border-t border-surface-border px-6 py-16">
         <div className="max-w-5xl mx-auto space-y-8">
-
           {/* 3-column cards */}
           <div className="grid md:grid-cols-3 gap-8">
             <div className="card">
@@ -50,8 +49,8 @@ export default function LandingPage() {
               </div>
               <h3 className="font-bold text-lg mb-2">Build Your Presence</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Showcase your work, expertise, and builds in a professional profile tailored to
-                the automotive niche.
+                Showcase your work, expertise, and builds in a professional profile tailored to the
+                automotive niche.
               </p>
             </div>
             <div className="card">
@@ -70,8 +69,8 @@ export default function LandingPage() {
               </div>
               <h3 className="font-bold text-lg mb-2">Events &amp; Community</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Discover local and national automotive events, RSVP with your community, and
-                connect with the people who share your passion.
+                Discover local and national automotive events, RSVP with your community, and connect
+                with the people who share your passion.
               </p>
             </div>
           </div>
@@ -90,14 +89,10 @@ export default function LandingPage() {
                 </p>
               </div>
             </div>
-            <Link
-              href="/courses"
-              className="btn-primary text-sm px-6 py-2.5 shrink-0 text-center"
-            >
+            <Link href="/courses" className="btn-primary text-sm px-6 py-2.5 shrink-0 text-center">
               Browse Courses
             </Link>
           </div>
-
         </div>
       </section>
 
