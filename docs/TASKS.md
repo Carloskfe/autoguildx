@@ -6,6 +6,13 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ## Backlog (unscheduled)
 
+- [ ] **Smoke-test password reset flow end-to-end** — All code exists and is wired up, but the flow has never been manually verified on production.
+  - Go to `https://autoguildx.com/forgot-password` → enter a real email → check inbox for reset email
+  - Verify the link in the email points to `https://autoguildx.com/reset-password?token=...` (not localhost)
+  - Click the link → set a new password → verify login works with the new password
+  - Requires `RESEND_API_KEY` to be set in `.env.production` (it was configured during server setup)
+  - If no email arrives: check `docker logs autoguildx-api-1 | grep -i resend` for errors
+
 - [-] **React Native mobile app** — Native iOS and Android app for AutoGuildX. **Scaffold complete and running on physical Android device via Expo Go.**
 
   **Completed so far:**
