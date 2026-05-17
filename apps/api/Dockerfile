@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY packages/shared/package.json ./packages/shared/
 COPY apps/api/package.json ./apps/api/
-RUN npm ci
+RUN npm install --prefer-offline
 
 # Copy source
 COPY packages/shared ./packages/shared
