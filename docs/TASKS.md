@@ -27,7 +27,7 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
   - Social auth: Google wired (`androidClientId` placeholder — needs real Android OAuth client for production); Facebook/Apple show alert until configured
 
   **Remaining for MVP:**
-  - Google Sign-In on Android: create Android OAuth 2.0 client in Google Cloud Console (package `com.autoguildx.app` + SHA-1 fingerprint) → replace `androidClientId` placeholder in `lib/socialAuth.ts`
+  - Google Sign-In on Android: code and OAuth client are configured. Works in EAS production builds. **Does NOT work in Expo Go** — expo-auth-session v7 (SDK 54+) removed the proxy so the redirect URI is a custom scheme (`autoguildx://`) which Google rejects. Will work automatically when the app is published via EAS Build.
   - Wire up remaining screens with real data (feed, marketplace, messages, etc. are scaffold-only)
   - EAS Build setup for TestFlight / Play Store distribution
   - `TEAM_SEED_PASSWORD` and admin SQL still needed on the server (Sprint 23 ops)
