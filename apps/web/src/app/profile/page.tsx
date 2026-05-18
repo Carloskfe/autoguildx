@@ -667,9 +667,7 @@ export default function ProfilePage() {
 
         <CertificatesSection />
 
-        {profile && (
-          <ProfileSections profileId={profile.id} isOwner={true} />
-        )}
+        {profile && <ProfileSections profileId={profile.id} isOwner={true} />}
 
         <div className="space-y-3">
           <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide px-1">

@@ -328,9 +328,12 @@ export default function EditCoursePage() {
           {/* Preview video */}
           <section className="space-y-3">
             <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide border-b border-surface-border pb-2">
-              Preview Video <span className="text-gray-600 font-normal normal-case">(optional)</span>
+              Preview Video{' '}
+              <span className="text-gray-600 font-normal normal-case">(optional)</span>
             </h2>
-            <p className="text-xs text-gray-500">A short preview video shown on the course detail page before enrollment.</p>
+            <p className="text-xs text-gray-500">
+              A short preview video shown on the course detail page before enrollment.
+            </p>
             <input
               className="input text-sm"
               placeholder="Video URL (MP4 or YouTube embed)"

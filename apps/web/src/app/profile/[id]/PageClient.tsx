@@ -277,9 +277,7 @@ export default function PublicProfilePage() {
         </div>
 
         {/* Profile sections */}
-        {profile && (
-          <ProfileSections profileId={profile.id} isOwner={isOwnProfile} />
-        )}
+        {profile && <ProfileSections profileId={profile.id} isOwner={isOwnProfile} />}
 
         {/* Posts */}
         <div className="space-y-3">

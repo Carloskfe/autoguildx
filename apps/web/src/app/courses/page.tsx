@@ -21,14 +21,17 @@ import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
 import type { Course } from '@autoguildx/shared';
 
-interface CoursesResponse { courses: Course[]; total: number }
+interface CoursesResponse {
+  courses: Course[];
+  total: number;
+}
 type SortOption = 'newest' | 'popular' | 'rating';
 
 const LEVELS = ['All', 'Beginner', 'Intermediate', 'Advanced', 'All Levels'];
 const SORT_OPTIONS: { value: SortOption; label: string; icon: React.ElementType }[] = [
-  { value: 'newest',  label: 'Newest',       icon: Clock },
-  { value: 'popular', label: 'Most Popular',  icon: TrendingUp },
-  { value: 'rating',  label: 'Top Rated',     icon: Star },
+  { value: 'newest', label: 'Newest', icon: Clock },
+  { value: 'popular', label: 'Most Popular', icon: TrendingUp },
+  { value: 'rating', label: 'Top Rated', icon: Star },
 ];
 
 function StarRating({ avg, total }: { avg: number | null; total: number }) {
@@ -114,7 +117,11 @@ function CourseCard({
           <p className="text-xs text-gray-400 mb-2 truncate">{instructorName}</p>
 
           {/* Rating */}
-          {rating && <div className="mb-2"><StarRating avg={rating.avgRating} total={rating.total} /></div>}
+          {rating && (
+            <div className="mb-2">
+              <StarRating avg={rating.avgRating} total={rating.total} />
+            </div>
+          )}
 
           {/* Stats row */}
           <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
@@ -144,16 +151,16 @@ function CourseCard({
               {course.level || 'All Levels'}
             </span>
             {Number(course.price) > 0 ? (
-              <span className="font-bold text-white text-sm">${Number(course.price).toFixed(2)}</span>
+              <span className="font-bold text-white text-sm">
+                ${Number(course.price).toFixed(2)}
+              </span>
             ) : (
               <span className="font-bold text-green-400 text-sm">Free</span>
             )}
           </div>
 
           {/* Progress bar for enrolled users */}
-          {isEnrolled && progress !== undefined && (
-            <ProgressBar percentage={progress} />
-          )}
+          {isEnrolled && progress !== undefined && <ProgressBar percentage={progress} />}
         </div>
       </div>
     </Link>
@@ -176,11 +183,14 @@ export default function CoursesPage() {
   const { data, isLoading } = useQuery<CoursesResponse>({
     queryKey: ['courses', debouncedSearch, level, sort],
     queryFn: () =>
-      api.get('/courses', { params: { search: debouncedSearch || undefined, sort, limit: 50 } })
+      api
+        .get('/courses', { params: { search: debouncedSearch || undefined, sort, limit: 50 } })
         .then((r) => r.data),
   });
 
-  const { data: ratingsMap } = useQuery<Record<string, { avgRating: number | null; total: number }>>({
+  const { data: ratingsMap } = useQuery<
+    Record<string, { avgRating: number | null; total: number }>
+  >({
     queryKey: ['courseRatings', data?.courses?.map((c) => c.id).join(',')],
     queryFn: async () => {
       if (!data?.courses?.length) return {};
@@ -189,7 +199,9 @@ export default function CoursesPage() {
           api.get(`/reviews/course/${c.id}/summary`).then((r) => ({ id: c.id, ...r.data })),
         ),
       );
-      return Object.fromEntries(results.map((r) => [r.id, { avgRating: r.avgRating, total: r.total }]));
+      return Object.fromEntries(
+        results.map((r) => [r.id, { avgRating: r.avgRating, total: r.total }]),
+      );
     },
     enabled: !!data?.courses?.length,
     staleTime: 60_000,
@@ -201,7 +213,9 @@ export default function CoursesPage() {
     enabled: isAuthenticated,
   });
 
-  const progressMap = Object.fromEntries((progressList ?? []).map((p) => [p.courseId, p.percentage]));
+  const progressMap = Object.fromEntries(
+    (progressList ?? []).map((p) => [p.courseId, p.percentage]),
+  );
 
   const filtered =
     level === 'All'
@@ -217,14 +231,22 @@ export default function CoursesPage() {
         <div className="flex items-start justify-between mb-8 gap-4">
           <div>
             <h1 className="text-2xl font-bold text-white">Courses</h1>
-            <p className="text-gray-400 text-sm mt-1">Expand your skills with courses from automotive experts</p>
+            <p className="text-gray-400 text-sm mt-1">
+              Expand your skills with courses from automotive experts
+            </p>
           </div>
           {isAuthenticated && (
             <div className="flex items-center gap-2 shrink-0">
-              <Link href="/courses/manage" className="btn-secondary text-sm px-4 py-2.5 flex items-center gap-2">
+              <Link
+                href="/courses/manage"
+                className="btn-secondary text-sm px-4 py-2.5 flex items-center gap-2"
+              >
                 <LayoutList className="w-4 h-4" /> My Hub
               </Link>
-              <Link href="/courses/new" className="btn-primary text-sm px-5 py-2.5 flex items-center gap-2">
+              <Link
+                href="/courses/new"
+                className="btn-primary text-sm px-5 py-2.5 flex items-center gap-2"
+              >
                 <Plus className="w-4 h-4" /> Create Course
               </Link>
             </div>
@@ -261,9 +283,14 @@ export default function CoursesPage() {
                     return (
                       <button
                         key={opt.value}
-                        onClick={() => { setSort(opt.value); setSortOpen(false); }}
+                        onClick={() => {
+                          setSort(opt.value);
+                          setSortOpen(false);
+                        }}
                         className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors ${
-                          sort === opt.value ? 'text-brand-400 bg-brand-500/10' : 'text-gray-300 hover:bg-surface-border'
+                          sort === opt.value
+                            ? 'text-brand-400 bg-brand-500/10'
+                            : 'text-gray-300 hover:bg-surface-border'
                         }`}
                       >
                         <Icon className="w-4 h-4" />
