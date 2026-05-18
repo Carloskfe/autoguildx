@@ -104,6 +104,7 @@ export default function NewCoursePage() {
   const [objectives, setObjectives] = useState<string[]>([]);
   const [requirements, setRequirements] = useState<string[]>([]);
   const [thumbnailUrl, setThumbnailUrl] = useState('');
+  const [previewVideoUrl, setPreviewVideoUrl] = useState('');
   const [uploading, setUploading] = useState(false);
 
   const create = useMutation({
@@ -139,6 +140,7 @@ export default function NewCoursePage() {
       objectives,
       requirements,
       thumbnailUrl: thumbnailUrl || undefined,
+      previewVideoUrl: previewVideoUrl || undefined,
     });
   }
 
@@ -272,6 +274,20 @@ export default function NewCoursePage() {
                 <input type="file" accept="image/*" className="hidden" onChange={handleThumbnail} />
               </label>
             )}
+          </section>
+
+          {/* ── Section: Preview video ─────────────────────────────────────── */}
+          <section className="space-y-3">
+            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide border-b border-surface-border pb-2">
+              Preview Video <span className="text-gray-600 font-normal normal-case">(optional)</span>
+            </h2>
+            <p className="text-xs text-gray-500">A short preview video shown on the course detail page before enrollment.</p>
+            <input
+              className="input text-sm"
+              placeholder="Video URL (MP4 or YouTube embed)"
+              value={previewVideoUrl}
+              onChange={(e) => setPreviewVideoUrl(e.target.value)}
+            />
           </section>
 
           {/* ── Section: Learning outcomes ──────────────────────────────────── */}

@@ -66,7 +66,7 @@ function StarPicker({ value, onChange }: { value: number; onChange: (v: number) 
 
 interface Props {
   targetId: string;
-  targetType: 'profile' | 'listing' | 'event';
+  targetType: 'profile' | 'listing' | 'event' | 'course';
   showDimensions?: boolean;
 }
 

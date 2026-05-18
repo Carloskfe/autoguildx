@@ -5,6 +5,7 @@ export interface Course {
   slug: string;
   description: string;
   thumbnailUrl?: string;
+  previewVideoUrl?: string;
   price: number;
   tags: string[];
   level: string;

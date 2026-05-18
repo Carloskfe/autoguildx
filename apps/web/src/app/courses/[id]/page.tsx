@@ -23,6 +23,7 @@ import {
 import Link from 'next/link';
 import AppShell from '@/components/layout/AppShell';
 import VerifiedBadge from '@/components/VerifiedBadge';
+import ReviewSection from '@/components/ReviewSection';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
 import type { Course, Lesson, Enrollment, Certificate } from '@autoguildx/shared';
@@ -129,12 +130,23 @@ export default function CourseDetailPage() {
     enabled: isAuthenticated && (progress?.percentage ?? 0) === 100,
   });
 
+  const { data: rating } = useQuery<{ avgRating: number | null; total: number }>({
+    queryKey: ['courseRating', id],
+    queryFn: () => api.get(`/reviews/course/${id}/summary`).then((r) => r.data),
+    staleTime: 60_000,
+  });
+
   const enroll = useMutation({
     mutationFn: () => api.post(`/courses/${id}/enroll`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['course', id] });
       router.push(`/courses/${id}/learn`);
     },
+  });
+
+  const checkout = useMutation({
+    mutationFn: () => api.post(`/courses/${id}/checkout`).then((r) => r.data),
+    onSuccess: ({ url }: { url: string }) => { window.location.href = url; },
   });
 
   if (isLoading) {
@@ -191,6 +203,19 @@ export default function CourseDetailPage() {
               <p className="text-gray-300 text-base leading-relaxed mb-4 line-clamp-3">
                 {course.description}
               </p>
+            )}
+
+            {/* Rating */}
+            {rating && rating.avgRating && (
+              <div className="flex items-center gap-1.5 mb-3">
+                {[1,2,3,4,5].map((s) => (
+                  <svg key={s} className={`w-4 h-4 ${s <= Math.round(rating.avgRating!) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-600 fill-gray-600'}`} viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                ))}
+                <span className="text-yellow-400 font-bold text-sm ml-1">{rating.avgRating.toFixed(1)}</span>
+                <span className="text-gray-400 text-sm">({rating.total} {rating.total === 1 ? 'rating' : 'ratings'})</span>
+              </div>
             )}
 
             {/* Meta row */}
@@ -332,13 +357,25 @@ export default function CourseDetailPage() {
                 </div>
               </div>
             </section>
+
+            {/* Reviews */}
+            <section>
+              <ReviewSection targetId={id} targetType="course" />
+            </section>
           </div>
 
           {/* ── Sticky sidebar ─────────────────────────────────────────────── */}
           <aside className="w-80 shrink-0 hidden lg:block">
             <div className="sticky top-6 border border-surface-border rounded-xl overflow-hidden shadow-xl">
-              {/* Preview thumbnail */}
-              {course.thumbnailUrl ? (
+              {/* Preview video or thumbnail */}
+              {course.previewVideoUrl ? (
+                <video
+                  src={course.previewVideoUrl}
+                  poster={course.thumbnailUrl ?? undefined}
+                  controls
+                  className="w-full aspect-video object-cover bg-gray-900"
+                />
+              ) : course.thumbnailUrl ? (
                 <img
                   src={course.thumbnailUrl}
                   alt={course.title}
@@ -402,14 +439,25 @@ export default function CourseDetailPage() {
                     {(progress?.percentage ?? 0) === 100 ? 'Review Course' : 'Continue Learning'}
                   </Link>
                 ) : isAuthenticated ? (
-                  <button
-                    onClick={() => enroll.mutate()}
-                    disabled={enroll.isPending}
-                    className="btn-primary w-full py-3 text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {enroll.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
-                    Enroll Now
-                  </button>
+                  Number(course.price) > 0 ? (
+                    <button
+                      onClick={() => checkout.mutate()}
+                      disabled={checkout.isPending}
+                      className="btn-primary w-full py-3 text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      {checkout.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+                      Enroll — ${Number(course.price).toFixed(2)}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => enroll.mutate()}
+                      disabled={enroll.isPending}
+                      className="btn-primary w-full py-3 text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      {enroll.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+                      Enroll Now — Free
+                    </button>
+                  )
                 ) : (
                   <Link
                     href="/login"

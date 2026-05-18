@@ -13,6 +13,10 @@ export class CreateCourseDto {
   thumbnailUrl?: string;
 
   @IsOptional()
+  @IsString()
+  previewVideoUrl?: string;
+
+  @IsOptional()
   @IsNumber()
   @Min(0)
   price?: number;

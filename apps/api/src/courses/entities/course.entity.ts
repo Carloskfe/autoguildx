@@ -35,6 +35,9 @@ export class CourseEntity {
   @Column({ nullable: true })
   thumbnailUrl: string;
 
+  @Column({ nullable: true })
+  previewVideoUrl: string;
+
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   price: number;
 

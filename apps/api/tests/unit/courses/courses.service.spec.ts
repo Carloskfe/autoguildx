@@ -1,12 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CoursesService } from '../../../src/courses/courses.service';
 import { CourseEntity } from '../../../src/courses/entities/course.entity';
 import { LessonEntity } from '../../../src/courses/entities/lesson.entity';
 import { EnrollmentEntity } from '../../../src/courses/entities/enrollment.entity';
 import { LessonProgressEntity } from '../../../src/courses/entities/lesson-progress.entity';
 import { CertificateEntity } from '../../../src/courses/entities/certificate.entity';
+import { UserEntity } from '../../../src/auth/entities/user.entity';
+import { EmailService } from '../../../src/email/email.service';
 
 const mockRepo = () => ({
   findOne: jest.fn(),
@@ -57,8 +59,12 @@ describe('CoursesService', () => {
   let enrollRepo: ReturnType<typeof mockRepo>;
   let progressRepo: ReturnType<typeof mockRepo>;
   let certRepo: ReturnType<typeof mockRepo>;
+  let userRepo: ReturnType<typeof mockRepo>;
+  let emailService: { send: jest.Mock };
 
   beforeEach(async () => {
+    emailService = { send: jest.fn().mockResolvedValue(undefined) };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CoursesService,
@@ -67,6 +73,8 @@ describe('CoursesService', () => {
         { provide: getRepositoryToken(EnrollmentEntity), useFactory: mockRepo },
         { provide: getRepositoryToken(LessonProgressEntity), useFactory: mockRepo },
         { provide: getRepositoryToken(CertificateEntity), useFactory: mockRepo },
+        { provide: getRepositoryToken(UserEntity), useFactory: mockRepo },
+        { provide: EmailService, useValue: emailService },
       ],
     }).compile();
 
@@ -76,6 +84,7 @@ describe('CoursesService', () => {
     enrollRepo = module.get(getRepositoryToken(EnrollmentEntity));
     progressRepo = module.get(getRepositoryToken(LessonProgressEntity));
     certRepo = module.get(getRepositoryToken(CertificateEntity));
+    userRepo = module.get(getRepositoryToken(UserEntity));
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -237,8 +246,8 @@ describe('CoursesService', () => {
   // ── enroll ────────────────────────────────────────────────────────────────────
 
   describe('enroll', () => {
-    it('creates enrollment and increments enrollmentCount', async () => {
-      courseRepo.findOne.mockResolvedValue(makeCourse());
+    it('creates enrollment and increments enrollmentCount for free course', async () => {
+      courseRepo.findOne.mockResolvedValue(makeCourse({ price: 0 }));
       enrollRepo.findOne.mockResolvedValue(null);
       const enrollment = makeEnrollment();
       enrollRepo.create.mockReturnValue(enrollment);
@@ -247,6 +256,22 @@ describe('CoursesService', () => {
       const result = await service.enroll('u-2', 'c-1');
       expect(result).toEqual(enrollment);
       expect(courseRepo.increment).toHaveBeenCalledWith({ id: 'c-1' }, 'enrollmentCount', 1);
+    });
+
+    it('throws ForbiddenException when enrolling in a paid course without payment', async () => {
+      courseRepo.findOne.mockResolvedValue(makeCourse({ price: 49.99, instructorId: 'u-1' }));
+      enrollRepo.findOne.mockResolvedValue(null);
+      await expect(service.enroll('u-2', 'c-1')).rejects.toThrow(ForbiddenException);
+    });
+
+    it('allows instructor to enroll in their own paid course', async () => {
+      courseRepo.findOne.mockResolvedValue(makeCourse({ price: 49.99, instructorId: 'u-1' }));
+      enrollRepo.findOne.mockResolvedValue(null);
+      const enrollment = makeEnrollment({ userId: 'u-1' });
+      enrollRepo.create.mockReturnValue(enrollment);
+      enrollRepo.save.mockResolvedValue(enrollment);
+      const result = await service.enroll('u-1', 'c-1');
+      expect(result).toEqual(enrollment);
     });
 
     it('throws ConflictException when already enrolled', async () => {
@@ -258,6 +283,39 @@ describe('CoursesService', () => {
     it('throws NotFoundException when course not published', async () => {
       courseRepo.findOne.mockResolvedValue(null);
       await expect(service.enroll('u-2', 'c-1')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // ── getAllProgress ─────────────────────────────────────────────────────────────
+
+  describe('getAllProgress', () => {
+    it('returns empty array when not enrolled in any course', async () => {
+      enrollRepo.find.mockResolvedValue([]);
+      progressRepo.find.mockResolvedValue([]);
+      const result = await service.getAllProgress('u-2');
+      expect(result).toEqual([]);
+    });
+
+    it('computes percentage per enrolled course', async () => {
+      enrollRepo.find.mockResolvedValue([makeEnrollment({ courseId: 'c-1' })]);
+      progressRepo.find.mockResolvedValue([{ courseId: 'c-1', lessonId: 'l-1' }]);
+      courseRepo.find.mockResolvedValue([makeCourse({ id: 'c-1', lessonCount: 2 })]);
+      const result = await service.getAllProgress('u-2');
+      expect(result[0]).toEqual({ courseId: 'c-1', percentage: 50 });
+    });
+  });
+
+  // ── createCheckoutSession ─────────────────────────────────────────────────────
+
+  describe('createCheckoutSession', () => {
+    it('throws BadRequestException when Stripe is not configured', async () => {
+      // stripe is null when no STRIPE_SECRET_KEY
+      await expect(service.createCheckoutSession('u-2', 'c-1')).rejects.toThrow(BadRequestException);
+    });
+
+    it('throws NotFoundException when course not found', async () => {
+      courseRepo.findOne.mockResolvedValue(null);
+      await expect(service.createCheckoutSession('u-2', 'c-1')).rejects.toThrow();
     });
   });
 
@@ -287,6 +345,8 @@ describe('CoursesService', () => {
       certRepo.create.mockReturnValue({});
       certRepo.save.mockResolvedValue({});
       enrollRepo.save.mockResolvedValue({});
+      userRepo.findOne.mockResolvedValue({ id: 'u-2', email: 'u@test.com' });
+      courseRepo.findOne.mockResolvedValue(makeCourse());
 
       const result = await service.completeLesson('u-2', 'c-1', 'l-1');
       expect((result as any).progress.percentage).toBe(100);

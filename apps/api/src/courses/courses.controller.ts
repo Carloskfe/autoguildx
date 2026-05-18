@@ -10,9 +10,14 @@ import {
   UseGuards,
   DefaultValuePipe,
   ParseIntPipe,
+  HttpCode,
+  Req,
+  Headers,
 } from '@nestjs/common';
+import type { RawBodyRequest } from '@nestjs/common';
+import type { Request } from 'express';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
-import { CoursesService } from './courses.service';
+import { CoursesService, CourseSort } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -33,10 +38,21 @@ export class CoursesController {
     @CurrentUser() user,
     @Query('search') search?: string,
     @Query('tag') tag?: string,
+    @Query('sort') sort?: CourseSort,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit?: number,
   ) {
-    return this.svc.findAll({ search, tag, page, limit });
+    return this.svc.findAll({ search, tag, sort, page, limit });
+  }
+
+  @Post('webhook')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Stripe webhook for course payments (called by Stripe)' })
+  handleWebhook(
+    @Req() req: RawBodyRequest<Request>,
+    @Headers('stripe-signature') sig: string,
+  ) {
+    return this.svc.handleCourseWebhook(req.rawBody!, sig);
   }
 
   @Post()
@@ -69,6 +85,14 @@ export class CoursesController {
   @ApiOperation({ summary: 'My course enrollments' })
   getMyEnrollments(@CurrentUser() user) {
     return this.svc.getMyEnrollments(user.id);
+  }
+
+  @Get('my-progress')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Progress percentage for all enrolled courses' })
+  getAllProgress(@CurrentUser() user) {
+    return this.svc.getAllProgress(user.id);
   }
 
   @Get(':id')
@@ -138,9 +162,17 @@ export class CoursesController {
   @Post(':id/enroll')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Enroll in a course' })
+  @ApiOperation({ summary: 'Enroll in a free course' })
   enroll(@Param('id') id: string, @CurrentUser() user) {
     return this.svc.enroll(user.id, id);
+  }
+
+  @Post(':id/checkout')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create Stripe Checkout session for a paid course' })
+  createCheckout(@Param('id') id: string, @CurrentUser() user) {
+    return this.svc.createCheckoutSession(user.id, id);
   }
 
   @Get(':id/progress')

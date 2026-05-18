@@ -3,10 +3,13 @@ import {
   NotFoundException,
   ForbiddenException,
   ConflictException,
+  BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ILike } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { randomUUID } from 'crypto';
+import Stripe from 'stripe';
 import { CourseEntity } from './entities/course.entity';
 import { LessonEntity } from './entities/lesson.entity';
 import { EnrollmentEntity } from './entities/enrollment.entity';
@@ -14,16 +17,31 @@ import { LessonProgressEntity } from './entities/lesson-progress.entity';
 import { CertificateEntity } from './entities/certificate.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CreateLessonDto } from './dto/create-lesson.dto';
+import { EmailService } from '../email/email.service';
+import { UserEntity } from '../auth/entities/user.entity';
+import { templates } from '../email/email.templates';
+
+export type CourseSort = 'newest' | 'popular' | 'rating';
 
 @Injectable()
 export class CoursesService {
+  private readonly stripe: InstanceType<typeof Stripe> | null;
+  private readonly logger = new Logger(CoursesService.name);
+
   constructor(
     @InjectRepository(CourseEntity) private courseRepo: Repository<CourseEntity>,
     @InjectRepository(LessonEntity) private lessonRepo: Repository<LessonEntity>,
     @InjectRepository(EnrollmentEntity) private enrollRepo: Repository<EnrollmentEntity>,
     @InjectRepository(LessonProgressEntity) private progressRepo: Repository<LessonProgressEntity>,
     @InjectRepository(CertificateEntity) private certRepo: Repository<CertificateEntity>,
-  ) {}
+    @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>,
+    private readonly emailService: EmailService,
+  ) {
+    this.stripe = process.env.STRIPE_SECRET_KEY
+      ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2026-04-22.dahlia' as any })
+      : null;
+    if (!this.stripe) this.logger.warn('STRIPE_SECRET_KEY not set — course checkout disabled');
+  }
 
   // ── Course CRUD ──────────────────────────────────────────────────────────────
 
@@ -35,6 +53,7 @@ export class CoursesService {
       title: dto.title,
       description: dto.description,
       thumbnailUrl: dto.thumbnailUrl,
+      previewVideoUrl: dto.previewVideoUrl,
       price: dto.price ?? 0,
       tags: dto.tags ?? [],
       level: dto.level ?? 'All Levels',
@@ -45,12 +64,16 @@ export class CoursesService {
     return this.courseRepo.save(course);
   }
 
-  async findAll(opts: { tag?: string; search?: string; page?: number; limit?: number }) {
+  async findAll(opts: {
+    tag?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+    sort?: CourseSort;
+  }) {
     const page = Number.isFinite(opts.page) ? opts.page! : 1;
     const limit = Number.isFinite(opts.limit) ? opts.limit! : 20;
-
-    const where: any = { published: true };
-    if (opts.search) where.title = ILike(`%${opts.search}%`);
+    const sort: CourseSort = opts.sort ?? 'newest';
 
     let qb = this.courseRepo
       .createQueryBuilder('c')
@@ -61,10 +84,20 @@ export class CoursesService {
     if (opts.search) qb = qb.andWhere('c.title ILIKE :s', { s: `%${opts.search}%` });
     if (opts.tag) qb = qb.andWhere('c.tags ILIKE :t', { t: `%${opts.tag}%` });
 
-    qb = qb
-      .orderBy('c.createdAt', 'DESC')
-      .skip((page - 1) * limit)
-      .take(limit);
+    if (sort === 'rating') {
+      qb = qb
+        .orderBy(
+          `(SELECT COALESCE(AVG(CAST(r.rating AS FLOAT)), 0) FROM reviews r WHERE r."targetId" = c.id AND r."targetType" = 'course')`,
+          'DESC',
+        )
+        .addOrderBy('c.enrollmentCount', 'DESC');
+    } else if (sort === 'popular') {
+      qb = qb.orderBy('c.enrollmentCount', 'DESC').addOrderBy('c.createdAt', 'DESC');
+    } else {
+      qb = qb.orderBy('c.createdAt', 'DESC');
+    }
+
+    qb = qb.skip((page - 1) * limit).take(limit);
 
     const [courses, total] = await qb.getManyAndCount();
     return { courses, total, page, limit };
@@ -171,6 +204,10 @@ export class CoursesService {
     const course = await this.courseRepo.findOne({ where: { id: courseId, published: true } });
     if (!course) throw new NotFoundException('Course not found');
 
+    if (Number(course.price) > 0 && course.instructorId !== userId) {
+      throw new ForbiddenException('Payment required to enroll in this course');
+    }
+
     const existing = await this.enrollRepo.findOne({ where: { userId, courseId } });
     if (existing) throw new ConflictException('Already enrolled');
 
@@ -179,11 +216,104 @@ export class CoursesService {
     return enrollment;
   }
 
+  async enrollAfterPayment(userId: string, courseId: string): Promise<void> {
+    const existing = await this.enrollRepo.findOne({ where: { userId, courseId } });
+    if (!existing) {
+      await this.enrollRepo.save(this.enrollRepo.create({ userId, courseId }));
+      await this.courseRepo.increment({ id: courseId }, 'enrollmentCount', 1);
+      this.logger.log(`Enrolled user ${userId} in course ${courseId} via Stripe payment`);
+    }
+  }
+
   async getMyEnrollments(userId: string) {
     return this.enrollRepo.find({
       where: { userId },
       order: { enrolledAt: 'DESC' },
     });
+  }
+
+  async getAllProgress(userId: string): Promise<{ courseId: string; percentage: number }[]> {
+    const [enrollments, progresses] = await Promise.all([
+      this.enrollRepo.find({ where: { userId } }),
+      this.progressRepo.find({ where: { userId } }),
+    ]);
+
+    if (!enrollments.length) return [];
+
+    const courseIds = enrollments.map((e) => e.courseId);
+    const courses = await this.courseRepo.find({ where: { id: In(courseIds) } });
+
+    return enrollments.map((e) => {
+      const course = courses.find((c) => c.id === e.courseId);
+      const completed = progresses.filter((p) => p.courseId === e.courseId).length;
+      const total = course?.lessonCount ?? 0;
+      const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+      return { courseId: e.courseId, percentage };
+    });
+  }
+
+  // ── Stripe checkout ───────────────────────────────────────────────────────────
+
+  async createCheckoutSession(userId: string, courseId: string) {
+    if (!this.stripe) throw new BadRequestException('Stripe is not configured');
+
+    const course = await this.courseRepo.findOne({ where: { id: courseId, published: true } });
+    if (!course) throw new NotFoundException('Course not found');
+    if (Number(course.price) === 0)
+      throw new BadRequestException('This course is free — use direct enroll');
+
+    const existing = await this.enrollRepo.findOne({ where: { userId, courseId } });
+    if (existing) throw new ConflictException('Already enrolled');
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const session = await this.stripe.checkout.sessions.create({
+      mode: 'payment',
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: course.title,
+              ...(course.thumbnailUrl ? { images: [course.thumbnailUrl] } : {}),
+            },
+            unit_amount: Math.round(Number(course.price) * 100),
+          },
+          quantity: 1,
+        },
+      ],
+      success_url: `${frontendUrl}/courses/${courseId}?payment=success`,
+      cancel_url: `${frontendUrl}/courses/${courseId}`,
+      metadata: { type: 'course_enrollment', userId, courseId },
+    });
+
+    return { url: session.url };
+  }
+
+  async handleCourseWebhook(rawBody: Buffer, sig: string) {
+    if (!this.stripe) return { received: true };
+
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    if (!webhookSecret) {
+      this.logger.warn('STRIPE_WEBHOOK_SECRET not set — skipping webhook verification');
+      return { received: true };
+    }
+
+    let event: any;
+    try {
+      event = this.stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
+    } catch {
+      throw new BadRequestException('Invalid Stripe webhook signature');
+    }
+
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object as any;
+      const { type, userId, courseId } = session.metadata ?? {};
+      if (type === 'course_enrollment' && userId && courseId) {
+        await this.enrollAfterPayment(userId, courseId);
+      }
+    }
+
+    return { received: true };
   }
 
   // ── Progress ─────────────────────────────────────────────────────────────────
@@ -268,6 +398,18 @@ export class CoursesService {
       await this.certRepo.save(this.certRepo.create({ userId, courseId, certificateNumber }));
       enrollment.completedAt = new Date();
       await this.enrollRepo.save(enrollment);
+
+      // Send completion email
+      const [user, course] = await Promise.all([
+        this.userRepo.findOne({ where: { id: userId } }),
+        this.courseRepo.findOne({ where: { id: courseId } }),
+      ]);
+      if (user && course) {
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        const certUrl = `${frontendUrl}/courses/${courseId}/certificate`;
+        const tpl = templates.courseCompleted(course.title, certUrl);
+        this.emailService.send({ to: user.email, ...tpl }).catch(() => {});
+      }
     }
 
     return { progress, certificateIssued: !existing };

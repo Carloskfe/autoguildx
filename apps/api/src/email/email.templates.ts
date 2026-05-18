@@ -120,6 +120,22 @@ export const templates = {
     `),
   }),
 
+  courseCompleted: (courseTitle: string, certificateUrl: string) => ({
+    subject: `You completed "${courseTitle}" 🎉`,
+    html: base(`
+      <h1 style="font-size:22px;font-weight:800;margin:0 0 12px">Course complete!</h1>
+      <p style="font-size:15px;line-height:1.6;margin:0 0 20px;color:#ccc">
+        Congratulations — you've completed <strong style="color:#e8610a">${courseTitle}</strong>.
+        Your certificate has been issued and is now live on your profile.
+      </p>
+      <a href="${certificateUrl}"
+         style="display:inline-block;background:#e8610a;color:#fff;text-decoration:none;
+                font-weight:700;padding:12px 24px;border-radius:8px;font-size:14px">
+        View certificate
+      </a>
+    `),
+  }),
+
   passwordReset: (resetUrl: string) => ({
     subject: 'Reset your AutoGuildX password',
     html: base(`

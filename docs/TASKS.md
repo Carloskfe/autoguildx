@@ -166,7 +166,7 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ---
 
-## Sprint 24b — Courses Udemy Parity (planned)
+## Sprint 24b — Courses Udemy Parity ✅ COMPLETE
 
 **Goal:** Close the gap between AutoGuildX courses and a Udemy-like experience. No AI features in this stage.
 
