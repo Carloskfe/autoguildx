@@ -8,6 +8,7 @@ import { MapPin, Heart, UserPlus, UserMinus, Loader2, MessageSquare, Link2 } fro
 import AppShell from '@/components/layout/AppShell';
 import ReviewSection from '@/components/ReviewSection';
 import VerifiedBadge from '@/components/VerifiedBadge';
+import ProfileSections from '@/components/ProfileSections';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
 import type { Profile, Post } from '@autoguildx/shared';
@@ -274,6 +275,11 @@ export default function PublicProfilePage() {
             </div>
           </div>
         </div>
+
+        {/* Profile sections */}
+        {profile && (
+          <ProfileSections profileId={profile.id} isOwner={isOwnProfile} />
+        )}
 
         {/* Posts */}
         <div className="space-y-3">

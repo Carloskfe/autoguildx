@@ -6,17 +6,23 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          50:  '#fff7ed',
-          100: '#ffedd5',
-          500: '#f97316',
-          600: '#ea580c',
-          700: '#c2410c',
+          50:  '#fff3e0',
+          100: '#ffe0b2',
+          500: '#e8610a',
+          600: '#d4550f',
+          700: '#b84a0d',
           900: '#7c2d12',
         },
         surface: {
           DEFAULT: '#0f0f0f',
-          card:    '#1a1a1a',
-          border:  '#2a2a2a',
+          card:    '#161616',
+          border:  '#242424',
+          800:     '#1a1a1a',
+        },
+        silver: {
+          400: '#9ca3af',
+          500: '#b8c4cc',
+          600: '#8a9ba8',
         },
       },
       fontFamily: {

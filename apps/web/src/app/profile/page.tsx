@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import VerifiedBadge from '@/components/VerifiedBadge';
+import ProfileSections from '@/components/ProfileSections';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
 import { uploadFile } from '@/lib/upload';
@@ -665,6 +666,10 @@ export default function ProfilePage() {
         <EmailNotificationsSection />
 
         <CertificatesSection />
+
+        {profile && (
+          <ProfileSections profileId={profile.id} isOwner={true} />
+        )}
 
         <div className="space-y-3">
           <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide px-1">

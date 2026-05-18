@@ -164,6 +164,36 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
   - Layout: icon + text left, button right on desktop; stacked on mobile
   - Visual: `border border-brand-500/30 bg-brand-500/5` to distinguish from the plain cards above
 
+---
+
+## Sprint 24b — Courses Udemy Parity (planned)
+
+**Goal:** Close the gap between AutoGuildX courses and a Udemy-like experience. No AI features in this stage.
+
+### Backend
+- [ ] Wire `ReviewsModule` to accept `targetType: 'course'` — reuse existing review entity; add `courseId` nullable FK; update `ReviewsService.getSummary()` to handle course targets
+- [ ] Add `previewVideoUrl` field to `CourseEntity` + migration
+- [ ] Add `sort` query param to `GET /courses` — `popular` (enrollmentCount DESC) · `rating` (avg rating DESC) · `newest` (default, createdAt DESC)
+- [ ] Paid course checkout — `POST /courses/:id/checkout` → Stripe Checkout Session (one-time); `checkout.session.completed` webhook → call `CoursesService.enroll()`; guard `enroll()` to reject paid courses without payment
+- [ ] `CoursesService.enroll()` payment guard — `ForbiddenException('Payment required')` unless `price === 0` or instructor or webhook path
+- [ ] Completion email — send congrats email via `EmailModule` when `checkAndIssueCertificate` issues a certificate
+- [ ] Unit tests for all modified/new service methods
+
+### Frontend
+- [ ] Star rating display on course cards (`/courses` page) — fetch avg rating per course or bundle with list response
+- [ ] Star rating + review count in course detail hero (below title, above meta row)
+- [ ] `ReviewSection` component on course detail page (below instructor section) — same component used on listing/profile pages, `targetType='course'`
+- [ ] Course preview video player in sticky sidebar — if `previewVideoUrl` is set, show a play button over thumbnail; clicking opens inline `<video>` or YouTube embed
+- [ ] Add `previewVideoUrl` field to course create/edit forms
+- [ ] Sort dropdown on `/courses` catalog — "Newest · Most Popular · Top Rated"
+- [ ] Progress bar on course cards for enrolled users — show `X% complete` below the card footer when the current user is enrolled
+
+### Ops
+- [ ] Register `POST /courses/webhook` in Stripe dashboard (or reuse `/subscriptions/webhook` with type discrimination)
+- [ ] Set `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` in `.env.production`
+
+---
+
 - [ ] **Paid course checkout** — Gate enrollment on payment for courses with `price > 0`. Currently any user can enroll in a paid course for free.
   - **Backend:** `POST /courses/:id/checkout` → create a Stripe Checkout Session (one-time payment, not subscription); on success webhook (`checkout.session.completed`) verify `metadata.courseId` + `metadata.userId` and call `CoursesService.enroll()`. Reuse the existing `SubscriptionsModule` Stripe instance or create a dedicated helper.
   - **Backend:** `CoursesService.enroll()` must reject paid courses without a completed payment — add a `paidOnly` guard that throws `ForbiddenException('Payment required')` unless the caller is the instructor or the webhook path.

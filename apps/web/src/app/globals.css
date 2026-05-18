@@ -6,6 +6,11 @@
   * { box-sizing: border-box; }
   body { background-color: #0f0f0f; color: #ffffff; }
   :root { color-scheme: dark; }
+
+  h1, h2, h3, h4 {
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
 }
 
 @layer utilities {
@@ -20,15 +25,21 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-brand-500 hover:bg-brand-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-brand-500 hover:bg-brand-600 text-white font-semibold px-4 py-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md;
   }
   .btn-secondary {
-    @apply bg-surface-card hover:bg-surface-border text-white font-semibold px-4 py-2 rounded-lg transition-colors border border-surface-border;
+    @apply bg-surface-card hover:bg-surface-800 text-white font-semibold px-4 py-2 rounded-lg transition-colors border border-surface-border hover:border-silver-600/40;
   }
   .card {
-    @apply bg-surface-card border border-surface-border rounded-xl p-4;
+    @apply bg-surface-card border border-surface-border rounded-xl p-4 transition-colors;
+  }
+  .card-interactive {
+    @apply card hover:border-silver-600/30 cursor-pointer;
   }
   .input {
     @apply w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-base text-white placeholder-gray-500 focus:outline-none focus:border-brand-500 transition-colors;
+  }
+  .section-chip {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-surface-800 border border-surface-border text-gray-300;
   }
 }

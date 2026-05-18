@@ -18,6 +18,7 @@ import {
   GraduationCap,
   Settings,
   MapIcon,
+  Wrench,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { clsx } from 'clsx';
@@ -94,8 +95,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen flex flex-col">
       {/* Top bar */}
       <header className="sticky top-0 z-40 bg-surface/95 backdrop-blur border-b border-surface-border px-4 py-3 flex items-center justify-between">
-        <Link href="/feed" className="text-brand-500 font-black text-lg tracking-tight">
-          AutoGuildX
+        <Link href="/feed" className="flex items-center gap-2 group">
+          <div className="w-7 h-7 rounded-md bg-brand-500 flex items-center justify-center shrink-0 group-hover:bg-brand-600 transition-colors">
+            <Wrench className="w-4 h-4 text-white" />
+          </div>
+          <span className="font-black text-lg tracking-tight text-white">AutoGuildX</span>
         </Link>
         <div className="flex items-center gap-2">
           {isAuthenticated && (
@@ -150,8 +154,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               className={clsx(
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
                 pathname.startsWith(href)
-                  ? 'bg-surface-border text-white'
-                  : 'text-gray-400 hover:text-white hover:bg-surface-card',
+                  ? 'bg-brand-500/10 text-white border-l-2 border-brand-500 pl-[10px]'
+                  : 'text-gray-400 hover:text-white hover:bg-surface-card border-l-2 border-transparent',
               )}
             >
               <span className="relative">
