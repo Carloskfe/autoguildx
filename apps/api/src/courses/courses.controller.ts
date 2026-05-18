@@ -48,10 +48,7 @@ export class CoursesController {
   @Post('webhook')
   @HttpCode(200)
   @ApiOperation({ summary: 'Stripe webhook for course payments (called by Stripe)' })
-  handleWebhook(
-    @Req() req: RawBodyRequest<Request>,
-    @Headers('stripe-signature') sig: string,
-  ) {
+  handleWebhook(@Req() req: RawBodyRequest<Request>, @Headers('stripe-signature') sig: string) {
     return this.svc.handleCourseWebhook(req.rawBody!, sig);
   }
 

@@ -31,7 +31,7 @@ export class ProfileSectionsController {
   @Post('sections')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Add a section to the current user\'s profile' })
+  @ApiOperation({ summary: "Add a section to the current user's profile" })
   create(@CurrentUser() user, @Body() dto: CreateProfileSectionDto) {
     return this.service.create(user.id, dto);
   }

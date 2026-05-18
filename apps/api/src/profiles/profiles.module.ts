@@ -9,10 +9,7 @@ import { ProfileSectionEntity } from './entities/profile-section.entity';
 import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([ProfileEntity, ProfileSectionEntity]),
-    NotificationsModule,
-  ],
+  imports: [TypeOrmModule.forFeature([ProfileEntity, ProfileSectionEntity]), NotificationsModule],
   providers: [ProfilesService, ProfileSectionsService],
   controllers: [ProfilesController, ProfileSectionsController],
   exports: [ProfilesService, ProfileSectionsService],
