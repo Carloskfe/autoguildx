@@ -90,8 +90,8 @@ export default function TeamPage() {
         </h1>
         <p className="text-gray-400 text-lg max-w-xl leading-relaxed">
           AutoGuildX is the community and marketplace for everyone passionate about cars,
-          motorcycles, and all things mechanical — a home that matches your passion, whatever
-          your level.
+          motorcycles, and all things mechanical — a home that matches your passion, whatever your
+          level.
         </p>
         <div className="flex flex-wrap gap-3 justify-center pt-2">
           <Link href="/signup" className="btn-primary text-base px-7 py-3">
@@ -113,9 +113,9 @@ export default function TeamPage() {
         </h2>
         <p className="text-gray-400 leading-relaxed">
           Cars and motos deserve better than generic social networks and anonymous classifieds.
-          AutoGuildX is built for everyone who lives and breathes this world — whether you fix
-          them, build them, collect them, or just love them. A place where reputation is earned,
-          skills are certified, and every connection is backed by identity and reviews.
+          AutoGuildX is built for everyone who lives and breathes this world — whether you fix them,
+          build them, collect them, or just love them. A place where reputation is earned, skills
+          are certified, and every connection is backed by identity and reviews.
         </p>
       </section>
 
