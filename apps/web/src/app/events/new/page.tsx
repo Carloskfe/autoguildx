@@ -105,7 +105,9 @@ export default function NewEventPage() {
             </label>
             <input
               className="input w-full text-sm"
-              placeholder={isOpportunity ? 'e.g. Senior Technician — Austin TX' : 'e.g. Cars & Coffee — Austin'}
+              placeholder={
+                isOpportunity ? 'e.g. Senior Technician — Austin TX' : 'e.g. Cars & Coffee — Austin'
+              }
               value={form.title}
               onChange={set('title')}
               maxLength={150}
@@ -116,13 +118,16 @@ export default function NewEventPage() {
           {/* Description */}
           <div>
             <label className="text-sm font-medium text-gray-300 mb-1 block">
-              {isOpportunity ? 'Role Description' : 'Description'} <span className="text-red-400">*</span>
+              {isOpportunity ? 'Role Description' : 'Description'}{' '}
+              <span className="text-red-400">*</span>
             </label>
             <textarea
               className="input w-full text-sm resize-none h-28"
-              placeholder={isOpportunity
-                ? 'Describe the role, requirements, compensation, and how to apply…'
-                : 'What\'s happening, who should come, what to expect…'}
+              placeholder={
+                isOpportunity
+                  ? 'Describe the role, requirements, compensation, and how to apply…'
+                  : "What's happening, who should come, what to expect…"
+              }
               value={form.description}
               onChange={set('description')}
               maxLength={3000}
@@ -134,11 +139,14 @@ export default function NewEventPage() {
           {/* Location */}
           <div>
             <label className="text-sm font-medium text-gray-300 mb-1 block">
-              {isOpportunity ? 'Location or Remote' : 'Location'} <span className="text-red-400">*</span>
+              {isOpportunity ? 'Location or Remote' : 'Location'}{' '}
+              <span className="text-red-400">*</span>
             </label>
             <input
               className="input w-full text-sm"
-              placeholder={isOpportunity ? 'e.g. Austin TX, Remote, or Hybrid' : 'Venue name or address'}
+              placeholder={
+                isOpportunity ? 'e.g. Austin TX, Remote, or Hybrid' : 'Venue name or address'
+              }
               value={form.location}
               onChange={set('location')}
               maxLength={200}

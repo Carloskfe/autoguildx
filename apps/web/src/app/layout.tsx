@@ -1,9 +1,13 @@
 import type { Metadata } from 'next';
-import { DM_Sans } from 'next/font/google';
+import { Barlow } from 'next/font/google';
 import './globals.css';
 import Providers from './providers';
 
-const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-inter' });
+const barlow = Barlow({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800', '900'],
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://autoguildx.com'),
@@ -29,7 +33,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${dmSans.variable} bg-surface text-white antialiased`}>
+      <body className={`${barlow.variable} bg-surface text-white antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>

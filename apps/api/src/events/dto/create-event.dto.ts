@@ -4,7 +4,10 @@ import { ApiProperty } from '@nestjs/swagger';
 export class CreateEventDto {
   @ApiProperty() @IsString() @MaxLength(150) title: string;
   @ApiProperty() @IsString() @MaxLength(3000) description: string;
-  @ApiProperty({ enum: ['meetup', 'workshop', 'show', 'race', 'opportunity', 'other'], default: 'other' })
+  @ApiProperty({
+    enum: ['meetup', 'workshop', 'show', 'race', 'opportunity', 'other'],
+    default: 'other',
+  })
   @IsOptional()
   @IsIn(['meetup', 'workshop', 'show', 'race', 'opportunity', 'other'])
   type?: string;
