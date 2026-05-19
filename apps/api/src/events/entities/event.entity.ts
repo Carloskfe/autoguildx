@@ -32,7 +32,7 @@ export class EventEntity {
   @Column()
   location: string;
 
-  @Column()
+  @Column({ nullable: true })
   startDate: Date;
 
   @Column({ nullable: true })

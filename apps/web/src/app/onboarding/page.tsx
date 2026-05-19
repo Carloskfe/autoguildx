@@ -8,40 +8,42 @@ const ROLE_CARDS = [
   {
     value: 'mechanic',
     emoji: '🔧',
-    label: 'Mechanic / Shop',
-    description: 'Restoration specialists, performance tuners, niche experts',
+    label: 'Technician / Shop',
+    description: 'Shop owners, technicians, restorers, and performance tuners',
   },
   {
     value: 'manufacturer',
     emoji: '🏭',
-    label: 'Manufacturer',
-    description: 'Small-scale parts producers, custom fabrication shops',
+    label: 'Maker / Fabricator',
+    description: 'Parts makers, custom fabricators, and small-scale producers',
   },
   {
     value: 'collector',
     emoji: '🏎️',
-    label: 'Collector',
-    description: 'Owners of rare, classic, or performance vehicles',
+    label: 'Collector / Owner',
+    description: 'Owners of classic, custom, or performance vehicles — two wheels or four',
   },
   {
     value: 'enthusiast',
     emoji: '🛠️',
-    label: 'Enthusiast',
-    description: 'DIY builders and general automotive fans',
+    label: 'Enthusiast / DIYer',
+    description: 'Weekend builders, curious learners, and everyone who loves cars and motos',
   },
 ] as const;
 
 const TAGS = [
   'Classic Cars',
+  'Motorcycles',
   'Performance',
   'Off-Road',
-  'Motorcycles',
   'Restoration',
   'Fabrication',
+  'Trucks',
   'Drag Racing',
   'Import',
   'Diesel',
   'Electric/EV',
+  'Lowriders',
 ];
 
 export default function OnboardingPage() {

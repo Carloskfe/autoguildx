@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { MapPin, Users, Loader2 } from 'lucide-react';
+import { MapPin, Users, Loader2, Briefcase } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import api from '@/lib/api';
 import type { Event } from '@autoguildx/shared';
@@ -15,13 +15,24 @@ const TYPE_STYLES: Record<string, string> = {
   workshop: 'border-green-700 text-green-400',
   show: 'border-amber-700 text-amber-400',
   race: 'border-red-700 text-red-400',
+  opportunity: 'border-brand-500/60 text-brand-400',
   other: 'border-surface-border text-gray-400',
+};
+
+const TYPE_LABELS: Record<string, string> = {
+  meetup: 'Meetup',
+  workshop: 'Workshop',
+  show: 'Show',
+  race: 'Race',
+  opportunity: 'Opportunity',
+  other: 'Other',
 };
 
 // ─── Event card ───────────────────────────────────────────────────────────────
 
 function EventCard({ event }: { event: Event }) {
-  const start = new Date(event.startDate);
+  const isOpportunity = event.type === 'opportunity';
+  const start = event.startDate ? new Date(event.startDate) : null;
 
   return (
     <Link
@@ -29,11 +40,19 @@ function EventCard({ event }: { event: Event }) {
       className="card block hover:border-brand-500 transition-colors group"
     >
       <div className="flex items-start gap-4">
-        {/* Date block */}
+        {/* Date block or briefcase for opportunities */}
         <div className="shrink-0 w-12 text-center">
-          <p className="text-xs text-gray-500 uppercase leading-none">{format(start, 'MMM')}</p>
-          <p className="text-2xl font-black text-white leading-tight">{format(start, 'd')}</p>
-          <p className="text-xs text-gray-500">{format(start, 'EEE')}</p>
+          {isOpportunity ? (
+            <div className="w-12 h-12 rounded-lg bg-brand-500/10 flex items-center justify-center">
+              <Briefcase className="w-5 h-5 text-brand-400" />
+            </div>
+          ) : start ? (
+            <>
+              <p className="text-xs text-gray-500 uppercase leading-none">{format(start, 'MMM')}</p>
+              <p className="text-2xl font-black text-white leading-tight">{format(start, 'd')}</p>
+              <p className="text-xs text-gray-500">{format(start, 'EEE')}</p>
+            </>
+          ) : null}
         </div>
 
         <div className="flex-1 min-w-0">
@@ -42,9 +61,9 @@ function EventCard({ event }: { event: Event }) {
               {event.title}
             </h3>
             <span
-              className={`shrink-0 text-xs px-2 py-0.5 rounded-full border capitalize ${TYPE_STYLES[event.type] ?? TYPE_STYLES.other}`}
+              className={`shrink-0 text-xs px-2 py-0.5 rounded-full border ${TYPE_STYLES[event.type] ?? TYPE_STYLES.other}`}
             >
-              {event.type}
+              {TYPE_LABELS[event.type] ?? event.type}
             </span>
           </div>
 
@@ -52,9 +71,11 @@ function EventCard({ event }: { event: Event }) {
             <span className="flex items-center gap-1">
               <MapPin className="w-3 h-3" /> {event.location}
             </span>
-            <span className="flex items-center gap-1">
-              <Users className="w-3 h-3" /> {event.rsvpCount} going
-            </span>
+            {!isOpportunity && (
+              <span className="flex items-center gap-1">
+                <Users className="w-3 h-3" /> {event.rsvpCount} going
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -81,9 +102,9 @@ export default function EventsPage() {
     <AppShell>
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
         <div className="flex items-center justify-between">
-          <h1 className="font-bold text-lg">Events</h1>
+          <h1 className="font-bold text-lg">Events & Opportunities</h1>
           <Link href="/events/new" className="btn-primary text-sm px-4 py-2">
-            + Create Event
+            + Post
           </Link>
         </div>
 

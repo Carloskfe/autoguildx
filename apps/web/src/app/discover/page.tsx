@@ -308,7 +308,7 @@ export default function DiscoverPage() {
         {/* States */}
         {!searched && (
           <p className="text-center text-sm text-gray-500 py-16">
-            Search for mechanics, listings, events, and more.
+            Search for people, parts, listings, events, and more.
           </p>
         )}
 

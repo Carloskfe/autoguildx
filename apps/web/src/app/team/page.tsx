@@ -31,7 +31,7 @@ const VALUES = [
   {
     icon: Wrench,
     title: 'Built by Enthusiasts',
-    body: 'We are automotive people first. Every feature is designed around how real mechanics, manufacturers, and collectors actually work.',
+    body: 'We are car and moto people first. Every feature is designed around how the community actually works — from weekend DIYers to full-time shop owners.',
   },
   {
     icon: ShieldCheck,
@@ -89,9 +89,9 @@ export default function TeamPage() {
           <span className="text-brand-500">For the Guild.</span>
         </h1>
         <p className="text-gray-400 text-lg max-w-xl leading-relaxed">
-          AutoGuildX is a professional network and marketplace for automotive experts — built to
-          give mechanics, manufacturers, collectors, and enthusiasts a home that matches their
-          craft.
+          AutoGuildX is the community and marketplace for everyone passionate about cars,
+          motorcycles, and all things mechanical — a home that matches your passion, whatever
+          your level.
         </p>
         <div className="flex flex-wrap gap-3 justify-center pt-2">
           <Link href="/signup" className="btn-primary text-base px-7 py-3">
@@ -112,10 +112,10 @@ export default function TeamPage() {
           Give automotive expertise the platform it deserves.
         </h2>
         <p className="text-gray-400 leading-relaxed">
-          The tools that built the world&apos;s greatest cars deserve better than generic social
-          networks and anonymous classifieds. AutoGuildX is purpose-built for the professionals and
-          enthusiasts who live and breathe automotive — a place where reputation is earned, skills
-          are certified, and every transaction is backed by identity and reviews.
+          Cars and motos deserve better than generic social networks and anonymous classifieds.
+          AutoGuildX is built for everyone who lives and breathes this world — whether you fix
+          them, build them, collect them, or just love them. A place where reputation is earned,
+          skills are certified, and every connection is backed by identity and reviews.
         </p>
       </section>
 

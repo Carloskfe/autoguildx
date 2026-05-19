@@ -20,13 +20,13 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="flex-1 flex flex-col items-center justify-center text-center px-6 py-24 gap-8">
         <h1 className="text-5xl md:text-7xl font-black tracking-tight max-w-4xl leading-none">
-          Built for Those
+          Where Car & Moto
           <br />
-          <span className="text-brand-500">Who Build Cars.</span>
+          <span className="text-brand-500">People Belong.</span>
         </h1>
         <p className="text-gray-400 text-lg md:text-xl max-w-xl">
-          The professional network and marketplace for specialized mechanics, manufacturers, and
-          collectors in the United States.
+          The community and marketplace for everyone passionate about cars, motorcycles, and all
+          things automotive — from weekend DIYers to seasoned pros.
         </p>
         <div className="flex flex-wrap gap-4 justify-center">
           <Link href="/signup" className="btn-primary text-base px-8 py-3">
@@ -49,8 +49,8 @@ export default function LandingPage() {
               </div>
               <h3 className="font-bold text-lg mb-2">Build Your Presence</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Showcase your work, expertise, and builds in a professional profile tailored to the
-                automotive niche.
+                Showcase your builds, skills, and story in a profile built for people who are
+                serious about their machines — whatever role you play.
               </p>
             </div>
             <div className="card">
@@ -59,18 +59,18 @@ export default function LandingPage() {
               </div>
               <h3 className="font-bold text-lg mb-2">Find Trusted Parts</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Browse a curated marketplace of rare parts and specialized services from verified
-                experts.
+                Browse a marketplace of rare parts, tools, and services from people who actually
+                know what they&apos;re selling.
               </p>
             </div>
             <div className="card">
               <div className="w-10 h-10 rounded-lg bg-brand-500/10 flex items-center justify-center mb-4">
                 <CalendarDays className="w-5 h-5 text-brand-500" />
               </div>
-              <h3 className="font-bold text-lg mb-2">Events &amp; Community</h3>
+              <h3 className="font-bold text-lg mb-2">Events &amp; Opportunities</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Discover local and national automotive events, RSVP with your community, and connect
-                with the people who share your passion.
+                Find local meets, shows, and workshops — or post a job opening and connect with
+                talent from inside the community.
               </p>
             </div>
           </div>
@@ -84,7 +84,7 @@ export default function LandingPage() {
               <div>
                 <h3 className="font-bold text-lg mb-1">Develop or Reshape Your Skills</h3>
                 <p className="text-gray-400 text-sm leading-relaxed">
-                  Learn from certified experts or teach what you know. Complete courses and earn
+                  Learn from people who have actually done it, or teach what you know. Earn
                   certificates that live on your profile.
                 </p>
               </div>

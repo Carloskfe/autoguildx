@@ -1,35 +1,35 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { DM_Sans } from 'next/font/google';
 import './globals.css';
 import Providers from './providers';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://autoguildx.com'),
   title: {
-    default: 'AutoGuildX – Built for Those Who Build Cars',
+    default: 'AutoGuildX – Where Car & Moto People Belong',
     template: '%s | AutoGuildX',
   },
   description:
-    'The professional network and marketplace for specialized automotive experts, builders, and collectors.',
+    'The community and marketplace for everyone passionate about cars, motorcycles, and all things automotive.',
   openGraph: {
     title: 'AutoGuildX',
-    description: 'Built for those who build cars.',
+    description: 'Where car & moto people belong.',
     type: 'website',
     siteName: 'AutoGuildX',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'AutoGuildX',
-    description: 'Built for those who build cars.',
+    description: 'Where car & moto people belong.',
   },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.variable} bg-surface text-white antialiased`}>
+      <body className={`${dmSans.variable} bg-surface text-white antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>
