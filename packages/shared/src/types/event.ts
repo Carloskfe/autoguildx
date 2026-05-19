@@ -1,4 +1,4 @@
-export type EventType = 'meetup' | 'workshop' | 'show' | 'race' | 'other';
+export type EventType = 'meetup' | 'workshop' | 'show' | 'race' | 'opportunity' | 'other';
 
 export interface Event {
   id: string;
@@ -7,7 +7,7 @@ export interface Event {
   description: string;
   type: EventType;
   location: string;
-  startDate: string;
+  startDate?: string;
   endDate?: string;
   mediaUrls: string[];
   rsvpCount: number;
