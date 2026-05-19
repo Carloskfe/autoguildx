@@ -119,7 +119,8 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
   - Apple App Store Connect: create app with bundle ID `com.autoguildx.app` (requires Apple Developer account)
   - Add mobile app OAuth redirect URIs to Facebook App settings
 
-- [ ] **Enable Facebook & Apple login (ops only — no code changes needed)** — The frontend (`firebase.ts`, login page, signup page) and backend (`POST /auth/firebase`) are fully implemented for all three social providers. Only external configuration is missing.
+- [x] **Enable Facebook login** — Firebase + Facebook App connected. Valid OAuth Redirect URI configured. Working on production as of 2026-05-19.
+- [ ] **Enable Apple login (ops only — no code changes needed)** — Requires Apple Developer account ($99/year). See setup steps below.
 
   **Facebook — steps:**
   1. Create a Facebook App at [developers.facebook.com](https://developers.facebook.com) → My Apps → Create App → Consumer
