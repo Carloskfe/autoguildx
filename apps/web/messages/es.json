@@ -52,7 +52,7 @@
     "card_presence_title": "Construye tu Presencia",
     "card_presence_body": "Muestra tus proyectos, habilidades e historia en un perfil hecho para quienes se toman en serio sus máquinas — sin importar tu rol.",
     "card_parts_title": "Encuentra Piezas de Confianza",
-    "card_parts_body": "Explora un mercado de refacciones, herramientas y servicios de personas que realmente saben de lo que venden.",
+    "card_parts_body": "Explora un mercado de repuestos, herramientas y servicios de personas que realmente saben de lo que venden.",
     "card_events_title": "Eventos y Oportunidades",
     "card_events_body": "Encuentra encuentros, exhibiciones y talleres — o publica una vacante y conecta con talento de la comunidad.",
     "courses_title": "Desarrolla o Renueva tus Habilidades",
@@ -107,9 +107,9 @@
     "name_label": "Nombre completo",
     "name_placeholder": "Tu nombre",
     "location_label": "Ubicación",
-    "location_placeholder": "Ciudad, Estado",
+    "location_placeholder": "Ciudad, País",
     "bio_label": "Descripción",
-    "bio_placeholder": "Cuéntale a la comunidad de qué vas…",
+    "bio_placeholder": "Cuéntale a la comunidad un poco sobre ti y tu pasión…",
     "business_label": "Nombre del taller / negocio",
     "business_placeholder": "Opcional",
     "next": "Siguiente",
@@ -246,7 +246,7 @@
     "post": "Publicar",
     "notifications": "Notificaciones",
     "plan_free": "Gratis",
-    "plan_owner": "Propietario",
+    "plan_owner": "Dueño",
     "plan_company": "Empresa"
   }
 }

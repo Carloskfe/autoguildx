@@ -50,7 +50,7 @@ const TAGS = [
 
 const LOCALE_OPTIONS: { value: Locale; flag: string; label: string; sublabel: string }[] = [
   { value: 'en', flag: '🇺🇸', label: 'English', sublabel: 'English' },
-  { value: 'es', flag: '🇲🇽', label: 'Español', sublabel: 'Spanish' },
+  { value: 'es', flag: '🌎', label: 'Español (LATAM)', sublabel: 'Latinoamérica' },
 ];
 
 export default function OnboardingPage() {
