@@ -10,19 +10,13 @@ import ReviewSection from '@/components/ReviewSection';
 import VerifiedBadge from '@/components/VerifiedBadge';
 import ProfileSections from '@/components/ProfileSections';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 import type { Profile, Post } from '@autoguildx/shared';
 
 interface PostWithUser extends Post {
   user?: { id: string; email: string };
 }
-
-const ROLE_LABELS: Record<string, string> = {
-  mechanic: 'Mechanic / Shop',
-  manufacturer: 'Manufacturer',
-  collector: 'Collector',
-  enthusiast: 'Enthusiast',
-};
 
 function initials(name?: string) {
   if (!name) return '?';
@@ -39,6 +33,7 @@ export default function PublicProfilePage() {
   const { isAuthenticated, userId } = useAuth();
   const router = useRouter();
   const qc = useQueryClient();
+  const tp = useTranslations('profile');
 
   useEffect(() => {
     if (!isAuthenticated) router.replace('/login');
@@ -232,7 +227,7 @@ export default function PublicProfilePage() {
                   <p className="text-sm text-gray-400 mt-0.5">{profile.businessName}</p>
                 )}
                 <span className="inline-block mt-2 text-xs px-2.5 py-1 rounded-full bg-surface-card border border-surface-border text-gray-300">
-                  {ROLE_LABELS[profile.roleType] ?? profile.roleType}
+                  {tp(`role_${profile.roleType}` as any) ?? profile.roleType}
                 </span>
               </div>
 

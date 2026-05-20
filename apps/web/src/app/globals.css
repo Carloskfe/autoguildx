@@ -25,21 +25,24 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-brand-500 hover:bg-brand-600 text-white font-semibold px-4 py-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md;
+    @apply bg-brand-500 hover:bg-brand-600 text-white font-semibold px-4 py-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md hover:shadow-brand-500/10;
   }
   .btn-secondary {
-    @apply bg-surface-card hover:bg-surface-800 text-white font-semibold px-4 py-2 rounded-lg transition-colors border border-surface-border hover:border-silver-600/40;
+    @apply bg-surface-card hover:bg-surface-800 text-white font-semibold px-4 py-2 rounded-lg transition-all border border-surface-border hover:border-silver-500/40;
   }
   .card {
-    @apply bg-surface-card border border-surface-border rounded-xl p-4 transition-colors;
+    @apply bg-surface-card border border-surface-border rounded-xl p-4 transition-all duration-200;
   }
   .card-interactive {
-    @apply card hover:border-silver-600/30 cursor-pointer;
+    @apply card hover:border-silver-500/30 hover:shadow-lg hover:shadow-black/30 cursor-pointer;
   }
   .input {
     @apply w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-base text-white placeholder-gray-500 focus:outline-none focus:border-brand-500 transition-colors;
   }
   .section-chip {
     @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-surface-800 border border-surface-border text-gray-300;
+  }
+  .display {
+    @apply font-heading font-black tracking-tight;
   }
 }

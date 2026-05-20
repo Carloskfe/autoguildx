@@ -104,12 +104,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Top bar */}
-      <header className="sticky top-0 z-40 bg-surface/95 backdrop-blur border-b border-surface-border px-4 py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-40 bg-surface/95 backdrop-blur border-b border-surface-border shadow-sm shadow-black/40 px-4 py-3 flex items-center justify-between">
         <Link href="/feed" className="flex items-center gap-2 group">
           <div className="w-7 h-7 rounded-md bg-brand-500 flex items-center justify-center shrink-0 group-hover:bg-brand-600 transition-colors">
             <Wrench className="w-4 h-4 text-white" />
           </div>
-          <span className="font-black text-lg tracking-tight text-white">AutoGuildX</span>
+          <span className="font-heading font-black text-lg tracking-tight text-white">AutoGuildX</span>
         </Link>
         <div className="flex items-center gap-2">
           {isAuthenticated && (

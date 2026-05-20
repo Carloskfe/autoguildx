@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Barlow } from 'next/font/google';
+import { Barlow, Barlow_Condensed } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -10,6 +10,12 @@ const barlow = Barlow({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700', '800', '900'],
   variable: '--font-inter',
+});
+
+const barlowCondensed = Barlow_Condensed({
+  subsets: ['latin'],
+  weight: ['700', '800', '900'],
+  variable: '--font-heading',
 });
 
 export const metadata: Metadata = {
@@ -49,7 +55,7 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} className="dark">
-      <body className={`${barlow.variable} bg-surface text-white antialiased`}>
+      <body className={`${barlow.variable} ${barlowCondensed.variable} bg-surface text-white antialiased`}>
         <NextIntlClientProvider messages={messages}>
           <Providers>{children}</Providers>
         </NextIntlClientProvider>

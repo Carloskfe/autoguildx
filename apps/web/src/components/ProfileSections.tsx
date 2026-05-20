@@ -16,6 +16,7 @@ import {
   X,
   Check,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 import type {
   ProfileSection,
@@ -29,41 +30,37 @@ import type {
 
 // ── Section config ────────────────────────────────────────────────────────────
 
-const SECTION_META: Record<
-  ProfileSectionType,
-  { label: string; icon: React.ElementType; color: string }
-> = {
-  expertise: { label: 'Expertise', icon: Wrench, color: 'text-brand-500' },
-  experience: { label: 'Experience', icon: Briefcase, color: 'text-blue-400' },
-  build: { label: 'Specialty Builds', icon: Car, color: 'text-purple-400' },
-  certification: { label: 'Certifications', icon: Award, color: 'text-yellow-400' },
-  equipment: { label: 'Equipment & Tools', icon: Settings, color: 'text-green-400' },
+const SECTION_META: Record<ProfileSectionType, { labelKey: string; icon: React.ElementType; color: string }> = {
+  expertise:    { labelKey: 'expertise',    icon: Wrench,    color: 'text-brand-500' },
+  experience:   { labelKey: 'experience',   icon: Briefcase, color: 'text-blue-400' },
+  build:        { labelKey: 'build',        icon: Car,       color: 'text-purple-400' },
+  certification:{ labelKey: 'certification',icon: Award,     color: 'text-yellow-400' },
+  equipment:    { labelKey: 'equipment',    icon: Settings,  color: 'text-green-400' },
 };
 
 const LEVEL_COLORS = {
-  beginner: 'bg-green-500/10 text-green-400 border-green-500/30',
+  beginner:     'bg-green-500/10 text-green-400 border-green-500/30',
   intermediate: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30',
-  expert: 'bg-brand-500/10 text-brand-400 border-brand-500/30',
+  expert:       'bg-brand-500/10 text-brand-400 border-brand-500/30',
 };
 
 // ── Display renderers ─────────────────────────────────────────────────────────
 
-function ExpertiseItem({ data }: { data: ExpertiseData }) {
+function ExpertiseItem({ data, t }: { data: ExpertiseData; t: ReturnType<typeof useTranslations> }) {
+  const levelKey = `level_${data.level}` as const;
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm text-white">{data.skill}</span>
-      <span
-        className={`text-xs px-2 py-0.5 rounded-full border capitalize ${LEVEL_COLORS[data.level] ?? ''}`}
-      >
-        {data.level}
+      <span className={`text-xs px-2 py-0.5 rounded-full border ${LEVEL_COLORS[data.level] ?? ''}`}>
+        {t(levelKey as any)}
       </span>
     </div>
   );
 }
 
-function ExperienceItem({ data }: { data: ExperienceData }) {
+function ExperienceItem({ data, t }: { data: ExperienceData; t: ReturnType<typeof useTranslations> }) {
   const years = data.current
-    ? `${data.startYear} – Present`
+    ? `${data.startYear} – ${t('present')}`
     : data.endYear
       ? `${data.startYear} – ${data.endYear}`
       : String(data.startYear);
@@ -129,13 +126,13 @@ function EquipmentItem({ data }: { data: EquipmentData }) {
   );
 }
 
-function SectionItem({ section }: { section: ProfileSection }) {
+function SectionItem({ section, t }: { section: ProfileSection; t: ReturnType<typeof useTranslations> }) {
   const d = section.data;
   switch (section.type) {
     case 'expertise':
-      return <ExpertiseItem data={d as unknown as ExpertiseData} />;
+      return <ExpertiseItem data={d as unknown as ExpertiseData} t={t} />;
     case 'experience':
-      return <ExperienceItem data={d as unknown as ExperienceData} />;
+      return <ExperienceItem data={d as unknown as ExperienceData} t={t} />;
     case 'build':
       return <BuildItem data={d as unknown as BuildData} />;
     case 'certification':
@@ -158,6 +155,7 @@ function SectionForm({
   onSave: (data: Record<string, unknown>) => void;
   onCancel: () => void;
 }) {
+  const t = useTranslations('sections');
   const [vals, setVals] = useState<Record<string, unknown>>(initial ?? {});
   const set = (k: string, v: unknown) => setVals((p) => ({ ...p, [k]: v }));
   const str = (k: string) => (vals[k] as string) ?? '';
@@ -167,175 +165,85 @@ function SectionForm({
     <div className="border border-surface-border rounded-lg p-4 space-y-3 bg-surface">
       {type === 'expertise' && (
         <>
-          <input
-            className="input"
-            placeholder="Skill (e.g. Engine Rebuild)"
-            value={str('skill')}
-            onChange={(e) => set('skill', e.target.value)}
-          />
-          <select
-            className="input"
-            value={str('level')}
-            onChange={(e) => set('level', e.target.value)}
-          >
-            <option value="">Level…</option>
-            {['beginner', 'intermediate', 'expert'].map((l) => (
-              <option key={l} value={l} className="capitalize">
-                {l.charAt(0).toUpperCase() + l.slice(1)}
-              </option>
+          <input className="input" placeholder={t('placeholder_skill')}
+            value={str('skill')} onChange={(e) => set('skill', e.target.value)} />
+          <select className="input" value={str('level')} onChange={(e) => set('level', e.target.value)}>
+            <option value="">{t('placeholder_level')}</option>
+            {(['beginner', 'intermediate', 'expert'] as const).map((l) => (
+              <option key={l} value={l}>{t(`level_${l}` as any)}</option>
             ))}
           </select>
         </>
       )}
       {type === 'experience' && (
         <>
-          <input
-            className="input"
-            placeholder="Shop / Company name"
-            value={str('shopName')}
-            onChange={(e) => set('shopName', e.target.value)}
-          />
-          <input
-            className="input"
-            placeholder="Role / Title"
-            value={str('role')}
-            onChange={(e) => set('role', e.target.value)}
-          />
+          <input className="input" placeholder={t('placeholder_shop')}
+            value={str('shopName')} onChange={(e) => set('shopName', e.target.value)} />
+          <input className="input" placeholder={t('placeholder_role')}
+            value={str('role')} onChange={(e) => set('role', e.target.value)} />
           <div className="grid grid-cols-2 gap-2">
-            <input
-              className="input"
-              type="number"
-              placeholder="Start year"
-              value={num('startYear')}
-              onChange={(e) => set('startYear', Number(e.target.value))}
-            />
-            <input
-              className="input"
-              type="number"
-              placeholder="End year"
+            <input className="input" type="number" placeholder={t('placeholder_start_year')}
+              value={num('startYear')} onChange={(e) => set('startYear', Number(e.target.value))} />
+            <input className="input" type="number" placeholder={t('placeholder_end_year')}
               value={num('endYear')}
               onChange={(e) => set('endYear', Number(e.target.value) || undefined)}
-              disabled={!!vals['current']}
-            />
+              disabled={!!vals['current']} />
           </div>
           <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={!!vals['current']}
-              onChange={(e) => set('current', e.target.checked)}
-            />
-            Currently working here
+            <input type="checkbox" checked={!!vals['current']}
+              onChange={(e) => set('current', e.target.checked)} />
+            {t('currently_here')}
           </label>
-          <textarea
-            className="input resize-none"
-            rows={2}
-            placeholder="Description (optional)"
-            value={str('description')}
-            onChange={(e) => set('description', e.target.value)}
-          />
+          <textarea className="input resize-none" rows={2} placeholder={t('placeholder_description')}
+            value={str('description')} onChange={(e) => set('description', e.target.value)} />
         </>
       )}
       {type === 'build' && (
         <>
-          <input
-            className="input"
-            placeholder="Build name / title"
-            value={str('title')}
-            onChange={(e) => set('title', e.target.value)}
-          />
+          <input className="input" placeholder={t('placeholder_build_title')}
+            value={str('title')} onChange={(e) => set('title', e.target.value)} />
           <div className="grid grid-cols-3 gap-2">
-            <input
-              className="input"
-              type="number"
-              placeholder="Year"
-              value={num('year')}
-              onChange={(e) => set('year', Number(e.target.value))}
-            />
-            <input
-              className="input"
-              placeholder="Make"
-              value={str('make')}
-              onChange={(e) => set('make', e.target.value)}
-            />
-            <input
-              className="input"
-              placeholder="Model"
-              value={str('model')}
-              onChange={(e) => set('model', e.target.value)}
-            />
+            <input className="input" type="number" placeholder={t('placeholder_year')}
+              value={num('year')} onChange={(e) => set('year', Number(e.target.value))} />
+            <input className="input" placeholder={t('placeholder_make')}
+              value={str('make')} onChange={(e) => set('make', e.target.value)} />
+            <input className="input" placeholder={t('placeholder_model')}
+              value={str('model')} onChange={(e) => set('model', e.target.value)} />
           </div>
-          <textarea
-            className="input resize-none"
-            rows={2}
-            placeholder="Description (optional)"
-            value={str('description')}
-            onChange={(e) => set('description', e.target.value)}
-          />
-          <input
-            className="input"
-            placeholder="Photo URL (optional)"
-            value={str('photoUrl')}
-            onChange={(e) => set('photoUrl', e.target.value)}
-          />
+          <textarea className="input resize-none" rows={2} placeholder={t('placeholder_description')}
+            value={str('description')} onChange={(e) => set('description', e.target.value)} />
+          <input className="input" placeholder={t('placeholder_photo_url')}
+            value={str('photoUrl')} onChange={(e) => set('photoUrl', e.target.value)} />
         </>
       )}
       {type === 'certification' && (
         <>
-          <input
-            className="input"
-            placeholder="Certification name (e.g. ASE Master Tech)"
-            value={str('name')}
-            onChange={(e) => set('name', e.target.value)}
-          />
-          <input
-            className="input"
-            placeholder="Issuing organization"
-            value={str('issuer')}
-            onChange={(e) => set('issuer', e.target.value)}
-          />
-          <input
-            className="input"
-            type="number"
-            placeholder="Year issued (optional)"
-            value={num('year')}
-            onChange={(e) => set('year', Number(e.target.value) || undefined)}
-          />
+          <input className="input" placeholder={t('placeholder_cert_name')}
+            value={str('name')} onChange={(e) => set('name', e.target.value)} />
+          <input className="input" placeholder={t('placeholder_issuer')}
+            value={str('issuer')} onChange={(e) => set('issuer', e.target.value)} />
+          <input className="input" type="number" placeholder={t('placeholder_year_issued')}
+            value={num('year')} onChange={(e) => set('year', Number(e.target.value) || undefined)} />
         </>
       )}
       {type === 'equipment' && (
         <>
-          <input
-            className="input"
-            placeholder="Tool / Equipment name"
-            value={str('name')}
-            onChange={(e) => set('name', e.target.value)}
-          />
-          <input
-            className="input"
-            placeholder="Brand (optional)"
-            value={str('brand')}
-            onChange={(e) => set('brand', e.target.value)}
-          />
-          <input
-            className="input"
-            placeholder="Category (optional, e.g. Lift, Diagnostic)"
-            value={str('category')}
-            onChange={(e) => set('category', e.target.value)}
-          />
+          <input className="input" placeholder={t('placeholder_tool')}
+            value={str('name')} onChange={(e) => set('name', e.target.value)} />
+          <input className="input" placeholder={t('placeholder_brand')}
+            value={str('brand')} onChange={(e) => set('brand', e.target.value)} />
+          <input className="input" placeholder={t('placeholder_category')}
+            value={str('category')} onChange={(e) => set('category', e.target.value)} />
         </>
       )}
       <div className="flex gap-2 pt-1">
-        <button
-          onClick={() => onSave(vals)}
-          className="btn-primary text-sm py-1.5 px-3 flex items-center gap-1"
-        >
-          <Check className="w-3.5 h-3.5" /> Save
+        <button onClick={() => onSave(vals)}
+          className="btn-primary text-sm py-1.5 px-3 flex items-center gap-1">
+          <Check className="w-3.5 h-3.5" /> {t('save')}
         </button>
-        <button
-          onClick={onCancel}
-          className="btn-secondary text-sm py-1.5 px-3 flex items-center gap-1"
-        >
-          <X className="w-3.5 h-3.5" /> Cancel
+        <button onClick={onCancel}
+          className="btn-secondary text-sm py-1.5 px-3 flex items-center gap-1">
+          <X className="w-3.5 h-3.5" /> {t('cancel')}
         </button>
       </div>
     </div>
@@ -351,6 +259,7 @@ function SectionGroup({
   onAdd,
   onEdit,
   onDelete,
+  t,
 }: {
   type: ProfileSectionType;
   sections: ProfileSection[];
@@ -358,27 +267,22 @@ function SectionGroup({
   onAdd: (type: ProfileSectionType) => void;
   onEdit: (section: ProfileSection) => void;
   onDelete: (id: string) => void;
+  t: ReturnType<typeof useTranslations>;
 }) {
   const [open, setOpen] = useState(true);
   const meta = SECTION_META[type];
   const Icon = meta.icon;
+  const label = t(meta.labelKey as any);
 
   if (sections.length === 0 && !isOwner) return null;
 
   return (
     <div className="card">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center gap-2 text-left"
-      >
+      <button onClick={() => setOpen((v) => !v)} className="w-full flex items-center gap-2 text-left">
         <Icon className={`w-4 h-4 ${meta.color} shrink-0`} />
-        <span className="font-semibold text-white text-sm flex-1">{meta.label}</span>
+        <span className="font-semibold text-white text-sm flex-1">{label}</span>
         <span className="text-xs text-gray-500">{sections.length}</span>
-        {open ? (
-          <ChevronUp className="w-4 h-4 text-gray-500" />
-        ) : (
-          <ChevronDown className="w-4 h-4 text-gray-500" />
-        )}
+        {open ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
       </button>
 
       {open && (
@@ -386,33 +290,24 @@ function SectionGroup({
           {sections.map((s) => (
             <div key={s.id} className="flex items-start gap-2 group">
               <div className="flex-1 min-w-0">
-                <SectionItem section={s} />
+                <SectionItem section={s} t={t} />
               </div>
               {isOwner && (
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                  <button
-                    onClick={() => onEdit(s)}
-                    className="p-1 text-gray-400 hover:text-white transition-colors"
-                  >
+                  <button onClick={() => onEdit(s)} className="p-1 text-gray-400 hover:text-white transition-colors">
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
-                  <button
-                    onClick={() => onDelete(s.id)}
-                    className="p-1 text-gray-400 hover:text-red-400 transition-colors"
-                  >
+                  <button onClick={() => onDelete(s.id)} className="p-1 text-gray-400 hover:text-red-400 transition-colors">
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               )}
             </div>
           ))}
-
           {isOwner && (
-            <button
-              onClick={() => onAdd(type)}
-              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-brand-400 transition-colors mt-1"
-            >
-              <Plus className="w-3.5 h-3.5" /> Add {meta.label}
+            <button onClick={() => onAdd(type)}
+              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-brand-400 transition-colors mt-1">
+              <Plus className="w-3.5 h-3.5" /> {t('add', { section: label })}
             </button>
           )}
         </div>
@@ -470,12 +365,13 @@ export default function ProfileSections({
     items: sections.filter((s) => s.type === type),
   }));
 
+  const t = useTranslations('sections');
   const hasAny = sections.length > 0;
   if (!hasAny && !isOwner) return null;
 
   return (
     <div className="space-y-3">
-      <h2 className="text-base font-bold text-white">Profile Sections</h2>
+      <h2 className="text-base font-bold text-white">{t('title')}</h2>
 
       {grouped.map(({ type, items }) => (
         <div key={type}>
@@ -500,6 +396,7 @@ export default function ProfileSections({
               onAdd={setAddingType}
               onEdit={setEditing}
               onDelete={(id) => deleteMut.mutate(id)}
+              t={t}
             />
           )}
         </div>
