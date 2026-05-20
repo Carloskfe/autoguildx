@@ -31,9 +31,46 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
   - `app/listing/new.tsx` — create listing form (type, category, price, description)
   - Stack transitions registered in `_layout.tsx`
 
+  **EAS Build config (code complete — `0aee018`):**
+  - `eas.json`: development / preview (APK, internal) / production (AAB) profiles; `appVersionSource: remote`; `autoIncrement: true` on production
+  - `app.json`: `runtimeVersion: { policy: sdkVersion }` + `updates.url` for OTA
+  - `metro.config.js`: `EXPO_ROUTER_IMPORT_MODE` fallback so babel inlining works in build containers
+  - `package.json`: removed unused `@autoguildx/shared` file dep (breaks EAS archive); added `build:android:*` and `submit:*` scripts
+
+  **One-time ops to complete before first build (run from `apps/mobile/`):**
+  ```bash
+  # 1. Install EAS CLI globally (if not already)
+  npm install -g eas-cli
+
+  # 2. Log in to your Expo account
+  eas login
+
+  # 3. Build a preview APK for Android (internal distribution — share via QR)
+  npm run build:android:preview
+  # EAS will generate and store an Android keystore automatically on first run.
+  # Scan the QR code or download the APK from https://expo.dev/accounts/[you]/projects/autoguildx/builds
+
+  # 4. Build production AAB for Play Store
+  npm run build:android:production
+  # Submit to Play Store internal testing track:
+  npm run submit:android
+  # (Requires a Google Play service account JSON — follow prompt from EAS CLI)
+
+  # 5. iOS — requires Apple Developer account ($99/yr)
+  npm run build:ios:preview       # AdHoc IPA for TestFlight internal
+  npm run build:ios:production    # Production IPA
+  npm run submit:ios              # Submit to App Store Connect
+  # EAS CLI will walk through Apple certificate/provisioning profile setup interactively
+
+  # 6. OTA updates (after first build is installed on a device)
+  npx eas update --channel production --message "Sprint 28 fixes"
+  ```
+
+  **Google Sign-In** will work automatically in EAS production builds (not Expo Go).
+  `GOOGLE_ANDROID_CLIENT_ID` and `GOOGLE_WEB_CLIENT_ID` are hardcoded in `lib/socialAuth.ts` — no secrets needed.
+
   **Remaining for MVP:**
-  - Google Sign-In: works in EAS production builds, **not in Expo Go** (redirect URI limitation). Will resolve automatically on EAS Build publish.
-  - EAS Build setup for TestFlight / Play Store distribution
+  - Complete Play Store/App Store listing setup (screenshots, description, privacy policy URL)
   - `TEAM_SEED_PASSWORD` and admin SQL still needed on the server (Sprint 23 ops)
 
   **Key monorepo gotchas (documented for next session):**
