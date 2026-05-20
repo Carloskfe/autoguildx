@@ -17,22 +17,22 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
   - Requires `RESEND_API_KEY` to be set in `.env.production` (it was configured during server setup)
   - If no email arrives: check `docker logs autoguildx-api-1 | grep -i resend` for errors
 
-- [-] **React Native mobile app** — Native iOS and Android app for AutoGuildX. **Scaffold complete and running on physical Android device via Expo Go.**
+- [-] **React Native mobile app** — Native iOS and Android app for AutoGuildX. **Core screens wired. Detail screens shipped Sprint 27.**
 
-  **Completed so far:**
-  - `apps/mobile/` — Expo SDK 54, Expo Router v6, isolated from npm workspaces (avoids React deduplication crashes)
-  - Package: `com.autoguildx.app` (Android + iOS)
-  - `google-services.json` wired (gitignored); OAuth client registered
-  - Metro config: custom `router-ctx.android.js` redirect fixes `require.context` in monorepo
-  - Babel config: inlines `EXPO_ROUTER_APP_ROOT` + `EXPO_ROUTER_IMPORT_MODE` for Metro workers
-  - Auth screens: Login (email + Google/Facebook/Apple buttons), Signup, Forgot Password
-  - Tab screens: Feed, Discover, Marketplace, Messages, Profile
-  - `useAuth` store (Zustand + SecureStore), Axios API client, dark theme (#0f0f0f / #f97316)
-  - Social auth: Google wired (`androidClientId` placeholder — needs real Android OAuth client for production); Facebook/Apple show alert until configured
+  **Completed:**
+  - `apps/mobile/` — Expo SDK 54, Expo Router v6, isolated from npm workspaces
+  - Auth screens: Login (email + Google/Facebook/Apple), Signup, Forgot Password
+  - Tab screens (all wired to live API): Feed, Discover, Marketplace, Messages, Profile
+  - `useAuth` (Zustand + SecureStore), Axios API client, dark theme
+  - Feed: post cards with reaction picker, compose modal (post creation)
+  - Marketplace: listing grid, search, → listing detail
+  - `app/listing/[id].tsx` — hero image, price/meta/description, Message Seller CTA
+  - `app/conversation/[id].tsx` — message bubble thread, 10s poll, send
+  - `app/listing/new.tsx` — create listing form (type, category, price, description)
+  - Stack transitions registered in `_layout.tsx`
 
   **Remaining for MVP:**
-  - Google Sign-In on Android: code and OAuth client are configured. Works in EAS production builds. **Does NOT work in Expo Go** — expo-auth-session v7 (SDK 54+) removed the proxy so the redirect URI is a custom scheme (`autoguildx://`) which Google rejects. Will work automatically when the app is published via EAS Build.
-  - Wire up remaining screens with real data (feed, marketplace, messages, etc. are scaffold-only)
+  - Google Sign-In: works in EAS production builds, **not in Expo Go** (redirect URI limitation). Will resolve automatically on EAS Build publish.
   - EAS Build setup for TestFlight / Play Store distribution
   - `TEAM_SEED_PASSWORD` and admin SQL still needed on the server (Sprint 23 ops)
 
@@ -127,6 +127,18 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
   - CTA button → `/courses` ("Browse Courses")
   - Layout: icon + text left, button right on desktop; stacked on mobile
   - Visual: `border border-brand-500/30 bg-brand-500/5` to distinguish from the plain cards above
+
+---
+
+## Sprint 27 — Mobile Detail Screens ✅ COMPLETE
+
+**Goal:** Make the mobile app fully navigable — wire listing detail, message threads, and post compose.
+
+- [x] `app/listing/[id].tsx` — full detail: hero image, price, category/type/location meta, description, seller name, "Message Seller" CTA (creates/opens conversation)
+- [x] `app/conversation/[id].tsx` — full message thread: bubble UI, mine/theirs styling, 10s poll, send with `KeyboardAvoidingView`, auto-scroll to latest
+- [x] `app/listing/new.tsx` — create listing: title, price, type (part/service), inline category dropdown, description, location; invalidates listings cache on success
+- [x] Feed `feed.tsx` — replaced stale `/posts/:id/like` with reactions API (`POST /posts/:id/react`); added emoji reaction picker; added compose modal (pageSheet) for creating posts
+- [x] `_layout.tsx` — registered `listing/*` and `conversation/*` with `slide_from_right` / `slide_from_bottom` transitions
 
 ---
 

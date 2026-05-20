@@ -199,7 +199,7 @@ All features below are fully implemented and deployed unless noted.
 - Payment transaction fees (up to 9% on marketplace sales)
 - Logistics / shipping support
 - Advanced discovery and matching (AI-based recommendations)
-- Mobile app (React Native)
+- Mobile app (React Native) — scaffold + core tabs wired; detail screens shipped Sprint 27; EAS Build + store distribution pending
 - Admin-initiated user account deletion (admins can hard-delete any user account from the admin dashboard; self-deletion already exists in `/settings`)
 
 ---
