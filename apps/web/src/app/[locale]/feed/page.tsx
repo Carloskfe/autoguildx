@@ -310,7 +310,7 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
   const myReactionObj = REACTIONS.find((r) => r.key === myReaction);
 
   return (
-    <article className="card">
+    <article className="card hover:border-silver-500/20 transition-all duration-200">
       <div className="flex items-start gap-3">
         {/* Avatar */}
         <div className="w-9 h-9 rounded-full bg-brand-500 flex items-center justify-center text-sm font-bold text-white shrink-0">
@@ -862,6 +862,7 @@ export default function FeedPage() {
   return (
     <AppShell>
       <div className="max-w-xl mx-auto px-4 py-6 space-y-4">
+        <h1 className="page-heading">{t('title')}</h1>
         <CreatePostForm />
 
         {isLoading && (

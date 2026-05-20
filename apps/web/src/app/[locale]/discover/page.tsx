@@ -32,7 +32,7 @@ function ProfileResult({ profile }: { profile: Profile }) {
   return (
     <Link
       href={`/profile/${profile.id}`}
-      className="card flex items-start gap-3 hover:border-brand-500 transition-colors group"
+      className="card-interactive flex items-start gap-3 group"
     >
       <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center text-sm font-bold text-white shrink-0">
         {profile.name?.[0]?.toUpperCase() ?? '?'}
@@ -90,7 +90,7 @@ function ListingResult({ listing }: { listing: Listing }) {
   return (
     <Link
       href={`/marketplace/${listing.id}`}
-      className="card flex items-start gap-3 hover:border-brand-500 transition-colors group"
+      className="card-interactive flex items-start gap-3 group"
     >
       <div className="w-10 h-10 rounded-lg bg-surface-card border border-surface-border flex items-center justify-center shrink-0">
         <Package className="w-5 h-5 text-gray-400" />
@@ -122,7 +122,7 @@ function ListingResult({ listing }: { listing: Listing }) {
 
 function EventResult({ event }: { event: Event }) {
   return (
-    <div className="card flex items-start gap-3">
+    <div className="card-interactive flex items-start gap-3">
       <div className="w-10 h-10 rounded-lg bg-surface-card border border-surface-border flex items-center justify-center shrink-0">
         <Calendar className="w-5 h-5 text-gray-400" />
       </div>
@@ -230,7 +230,7 @@ export default function DiscoverPage() {
   return (
     <AppShell>
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-5">
-        <h1 className="font-bold text-lg">{t('title')}</h1>
+        <h1 className="page-heading">{t('title')}</h1>
 
         {/* Search bar */}
         <div className="flex gap-2">

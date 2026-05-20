@@ -50,7 +50,7 @@ export default function AGXTopicsPage() {
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-white">{t('title')}</h1>
+            <h1 className="page-heading">{t('title')}</h1>
             <p className="text-gray-400 text-sm mt-1">{t('subtitle')}</p>
           </div>
           <Link href="/agxtopics/new" className="btn-primary flex items-center gap-2 text-sm">
@@ -87,7 +87,7 @@ export default function AGXTopicsPage() {
         ) : (
           <div className="grid gap-4">
             {forums.map((forum) => (
-              <div key={forum.id} className="card flex items-start gap-4">
+              <div key={forum.id} className="card hover:border-silver-500/20 transition-all duration-200 flex items-start gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <Link

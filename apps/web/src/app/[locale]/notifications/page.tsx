@@ -111,7 +111,7 @@ export default function NotificationsPage() {
     <AppShell>
       <div className="max-w-2xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold text-white">{t('title')}</h1>
+          <h1 className="page-heading">{t('title')}</h1>
           {unread > 0 && (
             <button
               onClick={() => markAllRead.mutate()}

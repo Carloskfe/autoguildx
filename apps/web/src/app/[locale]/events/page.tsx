@@ -29,7 +29,7 @@ function EventCard({ event, t }: { event: Event; t: (k: string) => string }) {
   return (
     <Link
       href={`/events/${event.id}`}
-      className="card block hover:border-brand-500 transition-colors group"
+      className="card-interactive block group"
     >
       <div className="flex items-start gap-4">
         {/* Date block or briefcase for opportunities */}
@@ -96,7 +96,7 @@ export default function EventsPage() {
     <AppShell>
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
         <div className="flex items-center justify-between">
-          <h1 className="font-bold text-lg">{t('title')}</h1>
+          <h1 className="page-heading">{t('title')}</h1>
           <Link href="/events/new" className="btn-primary text-sm px-4 py-2">
             {t('post_button')}
           </Link>

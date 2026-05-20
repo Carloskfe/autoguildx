@@ -333,6 +333,7 @@
   },
   "courses": {
     "title": "Cursos",
+    "subtitle": "Amplía tus habilidades con cursos de expertos del mundo automotor",
     "create": "Crear Curso",
     "my_hub": "Mi Espacio",
     "sort_newest": "Más Recientes",

@@ -85,7 +85,7 @@ export default function ForumPage() {
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <h1 className="text-xl font-bold text-white">{forum.name}</h1>
+                  <h1 className="page-heading text-xl">{forum.name}</h1>
                   <span className="text-xs bg-surface-700 text-gray-400 px-2 py-0.5 rounded-full">
                     {forum.category}
                   </span>
@@ -154,7 +154,7 @@ export default function ForumPage() {
         ) : (
           <div className="space-y-3">
             {posts.map((post) => (
-              <div key={post.id} className="card flex gap-3">
+              <div key={post.id} className="card hover:border-silver-500/20 transition-all duration-200 flex gap-3">
                 <div className="flex flex-col items-center gap-1 shrink-0 pt-1">
                   <button
                     onClick={() => handleVote(post, 1)}

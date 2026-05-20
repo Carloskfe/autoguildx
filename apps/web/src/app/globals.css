@@ -34,7 +34,10 @@
     @apply bg-surface-card border border-surface-border rounded-xl p-4 transition-all duration-200;
   }
   .card-interactive {
-    @apply card hover:border-silver-500/30 hover:shadow-lg hover:shadow-black/30 cursor-pointer;
+    @apply card hover:border-silver-500/30 hover:shadow-xl hover:shadow-black/40 hover:-translate-y-0.5 cursor-pointer;
+  }
+  .page-heading {
+    @apply font-heading font-black text-2xl tracking-tight text-white;
   }
   .input {
     @apply w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-base text-white placeholder-gray-500 focus:outline-none focus:border-brand-500 transition-colors;

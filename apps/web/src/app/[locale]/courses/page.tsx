@@ -18,6 +18,7 @@ import {
 import Link from 'next/link';
 import AppShell from '@/components/layout/AppShell';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 import type { Course } from '@autoguildx/shared';
 
@@ -77,8 +78,7 @@ function CourseCard({
   const isEnrolled = progress !== undefined;
 
   return (
-    <Link href={`/courses/${course.id}`} className="group block">
-      <div className="bg-surface-card border border-surface-border rounded-xl overflow-hidden hover:border-silver-600/30 transition-colors">
+    <Link href={`/courses/${course.id}`} className="card-interactive group block overflow-hidden !p-0">
         {/* Thumbnail */}
         <div className="relative aspect-video bg-gray-900 overflow-hidden">
           {course.thumbnailUrl ? (
@@ -162,12 +162,12 @@ function CourseCard({
           {/* Progress bar for enrolled users */}
           {isEnrolled && progress !== undefined && <ProgressBar percentage={progress} />}
         </div>
-      </div>
     </Link>
   );
 }
 
 export default function CoursesPage() {
+  const t = useTranslations('courses');
   const { isAuthenticated } = useAuth();
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -226,28 +226,26 @@ export default function CoursesPage() {
 
   return (
     <AppShell>
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-5xl mx-auto px-4 py-6">
         {/* Page header */}
-        <div className="flex items-start justify-between mb-8 gap-4">
+        <div className="flex items-start justify-between mb-6 gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-white">Courses</h1>
-            <p className="text-gray-400 text-sm mt-1">
-              Expand your skills with courses from automotive experts
-            </p>
+            <h1 className="page-heading">{t('title')}</h1>
+            <p className="text-gray-500 text-sm mt-0.5">{t('subtitle')}</p>
           </div>
           {isAuthenticated && (
             <div className="flex items-center gap-2 shrink-0">
               <Link
                 href="/courses/manage"
-                className="btn-secondary text-sm px-4 py-2.5 flex items-center gap-2"
+                className="btn-secondary text-sm px-4 py-2 flex items-center gap-2"
               >
-                <LayoutList className="w-4 h-4" /> My Hub
+                <LayoutList className="w-4 h-4" /> {t('my_hub')}
               </Link>
               <Link
                 href="/courses/new"
-                className="btn-primary text-sm px-5 py-2.5 flex items-center gap-2"
+                className="btn-primary text-sm px-4 py-2 flex items-center gap-2"
               >
-                <Plus className="w-4 h-4" /> Create Course
+                <Plus className="w-4 h-4" /> {t('create')}
               </Link>
             </div>
           )}

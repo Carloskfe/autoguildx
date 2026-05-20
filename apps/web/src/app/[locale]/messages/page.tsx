@@ -155,7 +155,7 @@ function MessagesContent() {
           className={`w-full md:w-80 shrink-0 border-r border-surface-border flex flex-col ${activeId ? 'hidden md:flex' : 'flex'}`}
         >
           <div className="p-4 border-b border-surface-border">
-            <h1 className="text-lg font-semibold text-white">{t('title')}</h1>
+            <h1 className="page-heading text-xl">{t('title')}</h1>
           </div>
 
           {convsLoading ? (

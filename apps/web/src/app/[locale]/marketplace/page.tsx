@@ -56,7 +56,7 @@ function ListingCard({ listing }: { listing: Listing }) {
   return (
     <Link
       href={`/marketplace/${listing.id}`}
-      className="card block hover:border-brand-500 transition-colors group"
+      className="card-interactive block group overflow-hidden"
     >
       {listing.mediaUrls?.filter(Boolean)[0] && (
         // eslint-disable-next-line @next/next/no-img-element
@@ -180,7 +180,7 @@ export default function MarketplacePage() {
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="font-bold text-lg">{t('title')}</h1>
+          <h1 className="page-heading">{t('title')}</h1>
           <div className="flex items-center gap-2">
             {isAuthenticated && (
               <Link

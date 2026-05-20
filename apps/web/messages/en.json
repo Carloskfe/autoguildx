@@ -333,6 +333,7 @@
   },
   "courses": {
     "title": "Courses",
+    "subtitle": "Expand your skills with courses from automotive experts",
     "create": "Create Course",
     "my_hub": "My Hub",
     "sort_newest": "Newest",
