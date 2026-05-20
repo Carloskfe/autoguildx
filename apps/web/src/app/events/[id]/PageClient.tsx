@@ -265,9 +265,11 @@ export default function EventDetailPage() {
             <div className="border border-surface-border rounded-lg p-3 space-y-1">
               <p className="text-sm font-semibold text-white truncate">{event.title}</p>
               <p className="text-xs text-gray-400 capitalize">{event.type}</p>
-              <p className="text-xs text-gray-500">
-                {format(new Date(event.startDate), 'EEEE, MMMM d, yyyy')}
-              </p>
+              {event.startDate && (
+                <p className="text-xs text-gray-500">
+                  {format(new Date(event.startDate), 'EEEE, MMMM d, yyyy')}
+                </p>
+              )}
               {event.location && <p className="text-xs text-gray-500">{event.location}</p>}
             </div>
             <textarea
