@@ -528,6 +528,14 @@ All authenticated pages wrap their content with `AppShell` (`src/components/layo
 
 **Fonts (Sprint 26):** Two Google fonts loaded in `layout.tsx` — `Barlow` (body, `--font-inter`, `font-sans`) and `Barlow_Condensed` (display headings, `--font-heading`, `font-heading`). Use `font-heading font-black tracking-tight` (or the `.display` CSS class) on h1 hero elements.
 
+**Design system conventions (Sprint 28):**
+- `.page-heading` — use on every page `h1` title. Barlow Condensed Black, 2xl, tight tracking.
+- `.card-interactive` — use on all clickable/navigable cards. Adds lift + shadow on hover. Do NOT use on non-navigable content (e.g. feed posts that expand in place — use silver border transition instead).
+- `.section-chip` — use for tag chips and specialty labels.
+- Section labels (e.g. "Posts", "Certificates") — use `text-xs font-bold tracking-[0.1em] uppercase text-gray-500`.
+- Profile names — `font-heading font-black text-2xl tracking-tight text-white`.
+- Role badges — `bg-brand-500/10 border border-brand-500/25 text-brand-400` pill pattern.
+
 **Internationalization (Sprint 25):** All routes live under `app/[locale]/` (e.g. `/en/feed`, `/es/feed`). `middleware.ts` detects language from `Accept-Language` header and `NEXT_LOCALE` cookie, then redirects. Translation strings live in `apps/web/messages/en.json` and `apps/web/messages/es.json` (~500 keys across 20 namespaces). Use `useTranslations('namespace')` in every client component — never hardcode UI strings. `LocaleSwitcher` in AppShell header and Settings page lets users switch locales.
 
 **API client:** `src/lib/api.ts` — Axios instance that auto-attaches JWT from `localStorage` and redirects to `/login` on 401.

@@ -167,6 +167,41 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ---
 
+## Sprint 28 — Unified Visual Polish ✅ COMPLETE
+
+**Goal:** Consistent look and feel across every page — typography, card interactivity, and profile layouts.
+
+### Design system
+- [x] `.card-interactive` — added `hover:-translate-y-0.5` subtle lift + `shadow-xl shadow-black/40`
+- [x] `.page-heading` — new CSS class: Barlow Condensed Black, 2xl, tight tracking; applied to every page title
+- [x] `courses.subtitle` translation key added (EN + ES)
+
+### Page-level typography — all `h1` now use `.page-heading`
+- [x] Feed, Marketplace, Events, Discover, Notifications, Messages
+- [x] AGXTopics list + forum detail, Courses (+ subtitle via `t('subtitle')`, `max-w-6xl` → `max-w-5xl`)
+
+### Card interactivity — standardized across all pages
+- [x] Marketplace listing cards → `card-interactive block`
+- [x] Events cards → `card-interactive block`
+- [x] Discover result cards (profiles / listings / events) → `card-interactive`
+- [x] Courses → `card-interactive !p-0` with thumbnail scale on hover
+- [x] AGXTopics forum + post cards → silver border transition
+- [x] Feed posts, profile post cards → silver border transition
+
+### Profile pages (own + public)
+- [x] `max-w-2xl` → `max-w-3xl` on both pages
+- [x] Name heading → `font-heading font-black text-2xl tracking-tight`
+- [x] Role badge → brand-tinted pill (`bg-brand-500/10 border-brand-500/25 text-brand-400`)
+- [x] Avatar ring → `ring-surface` (semantic)
+- [x] Banner default → atmospheric dark gradient + radial brand glow at top-left
+- [x] Stats row → centered columns with Condensed Black numbers + vertical divider
+- [x] Tags → `section-chip` (design system)
+- [x] Section labels (Posts, Certificates) → consistent `text-xs font-bold tracking uppercase` pattern
+- [x] Public profile: all hardcoded strings → `tp()` translations (followers, following, Posts, No posts yet, Edit profile, Share, Message, Follow, Unfollow)
+- [x] Reviews section: redundant inner `max-w-2xl` wrapper removed
+
+---
+
 ## Sprint 27 — Mobile Detail Screens ✅ COMPLETE
 
 **Goal:** Make the mobile app fully navigable — wire listing detail, message threads, and post compose.

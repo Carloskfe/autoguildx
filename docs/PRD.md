@@ -186,6 +186,7 @@ All features below are fully implemented and deployed unless noted.
 | Traefik-based Contabo deployment + GitHub Actions CD | ✅ Sprint 23 |
 | Multilingual EN/ES support (next-intl v3, all pages) | ✅ Sprint 25 |
 | Visual overhaul + rich profile sections | ✅ Sprint 26 |
+| Unified visual polish — typography, cards, profiles | ✅ Sprint 28 |
 | Stripe production env vars + webhook registration | Ops (no code changes) |
 | Real S3 credentials for media uploads | Ops (no code changes) |
 
