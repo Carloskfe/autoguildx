@@ -23,6 +23,9 @@ export default function RootLayout() {
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#0f0f0f' } }}>
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="listing/[id]" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="listing/new" options={{ animation: 'slide_from_bottom' }} />
+          <Stack.Screen name="conversation/[id]" options={{ animation: 'slide_from_right' }} />
         </Stack>
       </QueryClientProvider>
     </GestureHandlerRootView>
