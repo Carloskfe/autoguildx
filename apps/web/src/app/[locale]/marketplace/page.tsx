@@ -237,7 +237,11 @@ export default function MarketplacePage() {
                   : 'border-surface-border text-gray-400 hover:text-white hover:border-gray-500',
               )}
             >
-              {type === '' ? t('filter_all') : type === 'part' ? t('filter_parts') : t('filter_services')}
+              {type === ''
+                ? t('filter_all')
+                : type === 'part'
+                  ? t('filter_parts')
+                  : t('filter_services')}
             </button>
           ))}
         </div>
@@ -278,9 +282,7 @@ export default function MarketplacePage() {
           </div>
         )}
 
-        {isError && (
-          <p className="text-center text-sm text-red-400 py-10">{t('failed')}</p>
-        )}
+        {isError && <p className="text-center text-sm text-red-400 py-10">{t('failed')}</p>}
 
         {!isLoading && listings.length === 0 && !isError && (
           <p className="text-center text-sm text-gray-500 py-16">

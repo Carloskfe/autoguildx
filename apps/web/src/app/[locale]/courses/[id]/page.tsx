@@ -9,7 +9,6 @@ import {
   Users,
   Clock,
   CheckCircle2,
-  Circle,
   Award,
   Loader2,
   Play,
@@ -18,7 +17,6 @@ import {
   MonitorPlay,
   FileText,
   Globe,
-  BarChart2,
 } from 'lucide-react';
 import Link from 'next/link';
 import AppShell from '@/components/layout/AppShell';
@@ -26,7 +24,7 @@ import VerifiedBadge from '@/components/VerifiedBadge';
 import ReviewSection from '@/components/ReviewSection';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
-import type { Course, Lesson, Enrollment, Certificate } from '@autoguildx/shared';
+import type { Course, Lesson, Enrollment } from '@autoguildx/shared';
 
 interface CourseDetail extends Course {
   lessons: Lesson[];
@@ -79,7 +77,7 @@ function CurriculumSection({
       </button>
       {open && (
         <ul className="divide-y divide-surface-border">
-          {lessons.map((l, i) => {
+          {lessons.map((l) => {
             const done = completedIds.includes(l.id);
             return (
               <li key={l.id} className="flex items-center gap-3 px-4 py-2.5 bg-[#0f0f0f]">

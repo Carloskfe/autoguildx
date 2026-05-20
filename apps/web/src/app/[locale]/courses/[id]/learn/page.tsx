@@ -5,7 +5,6 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   CheckCircle2,
-  Circle,
   ChevronDown,
   ChevronUp,
   ChevronLeft,
@@ -24,7 +23,7 @@ import {
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
-import type { Course, Lesson, Enrollment, Certificate } from '@autoguildx/shared';
+import type { Course, Lesson, Enrollment } from '@autoguildx/shared';
 
 interface CourseDetail extends Course {
   lessons: Lesson[];

@@ -55,7 +55,9 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} className="dark">
-      <body className={`${barlow.variable} ${barlowCondensed.variable} bg-surface text-white antialiased`}>
+      <body
+        className={`${barlow.variable} ${barlowCondensed.variable} bg-surface text-white antialiased`}
+      >
         <NextIntlClientProvider messages={messages}>
           <Providers>{children}</Providers>
         </NextIntlClientProvider>

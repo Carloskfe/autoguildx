@@ -15,7 +15,7 @@ interface CertificateWithCourse extends Certificate {
 
 export default function CertificatePage() {
   const { id } = useParams<{ id: string }>();
-  const { isAuthenticated, userId } = useAuth();
+  const { isAuthenticated } = useAuth();
   const router = useRouter();
 
   useEffect(() => {

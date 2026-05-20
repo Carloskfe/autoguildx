@@ -27,7 +27,9 @@ interface Notification {
 }
 
 function actorName(actor?: Actor, someone?: string): string {
-  return actor?.profile?.displayName ?? actor?.profile?.name ?? actor?.email ?? (someone ?? 'Someone');
+  return (
+    actor?.profile?.displayName ?? actor?.profile?.name ?? actor?.email ?? someone ?? 'Someone'
+  );
 }
 
 function notifLink(n: Notification): string {

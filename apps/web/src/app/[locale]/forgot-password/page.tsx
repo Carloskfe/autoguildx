@@ -27,7 +27,9 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="card w-full max-w-sm space-y-6">
         <div>
-          <Link href="/" className="text-brand-500 font-bold text-lg">AutoGuildX</Link>
+          <Link href="/" className="text-brand-500 font-bold text-lg">
+            AutoGuildX
+          </Link>
           <h1 className="text-2xl font-bold mt-4">{t('forgot_title')}</h1>
           <p className="text-gray-400 text-sm mt-1">{t('forgot_body')}</p>
         </div>
@@ -42,14 +44,25 @@ export default function ForgotPasswordPage() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <input className="input" type="email" placeholder={t('email')} value={email}
-              onChange={(e) => { setEmail(e.target.value); setError(''); }} required />
+            <input
+              className="input"
+              type="email"
+              placeholder={t('email')}
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setError('');
+              }}
+              required
+            />
             {error && <p className="text-red-400 text-sm">{error}</p>}
             <button className="btn-primary w-full" type="submit" disabled={status === 'loading'}>
               {status === 'loading' ? t('forgot_sending') : t('forgot_button')}
             </button>
             <p className="text-center text-sm text-gray-400">
-              <Link href="/login" className="text-brand-500 hover:underline">{t('back_to_login')}</Link>
+              <Link href="/login" className="text-brand-500 hover:underline">
+                {t('back_to_login')}
+              </Link>
             </p>
           </form>
         )}

@@ -29,10 +29,10 @@ interface TeamProfile {
 }
 
 const VALUE_KEYS = [
-  { icon: Wrench,       titleKey: 'value_enthusiasts_title', bodyKey: 'value_enthusiasts_body' },
-  { icon: ShieldCheck,  titleKey: 'value_trust_title',       bodyKey: 'value_trust_body' },
-  { icon: Users,        titleKey: 'value_community_title',   bodyKey: 'value_community_body' },
-  { icon: GraduationCap,titleKey: 'value_knowledge_title',   bodyKey: 'value_knowledge_body' },
+  { icon: Wrench, titleKey: 'value_enthusiasts_title', bodyKey: 'value_enthusiasts_body' },
+  { icon: ShieldCheck, titleKey: 'value_trust_title', bodyKey: 'value_trust_body' },
+  { icon: Users, titleKey: 'value_community_title', bodyKey: 'value_community_body' },
+  { icon: GraduationCap, titleKey: 'value_knowledge_title', bodyKey: 'value_knowledge_body' },
 ];
 
 export default function TeamPage() {
@@ -55,8 +55,12 @@ export default function TeamPage() {
           AutoGuildX
         </Link>
         <nav className="flex gap-3">
-          <Link href="/discover" className="btn-secondary text-sm">{t('explore_cta')}</Link>
-          <Link href="/signup" className="btn-primary text-sm">{t('join_cta')}</Link>
+          <Link href="/discover" className="btn-secondary text-sm">
+            {t('explore_cta')}
+          </Link>
+          <Link href="/signup" className="btn-primary text-sm">
+            {t('join_cta')}
+          </Link>
         </nav>
       </header>
 
@@ -72,15 +76,23 @@ export default function TeamPage() {
         </h1>
         <p className="text-gray-400 text-lg max-w-xl leading-relaxed">{t('hero_subtitle')}</p>
         <div className="flex flex-wrap gap-3 justify-center pt-2">
-          <Link href="/signup" className="btn-primary text-base px-7 py-3">{t('join_cta')}</Link>
-          <Link href="/discover" className="btn-secondary text-base px-7 py-3">{t('explore_cta')}</Link>
+          <Link href="/signup" className="btn-primary text-base px-7 py-3">
+            {t('join_cta')}
+          </Link>
+          <Link href="/discover" className="btn-secondary text-base px-7 py-3">
+            {t('explore_cta')}
+          </Link>
         </div>
       </section>
 
       {/* Mission */}
       <section className="max-w-3xl mx-auto px-6 py-20 text-center space-y-5">
-        <p className="text-xs font-semibold text-brand-500 uppercase tracking-widest">{t('mission_label')}</p>
-        <h2 className="text-3xl md:text-4xl font-bold text-white leading-snug">{t('mission_title')}</h2>
+        <p className="text-xs font-semibold text-brand-500 uppercase tracking-widest">
+          {t('mission_label')}
+        </p>
+        <h2 className="text-3xl md:text-4xl font-bold text-white leading-snug">
+          {t('mission_title')}
+        </h2>
         <p className="text-gray-400 leading-relaxed">{t('mission_body')}</p>
       </section>
 
@@ -115,9 +127,17 @@ export default function TeamPage() {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
             {[
-              { icon: Users,         labelKey: 'platform_profiles',    descKey: 'platform_profiles_desc' },
-              { icon: Package,       labelKey: 'platform_marketplace', descKey: 'platform_marketplace_desc' },
-              { icon: GraduationCap, labelKey: 'platform_courses',     descKey: 'platform_courses_desc' },
+              { icon: Users, labelKey: 'platform_profiles', descKey: 'platform_profiles_desc' },
+              {
+                icon: Package,
+                labelKey: 'platform_marketplace',
+                descKey: 'platform_marketplace_desc',
+              },
+              {
+                icon: GraduationCap,
+                labelKey: 'platform_courses',
+                descKey: 'platform_courses_desc',
+              },
             ].map(({ icon: Icon, labelKey, descKey }) => (
               <div key={labelKey} className="space-y-3">
                 <div className="w-12 h-12 rounded-xl bg-surface-card border border-surface-border flex items-center justify-center mx-auto">
@@ -202,12 +222,17 @@ export default function TeamPage() {
         <div className="max-w-xl mx-auto px-6 py-24 text-center space-y-6">
           <h2 className="text-4xl font-black text-white leading-tight">{t('join_banner_title')}</h2>
           <p className="text-gray-400">{t('join_banner_body')}</p>
-          <Link href="/signup" className="btn-primary text-base px-10 py-3.5 inline-block font-semibold">
+          <Link
+            href="/signup"
+            className="btn-primary text-base px-10 py-3.5 inline-block font-semibold"
+          >
             {t('create_account')}
           </Link>
           <p className="text-xs text-gray-600">
             {t('already_member')}{' '}
-            <Link href="/login" className="text-brand-500 hover:underline">{t('sign_in', { ns: 'auth' })}</Link>
+            <Link href="/login" className="text-brand-500 hover:underline">
+              {t('sign_in', { ns: 'auth' })}
+            </Link>
           </p>
         </div>
       </section>

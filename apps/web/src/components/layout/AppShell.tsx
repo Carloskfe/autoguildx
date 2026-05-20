@@ -109,7 +109,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <div className="w-7 h-7 rounded-md bg-brand-500 flex items-center justify-center shrink-0 group-hover:bg-brand-600 transition-colors">
             <Wrench className="w-4 h-4 text-white" />
           </div>
-          <span className="font-heading font-black text-lg tracking-tight text-white">AutoGuildX</span>
+          <span className="font-heading font-black text-lg tracking-tight text-white">
+            AutoGuildX
+          </span>
         </Link>
         <div className="flex items-center gap-2">
           {isAuthenticated && (

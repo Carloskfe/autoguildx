@@ -28,7 +28,6 @@ const FEATURES: Record<SubscriptionTier, string[]> = {
   ],
 };
 
-
 export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
   const t = useTranslations('upgrade');
   const [loading, setLoading] = useState<SubscriptionTier | null>(null);
@@ -144,9 +143,7 @@ export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
                   currentTier !== 'free' &&
                   (confirmCancel ? (
                     <div className="space-y-2">
-                      <p className="text-xs text-center text-gray-400">
-                        {t('cancel_confirm')}
-                      </p>
+                      <p className="text-xs text-center text-gray-400">{t('cancel_confirm')}</p>
                       <div className="flex gap-2">
                         <button
                           onClick={handleCancel}
@@ -179,9 +176,7 @@ export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
 
         {error && <p className="px-6 pb-4 text-sm text-red-400 text-center">{error}</p>}
 
-        <p className="px-6 pb-6 text-xs text-gray-500 text-center">
-          {t('checkout_redirect')}
-        </p>
+        <p className="px-6 pb-6 text-xs text-gray-500 text-center">{t('checkout_redirect')}</p>
       </div>
     </div>
   );

@@ -6,7 +6,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import {
   MapPin,
-  Users,
   Heart,
   Edit2,
   Check,
@@ -547,9 +546,7 @@ function EmailNotificationsSection() {
         <Bell className="w-5 h-5 text-gray-400 shrink-0" />
         <div>
           <p className="text-sm font-medium text-white">{t('email_notifications')}</p>
-          <p className="text-xs text-gray-400">
-            {enabled ? t('email_on') : t('email_off')}
-          </p>
+          <p className="text-xs text-gray-400">{enabled ? t('email_on') : t('email_off')}</p>
         </div>
       </div>
       <button
@@ -607,7 +604,6 @@ function CertificatesSection() {
 // ─── Profile page ─────────────────────────────────────────────────────────────
 
 export default function ProfilePage() {
-  const t = useTranslations('profile');
   const { isAuthenticated, userId } = useAuth();
   const router = useRouter();
 

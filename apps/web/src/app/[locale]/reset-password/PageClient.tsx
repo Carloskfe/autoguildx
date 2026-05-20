@@ -21,7 +21,9 @@ export default function ResetPasswordClient() {
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="card w-full max-w-sm text-center space-y-4">
           <p className="text-red-400">{t('error_invalid')}</p>
-          <Link href="/forgot-password" className="btn-primary block">{t('forgot_button')}</Link>
+          <Link href="/forgot-password" className="btn-primary block">
+            {t('forgot_button')}
+          </Link>
         </div>
       </div>
     );
@@ -30,7 +32,10 @@ export default function ResetPasswordClient() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (newPassword !== confirm) { setError(t('reset_mismatch')); return; }
+    if (newPassword !== confirm) {
+      setError(t('reset_mismatch'));
+      return;
+    }
     setStatus('loading');
     try {
       await api.post('/auth/reset-password', { token, newPassword });
@@ -58,15 +63,30 @@ export default function ResetPasswordClient() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="card w-full max-w-sm space-y-6">
         <div>
-          <Link href="/" className="text-brand-500 font-bold text-lg">AutoGuildX</Link>
+          <Link href="/" className="text-brand-500 font-bold text-lg">
+            AutoGuildX
+          </Link>
           <h1 className="text-2xl font-bold mt-4">{t('reset_title')}</h1>
           <p className="text-gray-400 text-sm mt-1">{t('reset_subtitle')}</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input className="input" type="password" placeholder={t('new_password')}
-            value={newPassword} minLength={8} onChange={(e) => setNewPassword(e.target.value)} required />
-          <input className="input" type="password" placeholder={t('confirm_password')}
-            value={confirm} onChange={(e) => setConfirm(e.target.value)} required />
+          <input
+            className="input"
+            type="password"
+            placeholder={t('new_password')}
+            value={newPassword}
+            minLength={8}
+            onChange={(e) => setNewPassword(e.target.value)}
+            required
+          />
+          <input
+            className="input"
+            type="password"
+            placeholder={t('confirm_password')}
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            required
+          />
           {error && <p className="text-red-400 text-sm">{error}</p>}
           <button className="btn-primary w-full" type="submit" disabled={status === 'loading'}>
             {status === 'loading' ? t('reset_loading') : t('reset_button')}

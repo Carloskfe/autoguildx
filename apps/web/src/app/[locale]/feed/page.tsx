@@ -204,7 +204,9 @@ function CommentThread({ postId }: { postId: string }) {
             {initials(c.user?.email)}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-400 font-medium">{c.user?.email ?? t('unknown_user')}</p>
+            <p className="text-xs text-gray-400 font-medium">
+              {c.user?.email ?? t('unknown_user')}
+            </p>
             <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap break-words">
               {c.content}
             </p>
@@ -392,7 +394,9 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
           {post.sharedPost && (
             <div className="mt-2 border border-surface-border rounded-lg p-3 bg-surface-card text-sm">
               <p className="text-xs text-gray-500 mb-1">
-                {post.sharedPost.user?.profile?.name ?? post.sharedPost.user?.email ?? t('unknown_user')}
+                {post.sharedPost.user?.profile?.name ??
+                  post.sharedPost.user?.email ??
+                  t('unknown_user')}
               </p>
               <p className="text-gray-300 line-clamp-3">{post.sharedPost.content}</p>
             </div>
@@ -741,7 +745,11 @@ function CreatePostForm() {
             [
               { mode: 'single' as MediaMode, Icon: ImageIcon, titleKey: 'media_single' },
               { mode: 'multi' as MediaMode, Icon: LayoutGrid, titleKey: 'media_grid' },
-              { mode: 'carousel' as MediaMode, Icon: GalleryHorizontal, titleKey: 'media_carousel' },
+              {
+                mode: 'carousel' as MediaMode,
+                Icon: GalleryHorizontal,
+                titleKey: 'media_carousel',
+              },
             ] as const
           ).map(({ mode, Icon, titleKey }) => (
             <button
@@ -862,9 +870,7 @@ export default function FeedPage() {
           </div>
         )}
 
-        {isError && (
-          <p className="text-center text-sm text-red-400 py-8">{t('failed')}</p>
-        )}
+        {isError && <p className="text-center text-sm text-red-400 py-8">{t('failed')}</p>}
 
         {!isLoading && posts.length === 0 && !isError && (
           <p className="text-center text-sm text-gray-500 py-12">{t('no_posts')}</p>

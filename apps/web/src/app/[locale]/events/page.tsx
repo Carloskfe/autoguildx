@@ -20,16 +20,6 @@ const TYPE_STYLES: Record<string, string> = {
   other: 'border-surface-border text-gray-400',
 };
 
-// Labels fetched via useTranslations at runtime; kept as fallback keys
-const TYPE_LABEL_KEYS: Record<string, string> = {
-  meetup: 'Meetup',
-  workshop: 'Workshop',
-  show: 'Show',
-  race: 'Race',
-  opportunity: 'Opportunity',
-  other: 'Other',
-};
-
 // ─── Event card ───────────────────────────────────────────────────────────────
 
 function EventCard({ event, t }: { event: Event; t: (k: string) => string }) {
@@ -118,9 +108,7 @@ export default function EventsPage() {
           </div>
         )}
 
-        {isError && (
-          <p className="text-center text-sm text-red-400 py-10">{t('failed')}</p>
-        )}
+        {isError && <p className="text-center text-sm text-red-400 py-10">{t('failed')}</p>}
 
         {!isLoading && events.length === 0 && !isError && (
           <p className="text-center text-sm text-gray-500 py-16">

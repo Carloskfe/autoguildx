@@ -132,12 +132,31 @@ export default function SettingsPage() {
         <section className="card space-y-4">
           <h2 className="text-lg font-semibold">{t('password_section')}</h2>
           <form onSubmit={handleChangePw} className="space-y-3">
-            <input className="input" type="password" placeholder={t('current_password')}
-              value={currentPw} onChange={(e) => setCurrentPw(e.target.value)} required />
-            <input className="input" type="password" placeholder={t('new_password')}
-              value={newPw} minLength={8} onChange={(e) => setNewPw(e.target.value)} required />
-            <input className="input" type="password" placeholder={t('confirm_password')}
-              value={confirmPw} onChange={(e) => setConfirmPw(e.target.value)} required />
+            <input
+              className="input"
+              type="password"
+              placeholder={t('current_password')}
+              value={currentPw}
+              onChange={(e) => setCurrentPw(e.target.value)}
+              required
+            />
+            <input
+              className="input"
+              type="password"
+              placeholder={t('new_password')}
+              value={newPw}
+              minLength={8}
+              onChange={(e) => setNewPw(e.target.value)}
+              required
+            />
+            <input
+              className="input"
+              type="password"
+              placeholder={t('confirm_password')}
+              value={confirmPw}
+              onChange={(e) => setConfirmPw(e.target.value)}
+              required
+            />
             {pwError && <p className="text-red-400 text-sm">{pwError}</p>}
             {pwMessage && <p className="text-green-400 text-sm">{pwMessage}</p>}
             <button className="btn-primary" type="submit" disabled={changePwMutation.isPending}>

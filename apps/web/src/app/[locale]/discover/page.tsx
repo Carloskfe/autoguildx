@@ -306,9 +306,7 @@ export default function DiscoverPage() {
 
         {/* States */}
         {!searched && (
-          <p className="text-center text-sm text-gray-500 py-16">
-            {t('start_searching')}
-          </p>
+          <p className="text-center text-sm text-gray-500 py-16">{t('start_searching')}</p>
         )}
 
         {searched && isLoading && (

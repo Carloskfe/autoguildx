@@ -14,14 +14,13 @@ import {
   Loader2,
   Plus,
   ArrowLeft,
-  CheckCircle2,
   Award,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import AppShell from '@/components/layout/AppShell';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
-import type { Course, Enrollment, Certificate } from '@autoguildx/shared';
+import type { Course, Enrollment } from '@autoguildx/shared';
 
 interface EnrolledCourse extends Enrollment {
   course?: Course;

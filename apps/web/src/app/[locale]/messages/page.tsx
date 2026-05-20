@@ -250,9 +250,7 @@ function MessagesContent() {
                     <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
                   </div>
                 ) : messages.length === 0 ? (
-                  <p className="text-center text-gray-500 text-sm py-10">
-                    {t('no_messages')}
-                  </p>
+                  <p className="text-center text-gray-500 text-sm py-10">{t('no_messages')}</p>
                 ) : (
                   messages.map((msg) => {
                     const isMine = msg.senderId === userId;

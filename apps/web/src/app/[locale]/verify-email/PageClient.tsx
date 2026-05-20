@@ -21,9 +21,16 @@ export default function VerifyEmailClient() {
 
   useEffect(() => {
     if (!token) return;
-    api.post('/auth/verify-email', { token })
-      .then(() => { setStatus('success'); setTimeout(() => router.push('/onboarding'), 2500); })
-      .catch((err) => { setError(err.response?.data?.message ?? tc('error')); setStatus('error'); });
+    api
+      .post('/auth/verify-email', { token })
+      .then(() => {
+        setStatus('success');
+        setTimeout(() => router.push('/onboarding'), 2500);
+      })
+      .catch((err) => {
+        setError(err.response?.data?.message ?? tc('error'));
+        setStatus('error');
+      });
   }, [token, router, tc]);
 
   const handleResend = async (e: React.FormEvent) => {
@@ -39,7 +46,9 @@ export default function VerifyEmailClient() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="card w-full max-w-sm space-y-6 text-center">
-        <Link href="/" className="text-brand-500 font-bold text-lg block">AutoGuildX</Link>
+        <Link href="/" className="text-brand-500 font-bold text-lg block">
+          AutoGuildX
+        </Link>
 
         {status === 'pending' && (
           <>
@@ -48,9 +57,17 @@ export default function VerifyEmailClient() {
             <p className="text-gray-400 text-sm leading-relaxed">{t('verify_email_body')}</p>
             <p className="text-gray-500 text-xs">{t('verify_email_resend')}</p>
             <form onSubmit={handleResend} className="space-y-3 text-left">
-              <input className="input" type="email" placeholder={t('email')} value={resendEmail}
-                onChange={(e) => setResendEmail(e.target.value)} required />
-              <button className="btn-secondary w-full" type="submit">{t('resend')}</button>
+              <input
+                className="input"
+                type="email"
+                placeholder={t('email')}
+                value={resendEmail}
+                onChange={(e) => setResendEmail(e.target.value)}
+                required
+              />
+              <button className="btn-secondary w-full" type="submit">
+                {t('resend')}
+              </button>
               {resendStatus && <p className="text-sm text-center text-brand-400">{resendStatus}</p>}
             </form>
           </>
@@ -77,9 +94,17 @@ export default function VerifyEmailClient() {
             <h1 className="text-2xl font-bold text-red-400">{tc('error')}</h1>
             <p className="text-gray-400 text-sm">{error}</p>
             <form onSubmit={handleResend} className="space-y-3 text-left">
-              <input className="input" type="email" placeholder={t('email')} value={resendEmail}
-                onChange={(e) => setResendEmail(e.target.value)} required />
-              <button className="btn-primary w-full" type="submit">{t('resend')}</button>
+              <input
+                className="input"
+                type="email"
+                placeholder={t('email')}
+                value={resendEmail}
+                onChange={(e) => setResendEmail(e.target.value)}
+                required
+              />
+              <button className="btn-primary w-full" type="submit">
+                {t('resend')}
+              </button>
               {resendStatus && <p className="text-sm text-center text-brand-400">{resendStatus}</p>}
             </form>
           </>

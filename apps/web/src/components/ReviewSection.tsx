@@ -217,12 +217,11 @@ export default function ReviewSection({ targetId, targetType, showDimensions = f
       )}
 
       {/* Review list */}
-      {total === 0 && !showForm && (
-        <p className="text-sm text-gray-500">{t('no_reviews')}</p>
-      )}
+      {total === 0 && !showForm && <p className="text-sm text-gray-500">{t('no_reviews')}</p>}
       <div className="space-y-3">
         {(data?.reviews ?? []).map((rev) => {
-          const name = rev.reviewer?.profile?.displayName ?? rev.reviewer?.email ?? t('user_fallback');
+          const name =
+            rev.reviewer?.profile?.displayName ?? rev.reviewer?.email ?? t('user_fallback');
           const isOwn = rev.reviewerId === userId;
           return (
             <div key={rev.id} className="card space-y-1.5">

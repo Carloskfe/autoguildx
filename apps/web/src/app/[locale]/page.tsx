@@ -14,7 +14,9 @@ export default function LandingPage() {
           <div className="w-7 h-7 rounded-md bg-brand-500 flex items-center justify-center">
             <Wrench className="w-4 h-4 text-white" />
           </div>
-          <span className="font-heading font-black text-xl tracking-tight text-white">AutoGuildX</span>
+          <span className="font-heading font-black text-xl tracking-tight text-white">
+            AutoGuildX
+          </span>
         </div>
         <nav className="flex items-center gap-3">
           <Link href="/login" className="btn-secondary text-sm">
@@ -118,13 +120,21 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-surface-border px-6 py-6 text-center text-sm text-gray-500 space-x-4">
-        <Link href="/terms" className="hover:text-gray-300 transition-colors">{tn('terms')}</Link>
+        <Link href="/terms" className="hover:text-gray-300 transition-colors">
+          {tn('terms')}
+        </Link>
         <span>·</span>
-        <Link href="/privacy" className="hover:text-gray-300 transition-colors">{tn('privacy')}</Link>
+        <Link href="/privacy" className="hover:text-gray-300 transition-colors">
+          {tn('privacy')}
+        </Link>
         <span>·</span>
-        <Link href="/cookies" className="hover:text-gray-300 transition-colors">{tn('cookies')}</Link>
+        <Link href="/cookies" className="hover:text-gray-300 transition-colors">
+          {tn('cookies')}
+        </Link>
         <span>·</span>
-        <Link href="/disclaimer" className="hover:text-gray-300 transition-colors">{tn('disclaimer')}</Link>
+        <Link href="/disclaimer" className="hover:text-gray-300 transition-colors">
+          {tn('disclaimer')}
+        </Link>
         <span>·</span>
         <span>{tn('copyright')}</span>
       </footer>
