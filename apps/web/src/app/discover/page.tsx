@@ -134,7 +134,7 @@ function EventResult({ event }: { event: Event }) {
               <MapPin className="w-3 h-3" /> {event.location}
             </span>
           )}
-          <span>{formatDistanceToNow(new Date(event.startDate), { addSuffix: true })}</span>
+          {event.startDate && <span>{formatDistanceToNow(new Date(event.startDate), { addSuffix: true })}</span>}
         </div>
       </div>
     </div>

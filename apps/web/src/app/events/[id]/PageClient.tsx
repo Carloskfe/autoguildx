@@ -133,7 +133,7 @@ export default function EventDetailPage() {
   }
 
   const isOwn = event.organizerId === userId;
-  const start = new Date(event.startDate);
+  const start = event.startDate ? new Date(event.startDate) : null;
   const end = event.endDate ? new Date(event.endDate) : null;
 
   return (
@@ -179,19 +179,21 @@ export default function EventDetailPage() {
 
           {/* Date & location */}
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm text-gray-300">
-              <Calendar className="w-4 h-4 text-gray-500 shrink-0" />
-              <span>
-                {format(start, 'EEEE, MMMM d, yyyy')} at {format(start, 'h:mm a')}
-                {end && (
-                  <span className="text-gray-500">
-                    {' '}
-                    — {format(end, 'h:mm a')}
-                    {end.toDateString() !== start.toDateString() && `, ${format(end, 'MMM d')}`}
-                  </span>
-                )}
-              </span>
-            </div>
+            {start && (
+              <div className="flex items-center gap-2 text-sm text-gray-300">
+                <Calendar className="w-4 h-4 text-gray-500 shrink-0" />
+                <span>
+                  {format(start, 'EEEE, MMMM d, yyyy')} at {format(start, 'h:mm a')}
+                  {end && (
+                    <span className="text-gray-500">
+                      {' '}
+                      — {format(end, 'h:mm a')}
+                      {end.toDateString() !== start.toDateString() && `, ${format(end, 'MMM d')}`}
+                    </span>
+                  )}
+                </span>
+              </div>
+            )}
             <div className="flex items-center gap-2 text-sm text-gray-300">
               <MapPin className="w-4 h-4 text-gray-500 shrink-0" />
               <span>{event.location}</span>
