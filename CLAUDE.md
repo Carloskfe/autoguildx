@@ -526,6 +526,8 @@ All authenticated pages wrap their content with `AppShell` (`src/components/layo
 
 **Page pattern for authenticated routes:** check `useAuth().isAuthenticated` in `useEffect`, redirect to `/login` if false, disable React Query fetches with `enabled: isAuthenticated`.
 
+**Fonts (Sprint 26):** Two Google fonts loaded in `layout.tsx` — `Barlow` (body, `--font-inter`, `font-sans`) and `Barlow_Condensed` (display headings, `--font-heading`, `font-heading`). Use `font-heading font-black tracking-tight` (or the `.display` CSS class) on h1 hero elements.
+
 **Internationalization (Sprint 25):** All routes live under `app/[locale]/` (e.g. `/en/feed`, `/es/feed`). `middleware.ts` detects language from `Accept-Language` header and `NEXT_LOCALE` cookie, then redirects. Translation strings live in `apps/web/messages/en.json` and `apps/web/messages/es.json` (~500 keys across 20 namespaces). Use `useTranslations('namespace')` in every client component — never hardcode UI strings. `LocaleSwitcher` in AppShell header and Settings page lets users switch locales.
 
 **API client:** `src/lib/api.ts` — Axios instance that auto-attaches JWT from `localStorage` and redirects to `/login` on 401.

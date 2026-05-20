@@ -8,46 +8,7 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 - [x] **Multilingual support — English / Spanish** ✅ Sprint 25 COMPLETE
 
-- [ ] **UI/UX overhaul — Rich profile + automotive brand identity** — The current dark theme (#0f0f0f / #f97316) is functional but generic. This sprint should elevate the platform to feel like it belongs alongside major US automotive brands.
-
-  **Profile page redesign (LinkedIn + Facebook hybrid):**
-  - Keep existing banner (160px) + avatar overlap + video avatar — already built
-  - Add **profile sections** below the bio, editable inline:
-    - *Expertise* — tag-style chips with skill levels (Beginner / Intermediate / Expert)
-    - *Experience* — timeline entries: shop name, role, years (like LinkedIn work history)
-    - *Specialty builds* — featured project cards with photo, year, make/model, description
-    - *Certifications* — ASE, manufacturer certs, course completions (auto-populated from Courses module)
-    - *Equipment & Tools* — what they work with (lift brands, diagnostic tools, brands they trust)
-  - New `ProfileSectionEntity` + migration to store arbitrary sections per profile
-  - Public profile `/profile/[id]` renders the same sections read-only
-
-  **Color & brand direction — research notes:**
-  Studied major US automotive industry players for inspiration:
-
-  | Brand | Palette | Feel |
-  |---|---|---|
-  | **Holley Performance** | Black + orange accent | Aggressive, performance-first |
-  | **Snap-on Tools** | Red + black + chrome | Premium, precision, trust |
-  | **Summit Racing** | Red + white + dark gray | Accessible, catalog-style |
-  | **Barrett-Jackson** | Black + gold + white | Luxury auction, premium |
-  | **Hagerty** | Navy + cream + warm red | Classic, sophisticated, collector |
-  | **SEMA Show** | Black + electric blue + silver | Trade/professional, modern |
-  | **Petersen Automotive Museum** | Dark charcoal + orange-red | Editorial, bold |
-
-  **Recommended direction for AutoGuildX:**
-  - Keep the **dark base** — it's consistent with the performance/trade segment and works on all screens
-  - Evolve the orange accent from `#f97316` toward a **deeper amber/burnt orange** (`#e8610a` or `#d4550f`) — warmer, less "startup", more industrial
-  - Add a **chrome/silver secondary** (`#9ca3af` → `#b8c4cc`) for metallic accents on cards and borders
-  - Typography: move toward a **slightly condensed bold** for headings — Barrett-Jackson/Holley-style authority
-  - Cards: add subtle **texture or gradient** on hover states to break the flat look
-  - Profile banners: encourage users toward automotive photography — dark car shots, garage interiors
-
-  **Implementation scope:**
-  - Update `tailwind.config.ts` color tokens
-  - Update `globals.css` component classes
-  - Redesign profile page layout with new sections
-  - Update AppShell header to feel more premium
-  - Update landing page hero typography
+- [x] **UI/UX overhaul — Rich profile + automotive brand identity** ✅ Sprint 26 COMPLETE
 
 - [ ] **Smoke-test password reset flow end-to-end** — All code exists and is wired up, but the flow has never been manually verified on production.
   - Go to `https://autoguildx.com/forgot-password` → enter a real email → check inbox for reset email
@@ -166,6 +127,33 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
   - CTA button → `/courses` ("Browse Courses")
   - Layout: icon + text left, button right on desktop; stacked on mobile
   - Visual: `border border-brand-500/30 bg-brand-500/5` to distinguish from the plain cards above
+
+---
+
+## Sprint 26 — Visual Overhaul + Rich Profile Sections ✅ COMPLETE
+
+**Goal:** Elevate the platform visual identity to feel automotive-premium; expose rich profile sections to users.
+
+### Visual / Brand
+- [x] **Barlow Condensed** loaded as `--font-heading` via next/font; `font-heading` Tailwind token; `.display` CSS utility for condensed black display headings
+- [x] **Landing page** — eyebrow label, condensed hero headline, subtle radial glow, stats row (community / listings / courses), interactive card hover depth, `bg-surface-card/30` value props section
+- [x] **AppShell header** — `font-heading` logo text, `shadow-sm shadow-black/40` for depth
+- [x] **globals.css** — richer hover states: `btn-primary` gets `hover:shadow-brand-500/10`, `btn-secondary` border brightens to silver-500, `card` uses `transition-all`, `card-interactive` gets `hover:shadow-lg hover:shadow-black/30`
+- [x] Brand orange already at `#e8610a` (brand-500) + `#d4550f` (brand-600); silver tokens present — confirmed Sprint 24
+
+### Rich Profile Sections (discovered pre-built — verified complete)
+- [x] `ProfileSectionEntity` — type enum (expertise / experience / build / certification / equipment), JSONB data, sortOrder
+- [x] Migration `1700000000014-AddProfileSections`
+- [x] `ProfileSectionsService` + `ProfileSectionsController` — CRUD, owner guard
+- [x] `ProfileSections` component — collapsible groups, inline add/edit/delete forms per section type
+- [x] Wired on `/profile` (isOwner=true) and `/profile/[id]` (isOwner check)
+- [x] Shared types: `ProfileSection`, `ProfileSectionType`, `ExpertiseData`, `ExperienceData`, `BuildData`, `CertificationData`, `EquipmentData`
+- [x] Unit tests: `tests/unit/profiles/profile-sections.service.spec.ts` (9 tests)
+
+### i18n
+- [x] `ProfileSections` component fully translated — all 30+ hardcoded strings replaced with `useTranslations('sections')`
+- [x] `en.json` + `es.json` extended with `sections.*` namespace (EN/ES in sync)
+- [x] Public profile `PageClient.tsx` — hardcoded `ROLE_LABELS` replaced with `profile.role_*` translation keys
 
 ---
 

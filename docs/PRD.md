@@ -136,6 +136,12 @@ All features below are fully implemented and deployed unless noted.
 - `POST /upload/presign` → browser PUTs directly to S3 → stores public URL
 - Used by: profile image, profile video, post images, listing images
 
+### 13. Rich Profile Sections
+- Five section types per profile: **Expertise** (skill + level chip), **Experience** (timeline: shop, role, years), **Specialty Builds** (photo card: year/make/model), **Certifications** (name, issuer, year), **Equipment & Tools** (name, brand, category)
+- `ProfileSectionEntity` with JSONB `data` column and `sortOrder`; cascade-deletes with profile
+- Owner can add/edit/delete entries inline; public profiles render sections read-only
+- Fully translated (EN + ES) via `useTranslations('sections')`
+
 ### 12. Multilingual Support (EN / ES)
 - Full English/Spanish internationalization via `next-intl` v3 + `[locale]` URL segments
 - URLs: `/en/feed`, `/es/feed` — SEO-friendly, shareable
@@ -179,6 +185,7 @@ All features below are fully implemented and deployed unless noted.
 | Production Docker stack (nginx + SSL + deploy script) | ✅ Sprint 22 |
 | Traefik-based Contabo deployment + GitHub Actions CD | ✅ Sprint 23 |
 | Multilingual EN/ES support (next-intl v3, all pages) | ✅ Sprint 25 |
+| Visual overhaul + rich profile sections | ✅ Sprint 26 |
 | Stripe production env vars + webhook registration | Ops (no code changes) |
 | Real S3 credentials for media uploads | Ops (no code changes) |
 
