@@ -4,7 +4,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { clsx } from 'clsx';
 import { useTranslations, useLocale } from 'next-intl';
 import api from '@/lib/api';
-import { locales, type Locale } from '@/i18n';
+import { type Locale } from '@/i18n';
 
 const ROLE_CARDS = [
   {
@@ -55,7 +55,6 @@ const LOCALE_OPTIONS: { value: Locale; flag: string; label: string; sublabel: st
 
 export default function OnboardingPage() {
   const t = useTranslations('onboarding');
-  const tc = useTranslations('common');
   const currentLocale = useLocale() as Locale;
   const pathname = usePathname();
   const [step, setStep] = useState(0);
@@ -88,7 +87,10 @@ export default function OnboardingPage() {
   };
 
   function switchLocale(next: Locale) {
-    if (next === currentLocale) { setStep(1); return; }
+    if (next === currentLocale) {
+      setStep(1);
+      return;
+    }
     const segments = pathname.split('/');
     segments[1] = next;
     router.push(segments.join('/').replace('/onboarding', '/onboarding'));
@@ -116,7 +118,11 @@ export default function OnboardingPage() {
               {step === 1 ? t('role_title') : step === 2 ? t('profile_title') : t('tags_title')}
             </h1>
             <p className="text-sm text-gray-400 mt-1">
-              {step === 1 ? t('role_subtitle') : step === 2 ? t('profile_subtitle') : t('tags_subtitle')}
+              {step === 1
+                ? t('role_subtitle')
+                : step === 2
+                  ? t('profile_subtitle')
+                  : t('tags_subtitle')}
             </p>
           </div>
         )}
@@ -149,7 +155,13 @@ export default function OnboardingPage() {
                   </div>
                   {opt.value === currentLocale && (
                     <div className="ml-auto w-5 h-5 rounded-full bg-brand-500 flex items-center justify-center shrink-0">
-                      <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <svg
+                        className="w-3 h-3 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={3}
+                      >
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
@@ -177,8 +189,12 @@ export default function OnboardingPage() {
               >
                 <span className="text-3xl shrink-0">{card.emoji}</span>
                 <div className="min-w-0">
-                  <p className="font-semibold text-white text-sm">{t(`role_${card.value}_label` as any)}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{t(`role_${card.value}_desc` as any)}</p>
+                  <p className="font-semibold text-white text-sm">
+                    {t(`role_${card.value}_label` as any)}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {t(`role_${card.value}_desc` as any)}
+                  </p>
                 </div>
                 {form.roleType === card.value && (
                   <div className="ml-auto w-5 h-5 rounded-full bg-brand-500 flex items-center justify-center shrink-0">

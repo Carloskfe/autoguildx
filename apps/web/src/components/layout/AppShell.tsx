@@ -52,8 +52,14 @@ const MOBILE_NAV_ITEMS: { href: string; labelKey: string; icon: React.ElementTyp
 ];
 
 const TIER_BADGE: Record<string, { labelKey: string; className: string }> = {
-  free: { labelKey: 'plan_free', className: 'bg-surface-card text-gray-400 border border-surface-border' },
-  owner: { labelKey: 'plan_owner', className: 'bg-brand-500/20 text-brand-500 border border-brand-500/40' },
+  free: {
+    labelKey: 'plan_free',
+    className: 'bg-surface-card text-gray-400 border border-surface-border',
+  },
+  owner: {
+    labelKey: 'plan_owner',
+    className: 'bg-brand-500/20 text-brand-500 border border-brand-500/40',
+  },
   company: {
     labelKey: 'plan_company',
     className: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/40',
