@@ -6,6 +6,50 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ## Backlog (unscheduled)
 
+- [ ] **Multilingual support — English / Spanish (Sprint 25 candidate)**
+
+  **Current state:** No i18n infrastructure exists. All UI copy is hardcoded English across ~40+ pages.
+
+  **Architecture decision: `next-intl` + `[locale]` URL segments**
+  - Industry standard for Next.js 14 App Router
+  - Native Server Component support, TypeScript-first, tiny runtime
+  - URLs become `/en/feed`, `/es/feed` — SEO-friendly, shareable
+  - Middleware handles locale detection and redirect
+
+  **Backend changes:**
+  - Add `locale` field (`varchar`, default `'en'`) to `UserEntity` + migration
+  - `PATCH /auth/me/locale` endpoint to persist preference
+  - API error messages stay English-only for now (Phase 2)
+
+  **Frontend architecture:**
+  - `messages/en.json` + `messages/es.json` — all UI strings extracted here
+  - Wrap `app/` under `app/[locale]/` route group
+  - `middleware.ts` — reads `Accept-Language` header, redirects to `/en` or `/es`; reads `NEXT_LOCALE` cookie for returning users
+  - `LocaleSwitcher` component — compact toggle (EN | ES) in AppShell header and Settings page
+  - Locale persisted to `localStorage` (unauthenticated) + `UserEntity.locale` (authenticated)
+
+  **Language selection UX (first user decision):**
+  - New visitor → middleware detects browser language → auto-routes to `/en` or `/es`
+  - Onboarding: language picker as step 0 (before role selection), shown only if locale not already set
+  - AppShell header: small EN/ES toggle always visible
+  - Settings page: "Language / Idioma" selector
+
+  **Translation scope (~40 pages):**
+  - All static UI copy: buttons, labels, placeholders, empty states, error messages
+  - All page titles and descriptions
+  - Toast notifications and confirmation dialogs
+  - Onboarding copy, landing page, team page
+
+  **Implementation order:**
+  1. Install `next-intl`, restructure routes under `[locale]`
+  2. Middleware + locale detection
+  3. `messages/en.json` — extract all English strings
+  4. `messages/es.json` — Spanish translation
+  5. `LocaleSwitcher` component
+  6. Backend `locale` field + endpoint
+  7. Onboarding language step
+  8. QA pass on both locales
+
 - [ ] **UI/UX overhaul — Rich profile + automotive brand identity** — The current dark theme (#0f0f0f / #f97316) is functional but generic. This sprint should elevate the platform to feel like it belongs alongside major US automotive brands.
 
   **Profile page redesign (LinkedIn + Facebook hybrid):**
