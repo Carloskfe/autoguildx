@@ -78,90 +78,91 @@ function CourseCard({
   const isEnrolled = progress !== undefined;
 
   return (
-    <Link href={`/courses/${course.id}`} className="card-interactive group block overflow-hidden !p-0">
-        {/* Thumbnail */}
-        <div className="relative aspect-video bg-gray-900 overflow-hidden">
-          {course.thumbnailUrl ? (
-            <img
-              src={course.thumbnailUrl}
-              alt={course.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            />
+    <Link
+      href={`/courses/${course.id}`}
+      className="card-interactive group block overflow-hidden !p-0"
+    >
+      {/* Thumbnail */}
+      <div className="relative aspect-video bg-gray-900 overflow-hidden">
+        {course.thumbnailUrl ? (
+          <img
+            src={course.thumbnailUrl}
+            alt={course.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <GraduationCap className="w-12 h-12 text-gray-700" />
+          </div>
+        )}
+        {isBestseller && !isEnrolled && (
+          <span className="absolute top-2 left-2 bg-yellow-400 text-gray-900 text-xs font-bold px-2 py-0.5 rounded">
+            Bestseller
+          </span>
+        )}
+        {isEnrolled && (
+          <span className="absolute top-2 left-2 bg-brand-500/90 text-white text-xs font-semibold px-2 py-0.5 rounded">
+            {progress === 100 ? 'Completed' : 'Enrolled'}
+          </span>
+        )}
+        {Number(course.price) === 0 && !isEnrolled && (
+          <span className="absolute top-2 right-2 bg-green-500/90 text-white text-xs font-semibold px-2 py-0.5 rounded">
+            Free
+          </span>
+        )}
+      </div>
+
+      {/* Card body */}
+      <div className="p-4">
+        <h3 className="font-bold text-white text-sm leading-snug line-clamp-2 mb-1 group-hover:text-brand-400 transition-colors">
+          {course.title}
+        </h3>
+        <p className="text-xs text-gray-400 mb-2 truncate">{instructorName}</p>
+
+        {/* Rating */}
+        {rating && (
+          <div className="mb-2">
+            <StarRating avg={rating.avgRating} total={rating.total} />
+          </div>
+        )}
+
+        {/* Stats row */}
+        <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
+          <span className="flex items-center gap-1">
+            <BookOpen className="w-3 h-3" />
+            {course.lessonCount} {course.lessonCount === 1 ? 'lesson' : 'lessons'}
+          </span>
+          <span className="flex items-center gap-1">
+            <Users className="w-3 h-3" />
+            {course.enrollmentCount.toLocaleString()}
+          </span>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between">
+          <span
+            className={`text-xs px-2 py-0.5 rounded-full border ${
+              course.level === 'Beginner'
+                ? 'border-green-600/40 text-green-400 bg-green-500/10'
+                : course.level === 'Intermediate'
+                  ? 'border-yellow-600/40 text-yellow-400 bg-yellow-500/10'
+                  : course.level === 'Advanced'
+                    ? 'border-red-600/40 text-red-400 bg-red-500/10'
+                    : 'border-surface-border text-gray-500'
+            }`}
+          >
+            {course.level || 'All Levels'}
+          </span>
+          {Number(course.price) > 0 ? (
+            <span className="font-bold text-white text-sm">${Number(course.price).toFixed(2)}</span>
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <GraduationCap className="w-12 h-12 text-gray-700" />
-            </div>
-          )}
-          {isBestseller && !isEnrolled && (
-            <span className="absolute top-2 left-2 bg-yellow-400 text-gray-900 text-xs font-bold px-2 py-0.5 rounded">
-              Bestseller
-            </span>
-          )}
-          {isEnrolled && (
-            <span className="absolute top-2 left-2 bg-brand-500/90 text-white text-xs font-semibold px-2 py-0.5 rounded">
-              {progress === 100 ? 'Completed' : 'Enrolled'}
-            </span>
-          )}
-          {Number(course.price) === 0 && !isEnrolled && (
-            <span className="absolute top-2 right-2 bg-green-500/90 text-white text-xs font-semibold px-2 py-0.5 rounded">
-              Free
-            </span>
+            <span className="font-bold text-green-400 text-sm">Free</span>
           )}
         </div>
 
-        {/* Card body */}
-        <div className="p-4">
-          <h3 className="font-bold text-white text-sm leading-snug line-clamp-2 mb-1 group-hover:text-brand-400 transition-colors">
-            {course.title}
-          </h3>
-          <p className="text-xs text-gray-400 mb-2 truncate">{instructorName}</p>
-
-          {/* Rating */}
-          {rating && (
-            <div className="mb-2">
-              <StarRating avg={rating.avgRating} total={rating.total} />
-            </div>
-          )}
-
-          {/* Stats row */}
-          <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
-            <span className="flex items-center gap-1">
-              <BookOpen className="w-3 h-3" />
-              {course.lessonCount} {course.lessonCount === 1 ? 'lesson' : 'lessons'}
-            </span>
-            <span className="flex items-center gap-1">
-              <Users className="w-3 h-3" />
-              {course.enrollmentCount.toLocaleString()}
-            </span>
-          </div>
-
-          {/* Footer */}
-          <div className="flex items-center justify-between">
-            <span
-              className={`text-xs px-2 py-0.5 rounded-full border ${
-                course.level === 'Beginner'
-                  ? 'border-green-600/40 text-green-400 bg-green-500/10'
-                  : course.level === 'Intermediate'
-                    ? 'border-yellow-600/40 text-yellow-400 bg-yellow-500/10'
-                    : course.level === 'Advanced'
-                      ? 'border-red-600/40 text-red-400 bg-red-500/10'
-                      : 'border-surface-border text-gray-500'
-              }`}
-            >
-              {course.level || 'All Levels'}
-            </span>
-            {Number(course.price) > 0 ? (
-              <span className="font-bold text-white text-sm">
-                ${Number(course.price).toFixed(2)}
-              </span>
-            ) : (
-              <span className="font-bold text-green-400 text-sm">Free</span>
-            )}
-          </div>
-
-          {/* Progress bar for enrolled users */}
-          {isEnrolled && progress !== undefined && <ProgressBar percentage={progress} />}
-        </div>
+        {/* Progress bar for enrolled users */}
+        {isEnrolled && progress !== undefined && <ProgressBar percentage={progress} />}
+      </div>
     </Link>
   );
 }

@@ -261,7 +261,9 @@ function ProfileHeader({ profile }: { profile: Profile }) {
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-800 via-gray-900 to-gray-950" />
+          <div className="w-full h-full bg-gradient-to-br from-gray-900 via-[#111] to-black">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_theme(colors.brand.500/8),_transparent_60%)]" />
+          </div>
         )}
         {/* Desktop: hover overlay */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors items-center justify-center opacity-0 group-hover:opacity-100 hidden md:flex">
@@ -301,7 +303,7 @@ function ProfileHeader({ profile }: { profile: Profile }) {
           <button
             type="button"
             onClick={() => avatarRef.current?.click()}
-            className="relative w-20 h-20 rounded-full group ring-4 ring-gray-900 shrink-0"
+            className="relative w-20 h-20 rounded-full group ring-4 ring-surface shrink-0"
             aria-label="Change profile photo"
           >
             {(profile as any).profileVideoUrl ? (
@@ -365,14 +367,14 @@ function ProfileHeader({ profile }: { profile: Profile }) {
           <div className="space-y-3">
             {/* Name + role */}
             <div>
-              <h1 className="text-xl font-bold text-white flex items-center gap-2">
+              <h1 className="font-heading font-black text-2xl tracking-tight text-white flex items-center gap-2">
                 {profile.name}
                 {profile.isVerified && <VerifiedBadge size="md" />}
               </h1>
               {profile.businessName && (
                 <p className="text-sm text-gray-400 mt-0.5">{profile.businessName}</p>
               )}
-              <span className="inline-block mt-2 text-xs px-2.5 py-1 rounded-full bg-surface-card border border-surface-border text-gray-300">
+              <span className="inline-block mt-2 text-xs px-2.5 py-1 rounded-full bg-brand-500/10 border border-brand-500/25 text-brand-400 font-medium">
                 {t((ROLE_KEY_MAP[profile.roleType] ?? profile.roleType) as any)}
               </span>
             </div>
@@ -386,14 +388,19 @@ function ProfileHeader({ profile }: { profile: Profile }) {
             )}
 
             {/* Followers / following */}
-            <div className="flex items-center gap-5 text-sm">
-              <div>
-                <span className="font-bold text-white">{profile.followersCount}</span>
-                <span className="text-gray-400 ml-1.5">{t('followers_count')}</span>
+            <div className="flex items-center gap-6 text-sm border-t border-surface-border pt-3">
+              <div className="text-center">
+                <p className="font-heading font-black text-lg text-white leading-none">
+                  {profile.followersCount}
+                </p>
+                <p className="text-gray-500 text-xs mt-0.5">{t('followers_count')}</p>
               </div>
-              <div>
-                <span className="font-bold text-white">{profile.followingCount}</span>
-                <span className="text-gray-400 ml-1.5">{t('following_count')}</span>
+              <div className="w-px h-8 bg-surface-border" />
+              <div className="text-center">
+                <p className="font-heading font-black text-lg text-white leading-none">
+                  {profile.followingCount}
+                </p>
+                <p className="text-gray-500 text-xs mt-0.5">{t('following_count')}</p>
               </div>
             </div>
 
@@ -408,10 +415,7 @@ function ProfileHeader({ profile }: { profile: Profile }) {
             {profile.tags?.filter(Boolean).length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {profile.tags.filter(Boolean).map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-xs px-2.5 py-1 rounded-full bg-surface-card border border-surface-border text-gray-300"
-                  >
+                  <span key={tag} className="section-chip">
                     {tag}
                   </span>
                 ))}
@@ -436,7 +440,7 @@ function OwnPostCard({ post }: { post: PostWithUser }) {
   });
 
   return (
-    <article className="card space-y-2">
+    <article className="card hover:border-silver-500/20 transition-all duration-200 space-y-2">
       <p className="text-sm text-gray-200 whitespace-pre-wrap break-words leading-relaxed">
         {post.content}
       </p>
@@ -580,7 +584,7 @@ function CertificatesSection() {
 
   return (
     <div className="space-y-3">
-      <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide px-1">
+      <h2 className="text-xs font-bold tracking-[0.1em] uppercase text-gray-500 px-1">
         {t('certificates')}
       </h2>
       <div className="space-y-2">
@@ -604,6 +608,7 @@ function CertificatesSection() {
 // ─── Profile page ─────────────────────────────────────────────────────────────
 
 export default function ProfilePage() {
+  const t = useTranslations('profile');
   const { isAuthenticated, userId } = useAuth();
   const router = useRouter();
 
@@ -658,7 +663,7 @@ export default function ProfilePage() {
 
   return (
     <AppShell>
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
+      <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
         {profile && <ProfileHeader profile={profile} />}
 
         {profile && !profile.isVerified && <VerificationSection />}
@@ -670,8 +675,8 @@ export default function ProfilePage() {
         {profile && <ProfileSections profileId={profile.id} isOwner={true} />}
 
         <div className="space-y-3">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide px-1">
-            Posts
+          <h2 className="text-xs font-bold tracking-[0.1em] uppercase text-gray-500 px-1">
+            {t('posts')}
           </h2>
 
           {postsLoading && (

@@ -30,10 +30,7 @@ function ProfileResult({ profile }: { profile: Profile }) {
   });
 
   return (
-    <Link
-      href={`/profile/${profile.id}`}
-      className="card-interactive flex items-start gap-3 group"
-    >
+    <Link href={`/profile/${profile.id}`} className="card-interactive flex items-start gap-3 group">
       <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center text-sm font-bold text-white shrink-0">
         {profile.name?.[0]?.toUpperCase() ?? '?'}
       </div>

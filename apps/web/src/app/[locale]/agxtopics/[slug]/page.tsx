@@ -154,7 +154,10 @@ export default function ForumPage() {
         ) : (
           <div className="space-y-3">
             {posts.map((post) => (
-              <div key={post.id} className="card hover:border-silver-500/20 transition-all duration-200 flex gap-3">
+              <div
+                key={post.id}
+                className="card hover:border-silver-500/20 transition-all duration-200 flex gap-3"
+              >
                 <div className="flex flex-col items-center gap-1 shrink-0 pt-1">
                   <button
                     onClick={() => handleVote(post, 1)}

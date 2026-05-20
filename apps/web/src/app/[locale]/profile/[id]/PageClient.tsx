@@ -113,7 +113,7 @@ export default function PublicProfilePage() {
 
   return (
     <AppShell>
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
+      <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
         {/* ── Profile banner card ───────────────────────────────────────────── */}
         <div className="bg-surface-card border border-surface-border rounded-xl overflow-hidden">
           {/* Banner */}
@@ -126,7 +126,9 @@ export default function PublicProfilePage() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-gray-800 via-gray-900 to-gray-950" />
+              <div className="w-full h-full bg-gradient-to-br from-gray-900 via-[#111] to-black">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_theme(colors.brand.500/8),_transparent_60%)]" />
+              </div>
             )}
           </div>
 
@@ -134,7 +136,7 @@ export default function PublicProfilePage() {
           <div className="px-4 pb-5">
             <div className="flex items-end justify-between -mt-10 mb-4">
               {/* Avatar */}
-              <div className="w-20 h-20 rounded-full ring-4 ring-gray-900 shrink-0 overflow-hidden">
+              <div className="w-20 h-20 rounded-full ring-4 ring-surface shrink-0 overflow-hidden">
                 {(profile as any).profileVideoUrl ? (
                   <video
                     src={(profile as any).profileVideoUrl}
@@ -165,7 +167,7 @@ export default function PublicProfilePage() {
                     onClick={() => router.push('/profile')}
                     className="btn-secondary text-xs px-4 py-1.5"
                   >
-                    Edit profile
+                    {tp('edit_profile')}
                   </button>
                 ) : (
                   <>
@@ -174,7 +176,7 @@ export default function PublicProfilePage() {
                       className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5"
                     >
                       <Link2 className="w-3.5 h-3.5" />
-                      {copied ? 'Copied!' : 'Share'}
+                      {copied ? tp('copied') : tp('share')}
                     </button>
                     <button
                       onClick={handleMessage}
@@ -186,7 +188,7 @@ export default function PublicProfilePage() {
                       ) : (
                         <MessageSquare className="w-3.5 h-3.5" />
                       )}
-                      Message
+                      {tp('message')}
                     </button>
                     <button
                       onClick={() =>
@@ -203,11 +205,11 @@ export default function PublicProfilePage() {
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
                       ) : isFollowing ? (
                         <>
-                          <UserMinus className="w-3.5 h-3.5" /> Unfollow
+                          <UserMinus className="w-3.5 h-3.5" /> {tp('unfollow')}
                         </>
                       ) : (
                         <>
-                          <UserPlus className="w-3.5 h-3.5" /> Follow
+                          <UserPlus className="w-3.5 h-3.5" /> {tp('follow')}
                         </>
                       )}
                     </button>
@@ -219,14 +221,14 @@ export default function PublicProfilePage() {
             {/* Profile info */}
             <div className="space-y-3">
               <div>
-                <h1 className="text-xl font-bold text-white flex items-center gap-2">
+                <h1 className="font-heading font-black text-2xl tracking-tight text-white flex items-center gap-2">
                   {profile.name}
                   {profile.isVerified && <VerifiedBadge size="md" />}
                 </h1>
                 {profile.businessName && (
                   <p className="text-sm text-gray-400 mt-0.5">{profile.businessName}</p>
                 )}
-                <span className="inline-block mt-2 text-xs px-2.5 py-1 rounded-full bg-surface-card border border-surface-border text-gray-300">
+                <span className="inline-block mt-2 text-xs px-2.5 py-1 rounded-full bg-brand-500/10 border border-brand-500/25 text-brand-400 font-medium">
                   {tp(`role_${profile.roleType}` as any) ?? profile.roleType}
                 </span>
               </div>
@@ -238,14 +240,19 @@ export default function PublicProfilePage() {
                 </div>
               )}
 
-              <div className="flex items-center gap-5 text-sm">
-                <div>
-                  <span className="font-bold text-white">{profile.followersCount}</span>
-                  <span className="text-gray-400 ml-1.5">followers</span>
+              <div className="flex items-center gap-6 text-sm border-t border-surface-border pt-3">
+                <div className="text-center">
+                  <p className="font-heading font-black text-lg text-white leading-none">
+                    {profile.followersCount}
+                  </p>
+                  <p className="text-gray-500 text-xs mt-0.5">{tp('followers_count')}</p>
                 </div>
-                <div>
-                  <span className="font-bold text-white">{profile.followingCount}</span>
-                  <span className="text-gray-400 ml-1.5">following</span>
+                <div className="w-px h-8 bg-surface-border" />
+                <div className="text-center">
+                  <p className="font-heading font-black text-lg text-white leading-none">
+                    {profile.followingCount}
+                  </p>
+                  <p className="text-gray-500 text-xs mt-0.5">{tp('following_count')}</p>
                 </div>
               </div>
 
@@ -258,10 +265,7 @@ export default function PublicProfilePage() {
               {profile.tags?.filter(Boolean).length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {profile.tags.filter(Boolean).map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-xs px-2.5 py-1 rounded-full bg-surface-card border border-surface-border text-gray-300"
-                    >
+                    <span key={tag} className="section-chip">
                       {tag}
                     </span>
                   ))}
@@ -276,8 +280,8 @@ export default function PublicProfilePage() {
 
         {/* Posts */}
         <div className="space-y-3">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide px-1">
-            Posts
+          <h2 className="text-xs font-bold tracking-[0.1em] uppercase text-gray-500 px-1">
+            {tp('posts')}
           </h2>
 
           {postsLoading && (
@@ -287,11 +291,14 @@ export default function PublicProfilePage() {
           )}
 
           {!postsLoading && posts.length === 0 && (
-            <p className="text-center text-sm text-gray-500 py-8">No posts yet.</p>
+            <p className="text-center text-sm text-gray-500 py-8">{tp('no_posts')}</p>
           )}
 
           {posts.map((post) => (
-            <article key={post.id} className="card space-y-2">
+            <article
+              key={post.id}
+              className="card hover:border-silver-500/20 transition-all duration-200 space-y-2"
+            >
               <p className="text-sm text-gray-200 whitespace-pre-wrap break-words leading-relaxed">
                 {post.content}
               </p>
@@ -308,9 +315,7 @@ export default function PublicProfilePage() {
 
         {/* Reviews */}
         {!isOwnProfile && profile && (
-          <div className="max-w-2xl mx-auto px-4 pb-10">
-            <ReviewSection targetId={profile.userId} targetType="profile" showDimensions />
-          </div>
+          <ReviewSection targetId={profile.userId} targetType="profile" showDimensions />
         )}
       </div>
     </AppShell>

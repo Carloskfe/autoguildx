@@ -27,10 +27,7 @@ function EventCard({ event, t }: { event: Event; t: (k: string) => string }) {
   const start = event.startDate ? new Date(event.startDate) : null;
 
   return (
-    <Link
-      href={`/events/${event.id}`}
-      className="card-interactive block group"
-    >
+    <Link href={`/events/${event.id}`} className="card-interactive block group">
       <div className="flex items-start gap-4">
         {/* Date block or briefcase for opportunities */}
         <div className="shrink-0 w-12 text-center">
