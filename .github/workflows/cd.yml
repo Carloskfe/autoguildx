@@ -27,6 +27,8 @@ jobs:
             set -e
             cd /opt/autoguildx
             git pull origin main
+            # Remove any stale containers with hash-prefixed names that block compose
+            docker ps -a --format '{{.Names}}' | grep -E 'autoguildx-(web|api|db)' | xargs -r docker rm -f 2>/dev/null || true
             docker compose --env-file .env.production -f docker-compose.server.yml up -d --build --remove-orphans
             docker compose --env-file .env.production -f docker-compose.server.yml exec -T api npm run migration:run:prod
             docker image prune -f
