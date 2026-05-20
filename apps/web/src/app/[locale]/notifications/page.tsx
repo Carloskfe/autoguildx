@@ -7,6 +7,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Bell, Loader2 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 
 interface Actor {
@@ -26,8 +27,8 @@ interface Notification {
   createdAt: string;
 }
 
-function actorName(actor?: Actor): string {
-  return actor?.profile?.displayName ?? actor?.profile?.name ?? actor?.email ?? 'Someone';
+function actorName(actor?: Actor, fallback = 'Someone'): string {
+  return actor?.profile?.displayName ?? actor?.profile?.name ?? actor?.email ?? fallback;
 }
 
 function notifText(n: Notification): string {
@@ -66,6 +67,7 @@ function notifLink(n: Notification): string {
 }
 
 export default function NotificationsPage() {
+  const t = useTranslations('notifications');
   const { isAuthenticated } = useAuth();
   const router = useRouter();
   const qc = useQueryClient();
@@ -109,14 +111,14 @@ export default function NotificationsPage() {
     <AppShell>
       <div className="max-w-2xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold text-white">Notifications</h1>
+          <h1 className="text-xl font-bold text-white">{t('title')}</h1>
           {unread > 0 && (
             <button
               onClick={() => markAllRead.mutate()}
               disabled={markAllRead.isPending}
               className="text-sm text-brand-500 hover:text-brand-400 transition-colors disabled:opacity-50"
             >
-              Mark all as read
+              {t('mark_all_read')}
             </button>
           )}
         </div>
@@ -128,10 +130,8 @@ export default function NotificationsPage() {
         ) : notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-500">
             <Bell className="w-12 h-12" />
-            <p className="text-sm">No notifications yet</p>
-            <p className="text-xs text-gray-600">
-              You&apos;ll see activity from followers, reactions, and reviews here.
-            </p>
+            <p className="text-sm">{t('empty')}</p>
+            <p className="text-xs text-gray-600">{t('empty_hint')}</p>
           </div>
         ) : (
           <div className="card divide-y divide-surface-border overflow-hidden p-0">

@@ -9,6 +9,7 @@ import Link from 'next/link';
 import AppShell from '@/components/layout/AppShell';
 import { useAuth } from '@/hooks/useAuth';
 import { useSocket } from '@/hooks/useSocket';
+import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 
 interface Profile {
@@ -60,6 +61,7 @@ function otherParticipant(conv: Conversation, userId: string): Participant {
 }
 
 function MessagesContent() {
+  const t = useTranslations('messages');
   const { isAuthenticated, userId } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -153,7 +155,7 @@ function MessagesContent() {
           className={`w-full md:w-80 shrink-0 border-r border-surface-border flex flex-col ${activeId ? 'hidden md:flex' : 'flex'}`}
         >
           <div className="p-4 border-b border-surface-border">
-            <h1 className="text-lg font-semibold text-white">Messages</h1>
+            <h1 className="text-lg font-semibold text-white">{t('title')}</h1>
           </div>
 
           {convsLoading ? (
@@ -163,10 +165,8 @@ function MessagesContent() {
           ) : conversations.length === 0 ? (
             <div className="flex flex-col items-center justify-center flex-1 gap-3 text-center px-6">
               <MessageSquare className="w-12 h-12 text-gray-600" />
-              <p className="text-gray-400 text-sm">No conversations yet.</p>
-              <p className="text-gray-500 text-xs">
-                Visit a profile or listing and tap <strong>Message</strong> to start one.
-              </p>
+              <p className="text-gray-400 text-sm">{t('no_conversations')}</p>
+              <p className="text-gray-500 text-xs">{t('no_conversations_hint')}</p>
             </div>
           ) : (
             <ul className="flex-1 overflow-y-auto divide-y divide-surface-border">
@@ -196,7 +196,7 @@ function MessagesContent() {
                         </div>
                         {conv.lastMessage && (
                           <p className="text-xs text-gray-500 truncate mt-0.5">
-                            {conv.lastMessage.senderId === userId ? 'You: ' : ''}
+                            {conv.lastMessage.senderId === userId ? t('you_prefix') : ''}
                             {conv.lastMessage.content}
                           </p>
                         )}
@@ -251,7 +251,7 @@ function MessagesContent() {
                   </div>
                 ) : messages.length === 0 ? (
                   <p className="text-center text-gray-500 text-sm py-10">
-                    No messages yet — say hello!
+                    {t('no_messages')}
                   </p>
                 ) : (
                   messages.map((msg) => {
@@ -291,7 +291,7 @@ function MessagesContent() {
                   type="text"
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
-                  placeholder="Type a message…"
+                  placeholder={t('type_placeholder')}
                   className="input flex-1 py-2 text-sm"
                   maxLength={2000}
                 />

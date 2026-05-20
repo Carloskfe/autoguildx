@@ -7,12 +7,14 @@ import Link from 'next/link';
 import { Users, Plus, MessageSquare } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 import type { Forum } from '@autoguildx/shared';
 
 const CATEGORIES = ['All', 'tech', 'classics', 'mods', 'racing', 'buying-selling', 'general'];
 
 export default function AGXTopicsPage() {
+  const t = useTranslations('agxtopics');
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const [category, setCategory] = useState('All');
@@ -48,14 +50,12 @@ export default function AGXTopicsPage() {
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-white">AGXTopics</h1>
-            <p className="text-gray-400 text-sm mt-1">
-              Thematic communities for automotive experts
-            </p>
+            <h1 className="text-2xl font-bold text-white">{t('title')}</h1>
+            <p className="text-gray-400 text-sm mt-1">{t('subtitle')}</p>
           </div>
           <Link href="/agxtopics/new" className="btn-primary flex items-center gap-2 text-sm">
             <Plus size={16} />
-            New Topic
+            {t('new_topic')}
           </Link>
         </div>
 
@@ -76,7 +76,7 @@ export default function AGXTopicsPage() {
         </div>
 
         {isLoading ? (
-          <div className="text-center text-gray-500 py-12">Loading topics…</div>
+          <div className="text-center text-gray-500 py-12">{t('loading')}</div>
         ) : forums.length === 0 ? (
           <div className="text-center text-gray-500 py-12">
             No topics yet.{' '}
@@ -104,11 +104,11 @@ export default function AGXTopicsPage() {
                   <div className="flex items-center gap-4 text-xs text-gray-500">
                     <span className="flex items-center gap-1">
                       <Users size={12} />
-                      {forum.memberCount.toLocaleString()} members
+                      {forum.memberCount.toLocaleString()} {t('members')}
                     </span>
                     <span className="flex items-center gap-1">
                       <MessageSquare size={12} />
-                      {forum.postCount.toLocaleString()} posts
+                      {forum.postCount.toLocaleString()} {t('posts')}
                     </span>
                   </div>
                 </div>
@@ -124,7 +124,7 @@ export default function AGXTopicsPage() {
                       : 'bg-brand-500 text-white hover:bg-brand-600'
                   }`}
                 >
-                  {forum.isMember ? 'Joined' : 'Join'}
+                  {forum.isMember ? t('joined') : t('join')}
                 </button>
               </div>
             ))}

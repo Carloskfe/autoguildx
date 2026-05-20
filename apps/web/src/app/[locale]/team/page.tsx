@@ -11,6 +11,7 @@ import {
   MapPin,
   CheckCircle2,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 
 interface TeamProfile {
@@ -27,30 +28,15 @@ interface TeamProfile {
   profileBannerUrl?: string;
 }
 
-const VALUES = [
-  {
-    icon: Wrench,
-    title: 'Built by Enthusiasts',
-    body: 'We are car and moto people first. Every feature is designed around how the community actually works — from weekend DIYers to full-time shop owners.',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Trust & Verification',
-    body: 'Verified badges, honest reviews, and identity-linked profiles so you know exactly who you are dealing with.',
-  },
-  {
-    icon: Users,
-    title: 'Community First',
-    body: 'Not an algorithm-driven feed. A network where expertise and reputation speak louder than ad spend.',
-  },
-  {
-    icon: GraduationCap,
-    title: 'Knowledge Sharing',
-    body: 'Courses and certifications from real experts — so skills and credentials stay within the community.',
-  },
+const VALUE_KEYS = [
+  { icon: Wrench,       titleKey: 'value_enthusiasts_title', bodyKey: 'value_enthusiasts_body' },
+  { icon: ShieldCheck,  titleKey: 'value_trust_title',       bodyKey: 'value_trust_body' },
+  { icon: Users,        titleKey: 'value_community_title',   bodyKey: 'value_community_body' },
+  { icon: GraduationCap,titleKey: 'value_knowledge_title',   bodyKey: 'value_knowledge_body' },
 ];
 
 export default function TeamPage() {
+  const t = useTranslations('team');
   const { data: teamProfile } = useQuery<TeamProfile | null>({
     queryKey: ['team-profile'],
     queryFn: () =>
@@ -69,12 +55,8 @@ export default function TeamPage() {
           AutoGuildX
         </Link>
         <nav className="flex gap-3">
-          <Link href="/discover" className="btn-secondary text-sm">
-            Explore
-          </Link>
-          <Link href="/signup" className="btn-primary text-sm">
-            Join Free
-          </Link>
+          <Link href="/discover" className="btn-secondary text-sm">{t('explore_cta')}</Link>
+          <Link href="/signup" className="btn-primary text-sm">{t('join_cta')}</Link>
         </nav>
       </header>
 
@@ -84,58 +66,41 @@ export default function TeamPage() {
           <Wrench className="w-8 h-8 text-brand-500" />
         </div>
         <h1 className="text-5xl md:text-6xl font-black tracking-tight max-w-3xl leading-none">
-          We Built This
+          {t('hero_line1')}
           <br />
-          <span className="text-brand-500">For the Guild.</span>
+          <span className="text-brand-500">{t('hero_line2')}</span>
         </h1>
-        <p className="text-gray-400 text-lg max-w-xl leading-relaxed">
-          AutoGuildX is the community and marketplace for everyone passionate about cars,
-          motorcycles, and all things mechanical — a home that matches your passion, whatever your
-          level.
-        </p>
+        <p className="text-gray-400 text-lg max-w-xl leading-relaxed">{t('hero_subtitle')}</p>
         <div className="flex flex-wrap gap-3 justify-center pt-2">
-          <Link href="/signup" className="btn-primary text-base px-7 py-3">
-            Join the Guild
-          </Link>
-          <Link href="/discover" className="btn-secondary text-base px-7 py-3">
-            Explore the Platform
-          </Link>
+          <Link href="/signup" className="btn-primary text-base px-7 py-3">{t('join_cta')}</Link>
+          <Link href="/discover" className="btn-secondary text-base px-7 py-3">{t('explore_cta')}</Link>
         </div>
       </section>
 
       {/* Mission */}
       <section className="max-w-3xl mx-auto px-6 py-20 text-center space-y-5">
-        <p className="text-xs font-semibold text-brand-500 uppercase tracking-widest">
-          Our Mission
-        </p>
-        <h2 className="text-3xl md:text-4xl font-bold text-white leading-snug">
-          Give automotive expertise the platform it deserves.
-        </h2>
-        <p className="text-gray-400 leading-relaxed">
-          Cars and motos deserve better than generic social networks and anonymous classifieds.
-          AutoGuildX is built for everyone who lives and breathes this world — whether you fix them,
-          build them, collect them, or just love them. A place where reputation is earned, skills
-          are certified, and every connection is backed by identity and reviews.
-        </p>
+        <p className="text-xs font-semibold text-brand-500 uppercase tracking-widest">{t('mission_label')}</p>
+        <h2 className="text-3xl md:text-4xl font-bold text-white leading-snug">{t('mission_title')}</h2>
+        <p className="text-gray-400 leading-relaxed">{t('mission_body')}</p>
       </section>
 
       {/* Values */}
       <section className="border-t border-surface-border">
         <div className="max-w-5xl mx-auto px-6 py-20">
           <p className="text-xs font-semibold text-brand-500 uppercase tracking-widest text-center mb-12">
-            What We Stand For
+            {t('values_label')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {VALUES.map(({ icon: Icon, title, body }) => (
+            {VALUE_KEYS.map(({ icon: Icon, titleKey, bodyKey }) => (
               <div
-                key={title}
+                key={titleKey}
                 className="bg-surface-card border border-surface-border rounded-xl p-6 space-y-3"
               >
                 <div className="w-10 h-10 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
                   <Icon className="w-5 h-5 text-brand-500" />
                 </div>
-                <h3 className="font-bold text-white">{title}</h3>
-                <p className="text-sm text-gray-400 leading-relaxed">{body}</p>
+                <h3 className="font-bold text-white">{t(titleKey as any)}</h3>
+                <p className="text-sm text-gray-400 leading-relaxed">{t(bodyKey as any)}</p>
               </div>
             ))}
           </div>
@@ -146,32 +111,20 @@ export default function TeamPage() {
       <section className="border-t border-surface-border bg-surface-card/30">
         <div className="max-w-5xl mx-auto px-6 py-20 space-y-12">
           <p className="text-xs font-semibold text-brand-500 uppercase tracking-widest text-center">
-            What&apos;s on the Platform
+            {t('platform_label')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
             {[
-              {
-                icon: Users,
-                label: 'Profiles',
-                desc: 'Verified expert profiles with reviews and follow graph',
-              },
-              {
-                icon: Package,
-                label: 'Marketplace',
-                desc: 'Buy and sell parts, services, and vehicles',
-              },
-              {
-                icon: GraduationCap,
-                label: 'Courses',
-                desc: 'Learn from certified instructors and earn credentials',
-              },
-            ].map(({ icon: Icon, label, desc }) => (
-              <div key={label} className="space-y-3">
+              { icon: Users,         labelKey: 'platform_profiles',    descKey: 'platform_profiles_desc' },
+              { icon: Package,       labelKey: 'platform_marketplace', descKey: 'platform_marketplace_desc' },
+              { icon: GraduationCap, labelKey: 'platform_courses',     descKey: 'platform_courses_desc' },
+            ].map(({ icon: Icon, labelKey, descKey }) => (
+              <div key={labelKey} className="space-y-3">
                 <div className="w-12 h-12 rounded-xl bg-surface-card border border-surface-border flex items-center justify-center mx-auto">
                   <Icon className="w-6 h-6 text-gray-400" />
                 </div>
-                <h3 className="font-bold text-white">{label}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
+                <h3 className="font-bold text-white">{t(labelKey as any)}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">{t(descKey as any)}</p>
               </div>
             ))}
           </div>
@@ -183,9 +136,9 @@ export default function TeamPage() {
         <section className="border-t border-surface-border">
           <div className="max-w-xl mx-auto px-6 py-20 space-y-8 text-center">
             <p className="text-xs font-semibold text-brand-500 uppercase tracking-widest">
-              Official Account
+              {t('official_account')}
             </p>
-            <h2 className="text-2xl font-bold text-white">Follow us on the platform</h2>
+            <h2 className="text-2xl font-bold text-white">{t('follow_us')}</h2>
 
             <Link
               href={`/profile/${teamProfile.userId}`}
@@ -247,21 +200,14 @@ export default function TeamPage() {
       {/* CTA */}
       <section className="border-t border-surface-border">
         <div className="max-w-xl mx-auto px-6 py-24 text-center space-y-6">
-          <h2 className="text-4xl font-black text-white leading-tight">Ready to join the Guild?</h2>
-          <p className="text-gray-400">
-            Free to join. Build your profile, list your parts, share your knowledge.
-          </p>
-          <Link
-            href="/signup"
-            className="btn-primary text-base px-10 py-3.5 inline-block font-semibold"
-          >
-            Create Your Account
+          <h2 className="text-4xl font-black text-white leading-tight">{t('join_banner_title')}</h2>
+          <p className="text-gray-400">{t('join_banner_body')}</p>
+          <Link href="/signup" className="btn-primary text-base px-10 py-3.5 inline-block font-semibold">
+            {t('create_account')}
           </Link>
           <p className="text-xs text-gray-600">
-            Already a member?{' '}
-            <Link href="/login" className="text-brand-500 hover:underline">
-              Log in
-            </Link>
+            {t('already_member')}{' '}
+            <Link href="/login" className="text-brand-500 hover:underline">{t('sign_in', { ns: 'auth' })}</Link>
           </p>
         </div>
       </section>
