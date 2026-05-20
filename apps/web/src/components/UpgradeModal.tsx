@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { X, Check, Loader2, Zap } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { SUBSCRIPTION_PRICES, SubscriptionTier } from '@autoguildx/shared';
 import api from '@/lib/api';
 
@@ -27,7 +28,9 @@ const FEATURES: Record<SubscriptionTier, string[]> = {
   ],
 };
 
+
 export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
+  const t = useTranslations('upgrade');
   const [loading, setLoading] = useState<SubscriptionTier | null>(null);
   const [cancelling, setCancelling] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
@@ -42,7 +45,7 @@ export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
       });
       window.location.href = data.url;
     } catch {
-      setError('Unable to start checkout. Please try again.');
+      setError(t('error_checkout'));
       setLoading(null);
     }
   };
@@ -55,7 +58,7 @@ export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
       onClose();
       window.location.reload();
     } catch {
-      setError('Unable to cancel subscription. Please try again.');
+      setError(t('error_cancel'));
       setCancelling(false);
       setConfirmCancel(false);
     }
@@ -68,7 +71,7 @@ export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
         <div className="flex items-center justify-between p-6 border-b border-surface-border">
           <div className="flex items-center gap-2">
             <Zap className="w-5 h-5 text-brand-500" />
-            <h2 className="text-lg font-bold text-white">Upgrade Your Plan</h2>
+            <h2 className="text-lg font-bold text-white">{t('title')}</h2>
           </div>
           <button
             onClick={onClose}
@@ -92,7 +95,7 @@ export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
               >
                 {isCurrent && (
                   <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-xs px-2 py-0.5 rounded-full bg-brand-500 text-white font-medium">
-                    Current
+                    {t('current')}
                   </span>
                 )}
 
@@ -100,11 +103,11 @@ export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
                   <p className="font-bold text-white text-lg">{name}</p>
                   <p className="text-2xl font-black text-white mt-1">
                     {price === 0 ? (
-                      'Free'
+                      t('free_price')
                     ) : (
                       <>
                         ${price}
-                        <span className="text-sm font-normal text-gray-400">/mo</span>
+                        <span className="text-sm font-normal text-gray-400">{t('per_month')}</span>
                       </>
                     )}
                   </p>
@@ -128,13 +131,13 @@ export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
                     {loading === id ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      `Upgrade to ${name}`
+                      `${t('upgrade_to')} ${name}`
                     )}
                   </button>
                 )}
 
                 {isCurrent && id !== 'free' && (
-                  <p className="text-xs text-center text-gray-500">Active plan</p>
+                  <p className="text-xs text-center text-gray-500">{t('active_plan')}</p>
                 )}
 
                 {id === 'free' &&
@@ -142,7 +145,7 @@ export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
                   (confirmCancel ? (
                     <div className="space-y-2">
                       <p className="text-xs text-center text-gray-400">
-                        Cancel and return to Free?
+                        {t('cancel_confirm')}
                       </p>
                       <div className="flex gap-2">
                         <button
@@ -150,14 +153,14 @@ export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
                           disabled={cancelling}
                           className="flex-1 text-xs py-1.5 rounded-lg bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500/30 transition-colors flex items-center justify-center gap-1"
                         >
-                          {cancelling ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Confirm'}
+                          {cancelling ? <Loader2 className="w-3 h-3 animate-spin" /> : t('confirm')}
                         </button>
                         <button
                           onClick={() => setConfirmCancel(false)}
                           disabled={cancelling}
                           className="flex-1 text-xs py-1.5 rounded-lg border border-surface-border text-gray-400 hover:text-white transition-colors"
                         >
-                          Keep plan
+                          {t('keep_plan')}
                         </button>
                       </div>
                     </div>
@@ -166,7 +169,7 @@ export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
                       onClick={() => setConfirmCancel(true)}
                       className="w-full text-xs py-1.5 rounded-lg border border-surface-border text-gray-500 hover:text-red-400 hover:border-red-500/40 transition-colors"
                     >
-                      Downgrade to Free
+                      {t('downgrade')}
                     </button>
                   ))}
               </div>
@@ -177,7 +180,7 @@ export default function UpgradeModal({ onClose, currentTier = 'free' }: Props) {
         {error && <p className="px-6 pb-4 text-sm text-red-400 text-center">{error}</p>}
 
         <p className="px-6 pb-6 text-xs text-gray-500 text-center">
-          Powered by Stripe. You will be redirected to a secure payment page.
+          {t('checkout_redirect')}
         </p>
       </div>
     </div>

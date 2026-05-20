@@ -8,6 +8,7 @@ import { Search, MapPin, Calendar, Package, User, Loader2, Star, X } from 'lucid
 import { clsx } from 'clsx';
 import AppShell from '@/components/layout/AppShell';
 import VerifiedBadge from '@/components/VerifiedBadge';
+import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 import type { Profile, Listing, Event } from '@autoguildx/shared';
 
@@ -171,12 +172,7 @@ function Section({
 
 // ─── Discover page ────────────────────────────────────────────────────────────
 
-const FILTERS: { value: SectionFilter; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'profiles', label: 'People' },
-  { value: 'listings', label: 'Listings' },
-  { value: 'events', label: 'Events' },
-];
+const FILTER_VALUES: SectionFilter[] = ['all', 'profiles', 'listings', 'events'];
 
 const TAG_CHIPS = [
   'Classic Cars',
@@ -192,6 +188,7 @@ const TAG_CHIPS = [
 ];
 
 export default function DiscoverPage() {
+  const t = useTranslations('discover');
   const [input, setInput] = useState('');
   const [q, setQ] = useState('');
   const [section, setSection] = useState<SectionFilter>('all');
@@ -233,7 +230,7 @@ export default function DiscoverPage() {
   return (
     <AppShell>
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-5">
-        <h1 className="font-bold text-lg">Discover</h1>
+        <h1 className="font-bold text-lg">{t('title')}</h1>
 
         {/* Search bar */}
         <div className="flex gap-2">
@@ -241,7 +238,7 @@ export default function DiscoverPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
             <input
               className="input w-full pl-9 text-sm"
-              placeholder="Search people, parts, events…"
+              placeholder={t('search_placeholder')}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && applySearch()}
@@ -265,7 +262,7 @@ export default function DiscoverPage() {
             />
           </div>
           <div className="w-px h-5 bg-surface-border" />
-          {FILTERS.map(({ value, label }) => (
+          {FILTER_VALUES.map((value) => (
             <button
               key={value}
               onClick={() => setSection(value)}
@@ -276,7 +273,7 @@ export default function DiscoverPage() {
                   : 'border-surface-border text-gray-400 hover:text-white hover:border-gray-500',
               )}
             >
-              {label}
+              {t(`filter_${value}` as any)}
             </button>
           ))}
         </div>
@@ -310,7 +307,7 @@ export default function DiscoverPage() {
         {/* States */}
         {!searched && (
           <p className="text-center text-sm text-gray-500 py-16">
-            Search for people, parts, listings, events, and more.
+            {t('start_searching')}
           </p>
         )}
 

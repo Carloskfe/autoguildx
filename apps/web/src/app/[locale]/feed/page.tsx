@@ -27,6 +27,7 @@ import Link from 'next/link';
 import AppShell from '@/components/layout/AppShell';
 import VerifiedBadge from '@/components/VerifiedBadge';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 import { uploadFile } from '@/lib/upload';
 import type { Post, Comment } from '@autoguildx/shared';
@@ -142,10 +143,10 @@ const REACTIONS = [
   { key: 'like', emoji: '👍', label: 'Like' },
 ] as const;
 
-const VISIBILITY_OPTIONS = [
-  { key: 'public', label: 'Public', Icon: Globe },
-  { key: 'followers', label: 'Followers', Icon: Users },
-  { key: 'private', label: 'Only me', Icon: Lock },
+const VISIBILITY_OPTION_KEYS = [
+  { key: 'public', labelKey: 'visibility_public', Icon: Globe },
+  { key: 'followers', labelKey: 'visibility_followers', Icon: Users },
+  { key: 'private', labelKey: 'visibility_only_me', Icon: Lock },
 ] as const;
 
 interface CommentWithUser extends Comment {
@@ -164,6 +165,7 @@ function initials(name?: string) {
 // ─── Comment thread ────────────────────────────────────────────────────────────
 
 function CommentThread({ postId }: { postId: string }) {
+  const t = useTranslations('feed');
   const [text, setText] = useState('');
   const qc = useQueryClient();
 
@@ -202,7 +204,7 @@ function CommentThread({ postId }: { postId: string }) {
             {initials(c.user?.email)}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-400 font-medium">{c.user?.email ?? 'Unknown'}</p>
+            <p className="text-xs text-gray-400 font-medium">{c.user?.email ?? t('unknown_user')}</p>
             <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap break-words">
               {c.content}
             </p>
@@ -216,7 +218,7 @@ function CommentThread({ postId }: { postId: string }) {
       <form onSubmit={handleSubmit} className="flex gap-2">
         <input
           className="input flex-1 text-sm py-1.5"
-          placeholder="Write a comment…"
+          placeholder={t('compose_comment_placeholder')}
           value={text}
           onChange={(e) => setText(e.target.value)}
           maxLength={1000}
@@ -240,6 +242,7 @@ function CommentThread({ postId }: { postId: string }) {
 // ─── Post card ────────────────────────────────────────────────────────────────
 
 function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: string | null }) {
+  const t = useTranslations('feed');
   const [showComments, setShowComments] = useState(false);
   const [showReactions, setShowReactions] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
@@ -250,7 +253,7 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
   const qc = useQueryClient();
   const isOwn = currentUserId === post.userId;
   const profileId = post.user?.profile?.id;
-  const displayName = post.user?.profile?.name ?? post.user?.email ?? 'Unknown';
+  const displayName = post.user?.profile?.name ?? post.user?.email ?? t('unknown_user');
 
   // Load reactions on mount
   useEffect(() => {
@@ -389,7 +392,7 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
           {post.sharedPost && (
             <div className="mt-2 border border-surface-border rounded-lg p-3 bg-surface-card text-sm">
               <p className="text-xs text-gray-500 mb-1">
-                {post.sharedPost.user?.profile?.name ?? post.sharedPost.user?.email ?? 'Unknown'}
+                {post.sharedPost.user?.profile?.name ?? post.sharedPost.user?.email ?? t('unknown_user')}
               </p>
               <p className="text-gray-300 line-clamp-3">{post.sharedPost.content}</p>
             </div>
@@ -430,7 +433,7 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-0.5">
-                        {sc.type === 'listing' ? 'Listing' : 'Event'}
+                        {sc.type === 'listing' ? t('type_listing') : t('type_event')}
                       </p>
                       <p className="text-sm font-semibold text-white group-hover:text-brand-500 transition-colors truncate">
                         {sc.title}
@@ -532,7 +535,7 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
                         onClick={handleQuickShare}
                         className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-border hover:text-white transition-colors"
                       >
-                        Quick Share
+                        {t('share_quick')}
                       </button>
                       <button
                         onClick={() => {
@@ -541,7 +544,7 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
                         }}
                         className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-border hover:text-white transition-colors"
                       >
-                        Share with comment
+                        {t('share_with_comment')}
                       </button>
                     </div>
                   </>
@@ -571,7 +574,7 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
               <div className="card w-full max-w-md space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="font-semibold text-white">Share with comment</h2>
+                  <h2 className="font-semibold text-white">{t('share_with_comment')}</h2>
                   <button
                     onClick={() => setShowShareModal(false)}
                     className="text-gray-400 hover:text-white"
@@ -585,7 +588,7 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
                 <textarea
                   value={shareComment}
                   onChange={(e) => setShareComment(e.target.value)}
-                  placeholder="Add your take…"
+                  placeholder={t('compose_repost_placeholder')}
                   rows={3}
                   className="input w-full text-sm resize-none"
                   maxLength={2000}
@@ -595,14 +598,14 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
                     onClick={() => setShowShareModal(false)}
                     className="btn-secondary text-sm px-4 py-2"
                   >
-                    Cancel
+                    {t('cancel')}
                   </button>
                   <button
                     onClick={handleShareWithComment}
                     disabled={!shareComment.trim()}
                     className="btn-primary text-sm px-4 py-2 disabled:opacity-50"
                   >
-                    Share
+                    {t('share')}
                   </button>
                 </div>
               </div>
@@ -619,6 +622,7 @@ function PostCard({ post, currentUserId }: { post: PostWithUser; currentUserId: 
 type MediaMode = 'single' | 'multi' | 'carousel';
 
 function CreatePostForm() {
+  const t = useTranslations('feed');
   const [content, setContent] = useState('');
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [mediaMode, setMediaMode] = useState<MediaMode>('single');
@@ -687,7 +691,7 @@ function CreatePostForm() {
     <form onSubmit={handleSubmit} className="card space-y-3">
       <textarea
         className="input w-full resize-none h-20 text-sm"
-        placeholder="Share something with the community…"
+        placeholder={t('compose_placeholder')}
         value={content}
         onChange={(e) => setContent(e.target.value)}
         maxLength={2000}
@@ -709,7 +713,7 @@ function CreatePostForm() {
         </div>
       )}
 
-      {tooManyLinks && <p className="text-xs text-red-400">Only 1 link per post is allowed.</p>}
+      {tooManyLinks && <p className="text-xs text-red-400">{t('link_limit')}</p>}
 
       {/* Image previews */}
       {mediaUrls.length > 0 && (
@@ -735,15 +739,15 @@ function CreatePostForm() {
         <div className="flex items-center gap-1 border border-surface-border rounded-lg p-0.5">
           {(
             [
-              { mode: 'single' as MediaMode, Icon: ImageIcon, title: 'Single photo' },
-              { mode: 'multi' as MediaMode, Icon: LayoutGrid, title: 'Photo grid' },
-              { mode: 'carousel' as MediaMode, Icon: GalleryHorizontal, title: 'Carousel' },
+              { mode: 'single' as MediaMode, Icon: ImageIcon, titleKey: 'media_single' },
+              { mode: 'multi' as MediaMode, Icon: LayoutGrid, titleKey: 'media_grid' },
+              { mode: 'carousel' as MediaMode, Icon: GalleryHorizontal, titleKey: 'media_carousel' },
             ] as const
-          ).map(({ mode, Icon, title }) => (
+          ).map(({ mode, Icon, titleKey }) => (
             <button
               key={mode}
               type="button"
-              title={title}
+              title={t(titleKey)}
               onClick={() => switchMode(mode)}
               className={`p-1.5 rounded transition-colors ${
                 mediaMode === mode ? 'bg-brand-500 text-white' : 'text-gray-500 hover:text-gray-300'
@@ -766,10 +770,10 @@ function CreatePostForm() {
             <ImageIcon className="w-4 h-4" />
           )}
           {uploading
-            ? 'Uploading…'
+            ? t('uploading')
             : mediaUrls.length > 0
-              ? `Add photo (${mediaUrls.length}/${maxImages})`
-              : 'Photo'}
+              ? `${t('photo')} (${mediaUrls.length}/${maxImages})`
+              : t('photo')}
         </button>
         <input
           ref={imageInputRef}
@@ -785,12 +789,12 @@ function CreatePostForm() {
         {/* Visibility + submit — grouped so they always wrap together */}
         <div className="ml-auto flex items-center gap-2">
           <div className="flex items-center">
-            {VISIBILITY_OPTIONS.map((opt) => (
+            {VISIBILITY_OPTION_KEYS.map((opt) => (
               <button
                 key={opt.key}
                 type="button"
                 onClick={() => setVisibility(opt.key)}
-                title={opt.label}
+                title={t(opt.labelKey)}
                 className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full transition-colors ${
                   visibility === opt.key
                     ? 'bg-brand-500/20 text-brand-500 border border-brand-500/40'
@@ -798,7 +802,7 @@ function CreatePostForm() {
                 }`}
               >
                 <opt.Icon className="w-3 h-3" />
-                {visibility === opt.key && <span>{opt.label}</span>}
+                {visibility === opt.key && <span>{t(opt.labelKey)}</span>}
               </button>
             ))}
           </div>
@@ -813,7 +817,7 @@ function CreatePostForm() {
             ) : (
               <Send className="w-4 h-4" />
             )}
-            {create.isPending ? 'Posting…' : 'Post'}
+            {create.isPending ? t('posting') : t('post_button')}
           </button>
         </div>
       </div>
@@ -824,6 +828,7 @@ function CreatePostForm() {
 // ─── Feed page ────────────────────────────────────────────────────────────────
 
 export default function FeedPage() {
+  const t = useTranslations('feed');
   const { isAuthenticated, userId } = useAuth();
   const router = useRouter();
 
@@ -858,15 +863,11 @@ export default function FeedPage() {
         )}
 
         {isError && (
-          <p className="text-center text-sm text-red-400 py-8">
-            Failed to load posts. Please try again.
-          </p>
+          <p className="text-center text-sm text-red-400 py-8">{t('failed')}</p>
         )}
 
         {!isLoading && posts.length === 0 && !isError && (
-          <p className="text-center text-sm text-gray-500 py-12">
-            No posts yet. Be the first to share something.
-          </p>
+          <p className="text-center text-sm text-gray-500 py-12">{t('no_posts')}</p>
         )}
 
         {posts.map((post) => (
@@ -881,10 +882,10 @@ export default function FeedPage() {
           >
             {isFetchingNextPage ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" /> Loading…
+                <Loader2 className="w-4 h-4 animate-spin" /> {t('loading')}
               </>
             ) : (
-              'Load more'
+              t('load_more')
             )}
           </button>
         )}

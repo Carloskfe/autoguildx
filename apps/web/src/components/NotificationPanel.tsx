@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { Loader2, Bell } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 
 interface Actor {
@@ -25,28 +26,8 @@ interface Notification {
   createdAt: string;
 }
 
-function actorName(actor?: Actor): string {
-  return actor?.profile?.displayName ?? actor?.profile?.name ?? actor?.email ?? 'Someone';
-}
-
-function notifText(n: Notification): string {
-  const name = actorName(n.actor);
-  switch (n.type) {
-    case 'follow':
-      return `${name} started following you`;
-    case 'reaction':
-      return `${name} reacted ${n.data?.emoji ?? '👍'} to your post`;
-    case 'comment':
-      return n.data?.excerpt
-        ? `${name} commented: "${n.data.excerpt}"`
-        : `${name} commented on your post`;
-    case 'share':
-      return `${name} shared your post`;
-    case 'review':
-      return `${name} left you a ${n.data?.rating ?? 5}★ review`;
-    default:
-      return `${name} interacted with you`;
-  }
+function actorName(actor?: Actor, someone?: string): string {
+  return actor?.profile?.displayName ?? actor?.profile?.name ?? actor?.email ?? (someone ?? 'Someone');
 }
 
 function notifLink(n: Notification): string {
@@ -74,7 +55,28 @@ interface Props {
 }
 
 export default function NotificationPanel({ onClose }: Props) {
+  const t = useTranslations('notifications');
   const router = useRouter();
+
+  function notifText(n: Notification): string {
+    const name = actorName(n.actor, t('someone'));
+    switch (n.type) {
+      case 'follow':
+        return t('follow_text', { name });
+      case 'reaction':
+        return t('reaction_text', { name, emoji: n.data?.emoji ?? '👍' });
+      case 'comment':
+        return n.data?.excerpt
+          ? t('comment_excerpt_text', { name, excerpt: n.data.excerpt })
+          : t('comment_text', { name });
+      case 'share':
+        return t('share_text', { name });
+      case 'review':
+        return t('review_text', { name, rating: n.data?.rating ?? 5 });
+      default:
+        return t('interaction_text', { name });
+    }
+  }
   const qc = useQueryClient();
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -125,14 +127,14 @@ export default function NotificationPanel({ onClose }: Props) {
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-surface-border shrink-0">
-        <h2 className="text-sm font-semibold text-white">Notifications</h2>
+        <h2 className="text-sm font-semibold text-white">{t('title')}</h2>
         {unread > 0 && (
           <button
             onClick={() => markAllRead.mutate()}
             disabled={markAllRead.isPending}
             className="text-xs text-brand-500 hover:text-brand-400 transition-colors disabled:opacity-50"
           >
-            Mark all as read
+            {t('mark_all_read')}
           </button>
         )}
       </div>
@@ -146,7 +148,7 @@ export default function NotificationPanel({ onClose }: Props) {
         ) : notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 gap-2 text-gray-500">
             <Bell className="w-8 h-8" />
-            <p className="text-sm">No notifications yet</p>
+            <p className="text-sm">{t('empty')}</p>
           </div>
         ) : (
           <ul className="divide-y divide-surface-border">

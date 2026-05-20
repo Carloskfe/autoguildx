@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Star, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -71,6 +72,7 @@ interface Props {
 }
 
 export default function ReviewSection({ targetId, targetType, showDimensions = false }: Props) {
+  const t = useTranslations('reviews');
   const { isAuthenticated, userId } = useAuth();
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
@@ -133,7 +135,7 @@ export default function ReviewSection({ targetId, targetType, showDimensions = f
       {/* Summary */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h2 className="text-base font-semibold text-white">Reviews</h2>
+          <h2 className="text-base font-semibold text-white">{t('title')}</h2>
           {avg !== null && (
             <div className="flex items-center gap-1.5">
               <Stars rating={Math.round(avg)} size="sm" />
@@ -147,7 +149,7 @@ export default function ReviewSection({ targetId, targetType, showDimensions = f
             onClick={() => setShowForm((v) => !v)}
             className="btn-secondary text-xs px-3 py-1.5"
           >
-            {showForm ? 'Cancel' : 'Write a review'}
+            {showForm ? t('cancel') : t('write')}
           </button>
         )}
       </div>
@@ -176,19 +178,19 @@ export default function ReviewSection({ targetId, targetType, showDimensions = f
       {showForm && (
         <div className="card space-y-3">
           <div className="space-y-1">
-            <p className="text-xs text-gray-400">Overall rating</p>
+            <p className="text-xs text-gray-400">{t('overall')}</p>
             <StarPicker value={rating} onChange={setRating} />
           </div>
           {showDimensions && (
             <div className="grid grid-cols-2 gap-3">
               {[
-                { label: 'Quality', val: quality, set: setQuality },
-                { label: 'Communication', val: communication, set: setCommunication },
-                { label: 'Timeliness', val: timeliness, set: setTimeliness },
-                { label: 'Value', val: value, set: setValue },
-              ].map(({ label, val, set }) => (
-                <div key={label} className="space-y-1">
-                  <p className="text-xs text-gray-400">{label}</p>
+                { labelKey: 'quality', val: quality, set: setQuality },
+                { labelKey: 'communication', val: communication, set: setCommunication },
+                { labelKey: 'timeliness', val: timeliness, set: setTimeliness },
+                { labelKey: 'value', val: value, set: setValue },
+              ].map(({ labelKey, val, set }) => (
+                <div key={labelKey} className="space-y-1">
+                  <p className="text-xs text-gray-400">{t(labelKey as any)}</p>
                   <StarPicker value={val} onChange={set} />
                 </div>
               ))}
@@ -197,7 +199,7 @@ export default function ReviewSection({ targetId, targetType, showDimensions = f
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder="Share your experience (optional, min 10 chars if provided)…"
+            placeholder={t('comment_placeholder')}
             rows={3}
             className="input w-full text-sm resize-none"
             maxLength={1000}
@@ -208,7 +210,7 @@ export default function ReviewSection({ targetId, targetType, showDimensions = f
               disabled={rating === 0 || submit.isPending}
               className="btn-primary text-sm px-4 py-2 disabled:opacity-50"
             >
-              {submit.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Submit review'}
+              {submit.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : t('submit')}
             </button>
           </div>
         </div>
@@ -216,11 +218,11 @@ export default function ReviewSection({ targetId, targetType, showDimensions = f
 
       {/* Review list */}
       {total === 0 && !showForm && (
-        <p className="text-sm text-gray-500">No reviews yet. Be the first!</p>
+        <p className="text-sm text-gray-500">{t('no_reviews')}</p>
       )}
       <div className="space-y-3">
         {(data?.reviews ?? []).map((rev) => {
-          const name = rev.reviewer?.profile?.displayName ?? rev.reviewer?.email ?? 'User';
+          const name = rev.reviewer?.profile?.displayName ?? rev.reviewer?.email ?? t('user_fallback');
           const isOwn = rev.reviewerId === userId;
           return (
             <div key={rev.id} className="card space-y-1.5">
@@ -238,7 +240,7 @@ export default function ReviewSection({ targetId, targetType, showDimensions = f
                       onClick={() => del.mutate(rev.id)}
                       className="text-xs text-gray-500 hover:text-red-400 transition-colors"
                     >
-                      Delete
+                      {t('delete')}
                     </button>
                   )}
                 </div>
@@ -247,22 +249,22 @@ export default function ReviewSection({ targetId, targetType, showDimensions = f
                 <div className="flex flex-wrap gap-3 text-xs text-gray-400">
                   {rev.qualityRating && (
                     <span>
-                      Quality: <Stars rating={rev.qualityRating} />
+                      {t('dim_quality')}: <Stars rating={rev.qualityRating} />
                     </span>
                   )}
                   {rev.communicationRating && (
                     <span>
-                      Comm: <Stars rating={rev.communicationRating} />
+                      {t('dim_comm')}: <Stars rating={rev.communicationRating} />
                     </span>
                   )}
                   {rev.timelinessRating && (
                     <span>
-                      Time: <Stars rating={rev.timelinessRating} />
+                      {t('dim_timeliness')}: <Stars rating={rev.timelinessRating} />
                     </span>
                   )}
                   {rev.valueRating && (
                     <span>
-                      Value: <Stars rating={rev.valueRating} />
+                      {t('dim_value')}: <Stars rating={rev.valueRating} />
                     </span>
                   )}
                 </div>

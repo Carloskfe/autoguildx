@@ -22,6 +22,7 @@ import AppShell from '@/components/layout/AppShell';
 import VerifiedBadge from '@/components/VerifiedBadge';
 import ProfileSections from '@/components/ProfileSections';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 import { uploadFile } from '@/lib/upload';
 import type { Profile, Post, Certificate } from '@autoguildx/shared';
@@ -40,11 +41,11 @@ function initials(name?: string) {
     .slice(0, 2);
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  mechanic: 'Mechanic / Shop',
-  manufacturer: 'Manufacturer',
-  collector: 'Collector',
-  enthusiast: 'Enthusiast',
+const ROLE_KEY_MAP: Record<string, string> = {
+  mechanic: 'role_mechanic',
+  manufacturer: 'role_manufacturer',
+  collector: 'role_collector',
+  enthusiast: 'role_enthusiast',
 };
 
 // ─── Profile header (banner + avatar) ────────────────────────────────────────
@@ -52,10 +53,10 @@ const ROLE_LABELS: Record<string, string> = {
 // ─── Inline edit form ─────────────────────────────────────────────────────────
 
 const ROLE_CARDS = [
-  { value: 'mechanic', emoji: '🔧', label: 'Mechanic / Shop' },
-  { value: 'manufacturer', emoji: '🏭', label: 'Manufacturer' },
-  { value: 'collector', emoji: '🏎️', label: 'Collector' },
-  { value: 'enthusiast', emoji: '🛠️', label: 'Enthusiast' },
+  { value: 'mechanic', emoji: '🔧', labelKey: 'role_mechanic' },
+  { value: 'manufacturer', emoji: '🏭', labelKey: 'role_manufacturer' },
+  { value: 'collector', emoji: '🏎️', labelKey: 'role_collector' },
+  { value: 'enthusiast', emoji: '🛠️', labelKey: 'role_enthusiast' },
 ] as const;
 
 const SPECIALTY_TAGS = [
@@ -90,6 +91,7 @@ function EditProfileForm({
   onCancel: () => void;
   saving: boolean;
 }) {
+  const t = useTranslations('profile');
   const [form, setForm] = useState<EditForm>({
     name: profile.name,
     bio: profile.bio ?? '',
@@ -111,7 +113,7 @@ function EditProfileForm({
   return (
     <div className="space-y-3">
       <div>
-        <label className="text-xs text-gray-400 mb-1 block">Name</label>
+        <label className="text-xs text-gray-400 mb-1 block">{t('label_name')}</label>
         <input
           className="input w-full text-sm"
           value={form.name}
@@ -120,20 +122,20 @@ function EditProfileForm({
         />
       </div>
       <div>
-        <label className="text-xs text-gray-400 mb-1 block">Location</label>
+        <label className="text-xs text-gray-400 mb-1 block">{t('label_location')}</label>
         <input
           className="input w-full text-sm"
-          placeholder="City, State"
+          placeholder={t('location_placeholder')}
           value={form.location}
           onChange={set('location')}
           maxLength={100}
         />
       </div>
       <div>
-        <label className="text-xs text-gray-400 mb-1 block">Bio</label>
+        <label className="text-xs text-gray-400 mb-1 block">{t('label_bio')}</label>
         <textarea
           className="input w-full text-sm resize-none h-20"
-          placeholder="Tell people about yourself…"
+          placeholder={t('bio_placeholder')}
           value={form.bio}
           onChange={set('bio')}
           maxLength={500}
@@ -141,7 +143,7 @@ function EditProfileForm({
         <p className="text-xs text-gray-500 mt-1">{form.bio.length} / 500</p>
       </div>
       <div>
-        <label className="text-xs text-gray-400 mb-1 block">What best describes you?</label>
+        <label className="text-xs text-gray-400 mb-1 block">{t('label_role')}</label>
         <div className="grid grid-cols-2 gap-2">
           {ROLE_CARDS.map((card) => (
             <button
@@ -155,13 +157,13 @@ function EditProfileForm({
               }`}
             >
               <span>{card.emoji}</span>
-              <span className="truncate">{card.label}</span>
+              <span className="truncate">{t(card.labelKey)}</span>
             </button>
           ))}
         </div>
       </div>
       <div>
-        <label className="text-xs text-gray-400 mb-2 block">Specialty tags</label>
+        <label className="text-xs text-gray-400 mb-2 block">{t('label_specialty')}</label>
         <div className="flex flex-wrap gap-2">
           {SPECIALTY_TAGS.map((tag) => (
             <button
@@ -186,7 +188,7 @@ function EditProfileForm({
           className="btn-primary text-sm flex items-center gap-2 px-4 py-2 disabled:opacity-50"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-          Save
+          {t('save_changes')}
         </button>
         <button onClick={onCancel} disabled={saving} className="btn-secondary text-sm px-4 py-2">
           <X className="w-4 h-4" />
@@ -197,6 +199,7 @@ function EditProfileForm({
 }
 
 function ProfileHeader({ profile }: { profile: Profile }) {
+  const t = useTranslations('profile');
   const [editing, setEditing] = useState(false);
   const qc = useQueryClient();
   const bannerRef = useRef<HTMLInputElement>(null);
@@ -268,7 +271,7 @@ function ProfileHeader({ profile }: { profile: Profile }) {
           ) : (
             <div className="flex items-center gap-2 bg-black/60 rounded-lg px-3 py-2">
               <Camera className="w-4 h-4 text-white" />
-              <span className="text-white text-xs font-medium">Change cover photo</span>
+              <span className="text-white text-xs font-medium">{t('change_cover')}</span>
             </div>
           )}
         </div>
@@ -279,7 +282,7 @@ function ProfileHeader({ profile }: { profile: Profile }) {
           ) : (
             <>
               <Camera className="w-3 h-3 text-white" />
-              <span className="text-white text-[10px] font-medium">Change</span>
+              <span className="text-white text-[10px] font-medium">{t('change_mobile')}</span>
             </>
           )}
         </div>
@@ -346,7 +349,7 @@ function ProfileHeader({ profile }: { profile: Profile }) {
               className="btn-secondary text-xs px-4 py-1.5 flex items-center gap-1.5 mb-1"
             >
               <Edit2 className="w-3.5 h-3.5" />
-              Edit profile
+              {t('edit_profile')}
             </button>
           )}
         </div>
@@ -371,7 +374,7 @@ function ProfileHeader({ profile }: { profile: Profile }) {
                 <p className="text-sm text-gray-400 mt-0.5">{profile.businessName}</p>
               )}
               <span className="inline-block mt-2 text-xs px-2.5 py-1 rounded-full bg-surface-card border border-surface-border text-gray-300">
-                {ROLE_LABELS[profile.roleType] ?? profile.roleType}
+                {t((ROLE_KEY_MAP[profile.roleType] ?? profile.roleType) as any)}
               </span>
             </div>
 
@@ -387,11 +390,11 @@ function ProfileHeader({ profile }: { profile: Profile }) {
             <div className="flex items-center gap-5 text-sm">
               <div>
                 <span className="font-bold text-white">{profile.followersCount}</span>
-                <span className="text-gray-400 ml-1.5">followers</span>
+                <span className="text-gray-400 ml-1.5">{t('followers_count')}</span>
               </div>
               <div>
                 <span className="font-bold text-white">{profile.followingCount}</span>
-                <span className="text-gray-400 ml-1.5">following</span>
+                <span className="text-gray-400 ml-1.5">{t('following_count')}</span>
               </div>
             </div>
 
@@ -425,6 +428,7 @@ function ProfileHeader({ profile }: { profile: Profile }) {
 // ─── Post card (own posts) ────────────────────────────────────────────────────
 
 function OwnPostCard({ post }: { post: PostWithUser }) {
+  const t = useTranslations('profile');
   const qc = useQueryClient();
 
   const del = useMutation({
@@ -453,7 +457,7 @@ function OwnPostCard({ post }: { post: PostWithUser }) {
             disabled={del.isPending}
             className="text-gray-600 hover:text-red-400 transition-colors disabled:opacity-50"
           >
-            {del.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Delete'}
+            {del.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : t('delete_post')}
           </button>
         </div>
       </div>
@@ -463,13 +467,14 @@ function OwnPostCard({ post }: { post: PostWithUser }) {
 
 // ─── Verification request section ─────────────────────────────────────────────
 
-const STATUS_LABEL: Record<string, { text: string; className: string }> = {
-  pending: { text: 'Verification pending review', className: 'text-yellow-400' },
-  approved: { text: 'Verified', className: 'text-brand-500' },
-  denied: { text: 'Verification denied', className: 'text-red-400' },
+const STATUS_KEYS: Record<string, { textKey: string; className: string }> = {
+  pending: { textKey: 'verification_pending_review', className: 'text-yellow-400' },
+  approved: { textKey: 'verified', className: 'text-brand-500' },
+  denied: { textKey: 'verification_denied', className: 'text-red-400' },
 };
 
 function VerificationSection() {
+  const t = useTranslations('profile');
   const qc = useQueryClient();
 
   const { data: status, isLoading } = useQuery<{ status: string } | null>({
@@ -488,20 +493,18 @@ function VerificationSection() {
 
   if (isLoading) return null;
 
-  const info = status ? STATUS_LABEL[status.status] : null;
+  const info = status ? STATUS_KEYS[status.status] : null;
 
   return (
     <div className="card flex items-center justify-between gap-4">
       <div className="flex items-center gap-2">
         <ShieldCheck className="w-5 h-5 text-gray-400 shrink-0" />
         <div>
-          <p className="text-sm font-medium text-white">Verified Badge</p>
+          <p className="text-sm font-medium text-white">{t('verified_badge_title')}</p>
           {info ? (
-            <p className={`text-xs ${info.className}`}>{info.text}</p>
+            <p className={`text-xs ${info.className}`}>{t(info.textKey as any)}</p>
           ) : (
-            <p className="text-xs text-gray-400">
-              Get a badge to show you&apos;re a trusted member
-            </p>
+            <p className="text-xs text-gray-400">{t('verified_badge_body')}</p>
           )}
         </div>
       </div>
@@ -512,7 +515,7 @@ function VerificationSection() {
           className="btn-secondary text-xs px-3 py-1.5 shrink-0 flex items-center gap-1.5 disabled:opacity-50"
         >
           {request.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
-          Request Verification
+          {t('request_verification')}
         </button>
       )}
     </div>
@@ -522,6 +525,7 @@ function VerificationSection() {
 // ─── Email notification toggle ────────────────────────────────────────────────
 
 function EmailNotificationsSection() {
+  const t = useTranslations('profile');
   const qc = useQueryClient();
 
   const { data, isLoading } = useQuery<{ emailNotificationsEnabled: boolean }>({
@@ -542,11 +546,9 @@ function EmailNotificationsSection() {
       <div className="flex items-center gap-2">
         <Bell className="w-5 h-5 text-gray-400 shrink-0" />
         <div>
-          <p className="text-sm font-medium text-white">Email Notifications</p>
+          <p className="text-sm font-medium text-white">{t('email_notifications')}</p>
           <p className="text-xs text-gray-400">
-            {enabled
-              ? 'Emails for messages, reviews, follows, and badges'
-              : 'Email notifications are off'}
+            {enabled ? t('email_on') : t('email_off')}
           </p>
         </div>
       </div>
@@ -571,6 +573,7 @@ function EmailNotificationsSection() {
 // ─── Certificates section ─────────────────────────────────────────────────────
 
 function CertificatesSection() {
+  const t = useTranslations('profile');
   const { data: certs, isLoading } = useQuery<Certificate[]>({
     queryKey: ['myCertificates'],
     queryFn: () => api.get('/courses/certificates').then((r) => r.data),
@@ -581,7 +584,7 @@ function CertificatesSection() {
   return (
     <div className="space-y-3">
       <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide px-1">
-        Certificates
+        {t('certificates')}
       </h2>
       <div className="space-y-2">
         {certs.map((cert) => (
@@ -604,6 +607,7 @@ function CertificatesSection() {
 // ─── Profile page ─────────────────────────────────────────────────────────────
 
 export default function ProfilePage() {
+  const t = useTranslations('profile');
   const { isAuthenticated, userId } = useAuth();
   const router = useRouter();
 

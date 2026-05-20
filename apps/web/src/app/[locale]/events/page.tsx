@@ -5,6 +5,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { MapPin, Users, Loader2, Briefcase } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
+import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 import type { Event } from '@autoguildx/shared';
 
@@ -19,7 +20,8 @@ const TYPE_STYLES: Record<string, string> = {
   other: 'border-surface-border text-gray-400',
 };
 
-const TYPE_LABELS: Record<string, string> = {
+// Labels fetched via useTranslations at runtime; kept as fallback keys
+const TYPE_LABEL_KEYS: Record<string, string> = {
   meetup: 'Meetup',
   workshop: 'Workshop',
   show: 'Show',
@@ -30,7 +32,7 @@ const TYPE_LABELS: Record<string, string> = {
 
 // ─── Event card ───────────────────────────────────────────────────────────────
 
-function EventCard({ event }: { event: Event }) {
+function EventCard({ event, t }: { event: Event; t: (k: string) => string }) {
   const isOpportunity = event.type === 'opportunity';
   const start = event.startDate ? new Date(event.startDate) : null;
 
@@ -63,7 +65,7 @@ function EventCard({ event }: { event: Event }) {
             <span
               className={`shrink-0 text-xs px-2 py-0.5 rounded-full border ${TYPE_STYLES[event.type] ?? TYPE_STYLES.other}`}
             >
-              {TYPE_LABELS[event.type] ?? event.type}
+              {t(`type_${event.type}` as any) || event.type}
             </span>
           </div>
 
@@ -73,7 +75,7 @@ function EventCard({ event }: { event: Event }) {
             </span>
             {!isOpportunity && (
               <span className="flex items-center gap-1">
-                <Users className="w-3 h-3" /> {event.rsvpCount} going
+                <Users className="w-3 h-3" /> {event.rsvpCount} {t('going')}
               </span>
             )}
           </div>
@@ -86,6 +88,8 @@ function EventCard({ event }: { event: Event }) {
 // ─── Events page ──────────────────────────────────────────────────────────────
 
 export default function EventsPage() {
+  const t = useTranslations('events');
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } =
     useInfiniteQuery<Event[]>({
       queryKey: ['events'],
@@ -102,9 +106,9 @@ export default function EventsPage() {
     <AppShell>
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
         <div className="flex items-center justify-between">
-          <h1 className="font-bold text-lg">Events & Opportunities</h1>
+          <h1 className="font-bold text-lg">{t('title')}</h1>
           <Link href="/events/new" className="btn-primary text-sm px-4 py-2">
-            + Post
+            {t('post_button')}
           </Link>
         </div>
 
@@ -115,23 +119,21 @@ export default function EventsPage() {
         )}
 
         {isError && (
-          <p className="text-center text-sm text-red-400 py-10">
-            Failed to load events. Please try again.
-          </p>
+          <p className="text-center text-sm text-red-400 py-10">{t('failed')}</p>
         )}
 
         {!isLoading && events.length === 0 && !isError && (
           <p className="text-center text-sm text-gray-500 py-16">
-            No upcoming events.{' '}
+            {t('empty')}{' '}
             <Link href="/events/new" className="text-brand-500 hover:underline">
-              Create one.
+              {t('create_first')}
             </Link>
           </p>
         )}
 
         <div className="space-y-3">
           {events.map((event) => (
-            <EventCard key={event.id} event={event} />
+            <EventCard key={event.id} event={event} t={t as (k: string) => string} />
           ))}
         </div>
 
@@ -143,10 +145,10 @@ export default function EventsPage() {
           >
             {isFetchingNextPage ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" /> Loading…
+                <Loader2 className="w-4 h-4 animate-spin" /> {t('loading')}
               </>
             ) : (
-              'Load more'
+              t('load_more')
             )}
           </button>
         )}

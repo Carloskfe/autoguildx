@@ -169,7 +169,11 @@
     "repost": "Repostear",
     "delete_post": "Eliminar publicación",
     "unknown_user": "Desconocido",
-    "load_more": "Cargar más publicaciones"
+    "load_more": "Cargar más publicaciones",
+    "loading": "Cargando…",
+    "link_limit": "Solo se permite 1 enlace por publicación.",
+    "cancel": "Cancelar",
+    "no_posts": "Aún no hay publicaciones. Sé el primero en compartir algo."
   },
   "discover": {
     "title": "Explorar",
@@ -207,7 +211,13 @@
     "edit_listing": "Editar Anuncio",
     "delete_listing": "Eliminar Anuncio",
     "boost": "Impulsar Anuncio",
-    "load_more": "Cargar más anuncios"
+    "load_more": "Cargar más anuncios",
+    "failed": "Error al cargar las publicaciones. Por favor intenta de nuevo.",
+    "loading": "Cargando…",
+    "create_first": "Sé el primero en publicar uno.",
+    "all_categories": "Todas las categorías",
+    "search_button": "Buscar",
+    "featured_badge": "Destacado"
   },
   "events": {
     "title": "Eventos y Oportunidades",
@@ -237,7 +247,10 @@
     "create_button": "Crear Evento",
     "post_opportunity": "Publicar Oportunidad",
     "empty": "No hay eventos próximos.",
-    "create_first": "Crea uno."
+    "create_first": "Crea uno.",
+    "failed": "Error al cargar eventos. Por favor intenta de nuevo.",
+    "load_more": "Cargar más",
+    "loading": "Cargando…"
   },
   "profile": {
     "edit": "Editar Perfil",
@@ -256,7 +269,7 @@
     "sections_title": "Secciones del Perfil",
     "name_placeholder": "Tu nombre",
     "location_placeholder": "Ciudad, País",
-    "bio_placeholder": "Breve descripción",
+    "bio_placeholder": "Cuéntale a la gente sobre ti…",
     "business_placeholder": "Nombre del taller / negocio (opcional)",
     "save_changes": "Guardar Cambios",
     "saving": "Guardando…",
@@ -268,7 +281,28 @@
     "email_notifications": "Notificaciones por Correo",
     "not_found": "Perfil no encontrado.",
     "setup_prompt": "Perfil no encontrado. Completa el registro primero.",
-    "setup_cta": "Configurar perfil"
+    "setup_cta": "Configurar perfil",
+    "label_name": "Nombre",
+    "label_location": "Ubicación",
+    "label_bio": "Bio",
+    "label_role": "¿Qué te describe mejor?",
+    "label_specialty": "Especialidades",
+    "change_cover": "Cambiar foto de portada",
+    "change_mobile": "Cambiar",
+    "verified_badge_title": "Insignia Verificado",
+    "verified_badge_body": "Solicita una insignia para mostrar que eres miembro de confianza",
+    "verification_denied": "Verificación rechazada",
+    "verification_pending_review": "Verificación en revisión",
+    "email_on": "Correos para mensajes, reseñas, seguidores e insignias",
+    "email_off": "Notificaciones por correo desactivadas",
+    "delete_post": "Eliminar",
+    "role_mechanic": "Mecánico / Taller",
+    "role_manufacturer": "Fabricante",
+    "role_collector": "Coleccionista",
+    "role_enthusiast": "Entusiasta",
+    "edit_profile": "Editar perfil",
+    "followers_count": "seguidores",
+    "following_count": "siguiendo"
   },
   "settings": {
     "title": "Configuración de Cuenta",
@@ -328,7 +362,14 @@
     "mark_all_read": "Marcar todo como leído",
     "empty": "Sin notificaciones aún",
     "empty_hint": "Verás actividad de seguidores, reacciones y reseñas aquí.",
-    "someone": "Alguien"
+    "someone": "Alguien",
+    "follow_text": "{name} comenzó a seguirte",
+    "reaction_text": "{name} reaccionó {emoji} a tu publicación",
+    "comment_excerpt_text": "{name} comentó: \"{excerpt}\"",
+    "comment_text": "{name} comentó en tu publicación",
+    "share_text": "{name} compartió tu publicación",
+    "review_text": "{name} te dejó una reseña de {rating}★",
+    "interaction_text": "{name} interactuó contigo"
   },
   "agxtopics": {
     "title": "AGXTopics",
@@ -398,7 +439,13 @@
     "no_reviews": "Sin reseñas aún. ¡Sé el primero!",
     "avg_rating": "calificación promedio",
     "ratings": "calificaciones",
-    "rating": "calificación"
+    "rating": "calificación",
+    "delete": "Eliminar",
+    "user_fallback": "Usuario",
+    "dim_quality": "Calidad",
+    "dim_comm": "Comm",
+    "dim_timeliness": "Tiempo",
+    "dim_value": "Valor"
   },
   "upgrade": {
     "title": "Mejora Tu Plan",
@@ -409,7 +456,13 @@
     "cancel_confirm": "¿Cancelar y volver a Gratis?",
     "keep_plan": "Mantener plan",
     "downgrade": "Bajar a Gratis",
-    "powered_by": "Con tecnología de Stripe"
+    "powered_by": "Con tecnología de Stripe",
+    "free_price": "Gratis",
+    "error_checkout": "No se pudo iniciar el pago. Por favor intenta de nuevo.",
+    "error_cancel": "No se pudo cancelar la suscripción. Por favor intenta de nuevo.",
+    "confirm": "Confirmar",
+    "powered_by_full": "Impulsado por Stripe. Serás redirigido a una página de pago segura.",
+    "checkout_redirect": "Impulsado por Stripe. Serás redirigido a una página de pago segura."
   },
   "appshell": {
     "post": "Publicar",

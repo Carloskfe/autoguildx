@@ -169,7 +169,11 @@
     "repost": "Repost",
     "delete_post": "Delete post",
     "unknown_user": "Unknown",
-    "load_more": "Load more posts"
+    "load_more": "Load more posts",
+    "loading": "Loading…",
+    "link_limit": "Only 1 link per post is allowed.",
+    "cancel": "Cancel",
+    "no_posts": "No posts yet. Be the first to share something."
   },
   "discover": {
     "title": "Discover",
@@ -207,7 +211,13 @@
     "edit_listing": "Edit Listing",
     "delete_listing": "Delete Listing",
     "boost": "Boost Listing",
-    "load_more": "Load more listings"
+    "load_more": "Load more listings",
+    "failed": "Failed to load listings. Please try again.",
+    "loading": "Loading…",
+    "create_first": "Be the first to post one.",
+    "all_categories": "All Categories",
+    "search_button": "Search",
+    "featured_badge": "Featured"
   },
   "events": {
     "title": "Events & Opportunities",
@@ -237,7 +247,10 @@
     "create_button": "Create Event",
     "post_opportunity": "Post Opportunity",
     "empty": "No upcoming events.",
-    "create_first": "Create one."
+    "create_first": "Create one.",
+    "failed": "Failed to load events. Please try again.",
+    "load_more": "Load more",
+    "loading": "Loading…"
   },
   "profile": {
     "edit": "Edit Profile",
@@ -256,7 +269,7 @@
     "sections_title": "Profile Sections",
     "name_placeholder": "Your name",
     "location_placeholder": "City, State",
-    "bio_placeholder": "Short bio",
+    "bio_placeholder": "Tell people about yourself…",
     "business_placeholder": "Business / shop name (optional)",
     "save_changes": "Save Changes",
     "saving": "Saving…",
@@ -268,7 +281,28 @@
     "email_notifications": "Email Notifications",
     "not_found": "Profile not found.",
     "setup_prompt": "Profile not found. Complete onboarding first.",
-    "setup_cta": "Set up your profile"
+    "setup_cta": "Set up your profile",
+    "label_name": "Name",
+    "label_location": "Location",
+    "label_bio": "Bio",
+    "label_role": "What best describes you?",
+    "label_specialty": "Specialty tags",
+    "change_cover": "Change cover photo",
+    "change_mobile": "Change",
+    "verified_badge_title": "Verified Badge",
+    "verified_badge_body": "Get a badge to show you're a trusted member",
+    "verification_denied": "Verification denied",
+    "verification_pending_review": "Verification pending review",
+    "email_on": "Emails for messages, reviews, follows, and badges",
+    "email_off": "Email notifications are off",
+    "delete_post": "Delete",
+    "role_mechanic": "Mechanic / Shop",
+    "role_manufacturer": "Manufacturer",
+    "role_collector": "Collector",
+    "role_enthusiast": "Enthusiast",
+    "edit_profile": "Edit profile",
+    "followers_count": "followers",
+    "following_count": "following"
   },
   "settings": {
     "title": "Account Settings",
@@ -328,7 +362,14 @@
     "mark_all_read": "Mark all as read",
     "empty": "No notifications yet",
     "empty_hint": "You'll see activity from followers, reactions, and reviews here.",
-    "someone": "Someone"
+    "someone": "Someone",
+    "follow_text": "{name} started following you",
+    "reaction_text": "{name} reacted {emoji} to your post",
+    "comment_excerpt_text": "{name} commented: \"{excerpt}\"",
+    "comment_text": "{name} commented on your post",
+    "share_text": "{name} shared your post",
+    "review_text": "{name} left you a {rating}★ review",
+    "interaction_text": "{name} interacted with you"
   },
   "agxtopics": {
     "title": "AGXTopics",
@@ -398,7 +439,13 @@
     "no_reviews": "No reviews yet. Be the first!",
     "avg_rating": "avg rating",
     "ratings": "ratings",
-    "rating": "rating"
+    "rating": "rating",
+    "delete": "Delete",
+    "user_fallback": "User",
+    "dim_quality": "Quality",
+    "dim_comm": "Comm",
+    "dim_timeliness": "Time",
+    "dim_value": "Value"
   },
   "upgrade": {
     "title": "Upgrade Your Plan",
@@ -409,7 +456,13 @@
     "cancel_confirm": "Cancel and return to Free?",
     "keep_plan": "Keep plan",
     "downgrade": "Downgrade to Free",
-    "powered_by": "Powered by Stripe"
+    "powered_by": "Powered by Stripe",
+    "free_price": "Free",
+    "error_checkout": "Unable to start checkout. Please try again.",
+    "error_cancel": "Unable to cancel subscription. Please try again.",
+    "confirm": "Confirm",
+    "powered_by_full": "Powered by Stripe. You will be redirected to a secure payment page.",
+    "checkout_redirect": "Powered by Stripe. You will be redirected to a secure payment page."
   },
   "appshell": {
     "post": "Post",

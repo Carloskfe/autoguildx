@@ -5,10 +5,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import AppShell from '@/components/layout/AppShell';
 import UpgradeModal from '@/components/UpgradeModal';
+import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 import type { SubscriptionTier } from '@autoguildx/shared';
 
 export default function SettingsPage() {
+  const t = useTranslations('settings');
+  const ta = useTranslations('appshell');
   const { isAuthenticated, logout } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -44,14 +47,14 @@ export default function SettingsPage() {
     mutationFn: (data: { currentPassword: string; newPassword: string }) =>
       api.patch('/auth/change-password', data).then((r) => r.data),
     onSuccess: () => {
-      setPwMessage('Password changed successfully.');
+      setPwMessage(t('save_password'));
       setPwError('');
       setCurrentPw('');
       setNewPw('');
       setConfirmPw('');
     },
     onError: (err: any) => {
-      setPwError(err.response?.data?.message ?? 'Failed to change password.');
+      setPwError(err.response?.data?.message ?? t('password_mismatch'));
       setPwMessage('');
     },
   });
@@ -60,7 +63,7 @@ export default function SettingsPage() {
     e.preventDefault();
     setPwError('');
     if (newPw !== confirmPw) {
-      setPwError('New passwords do not match.');
+      setPwError(t('password_mismatch'));
       return;
     }
     changePwMutation.mutate({ currentPassword: currentPw, newPassword: newPw });
@@ -91,32 +94,31 @@ export default function SettingsPage() {
     e.preventDefault();
     setDeleteError('');
     if (deleteConfirm !== 'DELETE') {
-      setDeleteError('Type DELETE exactly to confirm.');
+      setDeleteError(t('delete_placeholder'));
       return;
     }
     deleteAccount.mutate();
   };
 
   const tier = subscription?.tier ?? 'free';
-  const TIER_LABELS: Record<string, string> = { free: 'Free', owner: 'Owner', company: 'Company' };
 
   if (!isAuthenticated) return null;
 
   return (
     <AppShell>
       <div className="max-w-xl mx-auto px-4 py-8 space-y-8">
-        <h1 className="text-2xl font-bold">Account Settings</h1>
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
 
         {/* Subscription / Plan */}
         <section className="card space-y-4">
-          <h2 className="text-lg font-semibold">Plan &amp; Subscription</h2>
+          <h2 className="text-lg font-semibold">{t('plan_section')}</h2>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-400">Current plan</p>
-              <p className="font-medium text-white">{TIER_LABELS[tier]} Plan</p>
+              <p className="text-sm text-gray-400">{t('plan_current')}</p>
+              <p className="font-medium text-white">{ta(`plan_${tier}` as any)}</p>
             </div>
             <button onClick={() => setShowUpgrade(true)} className="btn-secondary text-sm">
-              {tier === 'free' ? 'Upgrade' : 'Manage plan'}
+              {tier === 'free' ? t('plan_upgrade') : t('plan_manage')}
             </button>
           </div>
           {tier !== 'free' && (
@@ -128,47 +130,28 @@ export default function SettingsPage() {
 
         {/* Change Password */}
         <section className="card space-y-4">
-          <h2 className="text-lg font-semibold">Change Password</h2>
+          <h2 className="text-lg font-semibold">{t('password_section')}</h2>
           <form onSubmit={handleChangePw} className="space-y-3">
-            <input
-              className="input"
-              type="password"
-              placeholder="Current password"
-              value={currentPw}
-              onChange={(e) => setCurrentPw(e.target.value)}
-              required
-            />
-            <input
-              className="input"
-              type="password"
-              placeholder="New password (8+ characters)"
-              value={newPw}
-              minLength={8}
-              onChange={(e) => setNewPw(e.target.value)}
-              required
-            />
-            <input
-              className="input"
-              type="password"
-              placeholder="Confirm new password"
-              value={confirmPw}
-              onChange={(e) => setConfirmPw(e.target.value)}
-              required
-            />
+            <input className="input" type="password" placeholder={t('current_password')}
+              value={currentPw} onChange={(e) => setCurrentPw(e.target.value)} required />
+            <input className="input" type="password" placeholder={t('new_password')}
+              value={newPw} minLength={8} onChange={(e) => setNewPw(e.target.value)} required />
+            <input className="input" type="password" placeholder={t('confirm_password')}
+              value={confirmPw} onChange={(e) => setConfirmPw(e.target.value)} required />
             {pwError && <p className="text-red-400 text-sm">{pwError}</p>}
             {pwMessage && <p className="text-green-400 text-sm">{pwMessage}</p>}
             <button className="btn-primary" type="submit" disabled={changePwMutation.isPending}>
-              {changePwMutation.isPending ? 'Saving…' : 'Update password'}
+              {changePwMutation.isPending ? t('saving') : t('save_password')}
             </button>
           </form>
         </section>
 
         {/* Email Notifications */}
         <section className="card space-y-4">
-          <h2 className="text-lg font-semibold">Email Notifications</h2>
+          <h2 className="text-lg font-semibold">{t('notifications_section')}</h2>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-white">Receive email notifications</p>
+              <p className="text-sm text-white">{t('notifications_toggle')}</p>
               <p className="text-xs text-gray-500">
                 New messages, followers, reviews, and verification updates.
               </p>
@@ -193,15 +176,13 @@ export default function SettingsPage() {
 
         {/* Danger Zone */}
         <section className="card border border-red-900/50 space-y-4">
-          <h2 className="text-lg font-semibold text-red-400">Danger Zone</h2>
-          <p className="text-sm text-gray-400">
-            Permanently delete your account and all associated data. This cannot be undone.
-          </p>
+          <h2 className="text-lg font-semibold text-red-400">{t('delete_section')}</h2>
+          <p className="text-sm text-gray-400">{t('delete_confirm')}</p>
           <form onSubmit={handleDelete} className="space-y-3">
             <input
               className="input border-red-900/50 focus:border-red-500"
               type="text"
-              placeholder="Type DELETE to confirm"
+              placeholder={t('delete_placeholder')}
               value={deleteConfirm}
               onChange={(e) => setDeleteConfirm(e.target.value)}
             />
@@ -211,7 +192,7 @@ export default function SettingsPage() {
               type="submit"
               disabled={deleteAccount.isPending}
             >
-              {deleteAccount.isPending ? 'Deleting…' : 'Delete my account'}
+              {deleteAccount.isPending ? t('delete_loading') : t('delete_account')}
             </button>
           </form>
         </section>

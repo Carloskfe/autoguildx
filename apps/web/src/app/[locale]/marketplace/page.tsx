@@ -8,6 +8,7 @@ import { Search, Star, MapPin, Loader2, LayoutList } from 'lucide-react';
 import { clsx } from 'clsx';
 import AppShell from '@/components/layout/AppShell';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 import type { Listing } from '@autoguildx/shared';
 
@@ -32,18 +33,19 @@ const CATEGORIES = [
 type TypeFilter = '' | 'part' | 'service';
 type SortOption = 'newest' | 'price_asc' | 'price_desc' | 'featured';
 
-const SORT_LABELS: Record<SortOption, string> = {
-  newest: 'Newest',
-  price_asc: 'Price: Low → High',
-  price_desc: 'Price: High → Low',
-  featured: 'Featured first',
+const SORT_KEYS: Record<SortOption, string> = {
+  newest: 'sort_newest',
+  price_asc: 'sort_price_low',
+  price_desc: 'sort_price_high',
+  featured: 'sort_featured',
 };
 
 // ─── Listing card ─────────────────────────────────────────────────────────────
 
 function ListingCard({ listing }: { listing: Listing }) {
+  const t = useTranslations('marketplace');
   const price =
-    listing.price != null ? `$${Number(listing.price).toLocaleString()}` : 'Contact for price';
+    listing.price != null ? `$${Number(listing.price).toLocaleString()}` : t('price_contact');
 
   const { data: reviewSummary } = useQuery<{ avgRating: number | null; total: number }>({
     queryKey: ['review-summary', 'listing', listing.id],
@@ -68,7 +70,7 @@ function ListingCard({ listing }: { listing: Listing }) {
       {listing.isFeatured && (
         <div className="flex items-center gap-1 text-xs text-brand-500 font-medium mb-2">
           <Star className="w-3.5 h-3.5 fill-brand-500" />
-          Featured
+          {t('featured_badge')}
         </div>
       )}
 
@@ -96,7 +98,7 @@ function ListingCard({ listing }: { listing: Listing }) {
                 : 'border-purple-700 text-purple-400',
             )}
           >
-            {listing.type === 'part' ? 'Part' : 'Service'}
+            {listing.type === 'part' ? t('type_part') : t('type_service')}
           </span>
         </div>
       </div>
@@ -140,6 +142,7 @@ function ListingCard({ listing }: { listing: Listing }) {
 // ─── Marketplace page ─────────────────────────────────────────────────────────
 
 export default function MarketplacePage() {
+  const t = useTranslations('marketplace');
   const { isAuthenticated } = useAuth();
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('');
   const [categoryFilter, setCategoryFilter] = useState('');
@@ -177,18 +180,18 @@ export default function MarketplacePage() {
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="font-bold text-lg">Marketplace</h1>
+          <h1 className="font-bold text-lg">{t('title')}</h1>
           <div className="flex items-center gap-2">
             {isAuthenticated && (
               <Link
                 href="/marketplace/manage"
                 className="btn-secondary text-sm flex items-center gap-1.5 px-3 py-1.5"
               >
-                <LayoutList className="w-4 h-4" /> My Listings
+                <LayoutList className="w-4 h-4" /> {t('manage')}
               </Link>
             )}
             <Link href="/marketplace/new" className="btn-primary text-sm px-4 py-2">
-              + New Listing
+              {t('new_listing')}
             </Link>
           </div>
         </div>
@@ -199,23 +202,23 @@ export default function MarketplacePage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
             <input
               className="input w-full pl-9 text-sm"
-              placeholder="Search listings…"
+              placeholder={t('search_placeholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && applySearch()}
             />
           </div>
           <button onClick={applySearch} className="btn-secondary text-sm px-4 py-2">
-            Search
+            {t('search_button')}
           </button>
           <select
             className="input text-sm px-3 py-2"
             value={sortOption}
             onChange={(e) => setSortOption(e.target.value as SortOption)}
           >
-            {(Object.keys(SORT_LABELS) as SortOption[]).map((s) => (
+            {(Object.keys(SORT_KEYS) as SortOption[]).map((s) => (
               <option key={s} value={s}>
-                {SORT_LABELS[s]}
+                {t(SORT_KEYS[s] as any)}
               </option>
             ))}
           </select>
@@ -223,18 +226,18 @@ export default function MarketplacePage() {
 
         {/* Type filter */}
         <div className="flex gap-2 flex-wrap">
-          {(['', 'part', 'service'] as TypeFilter[]).map((t) => (
+          {(['', 'part', 'service'] as TypeFilter[]).map((type) => (
             <button
-              key={t}
-              onClick={() => setTypeFilter(t)}
+              key={type}
+              onClick={() => setTypeFilter(type)}
               className={clsx(
                 'text-sm px-4 py-1.5 rounded-lg border transition-colors',
-                typeFilter === t
+                typeFilter === type
                   ? 'bg-brand-500 border-brand-500 text-white'
                   : 'border-surface-border text-gray-400 hover:text-white hover:border-gray-500',
               )}
             >
-              {t === '' ? 'All' : t === 'part' ? 'Parts' : 'Services'}
+              {type === '' ? t('filter_all') : type === 'part' ? t('filter_parts') : t('filter_services')}
             </button>
           ))}
         </div>
@@ -250,7 +253,7 @@ export default function MarketplacePage() {
                 : 'border-surface-border text-gray-500 hover:text-gray-300 hover:border-gray-500',
             )}
           >
-            All Categories
+            {t('all_categories')}
           </button>
           {CATEGORIES.map((c) => (
             <button
@@ -276,16 +279,14 @@ export default function MarketplacePage() {
         )}
 
         {isError && (
-          <p className="text-center text-sm text-red-400 py-10">
-            Failed to load listings. Please try again.
-          </p>
+          <p className="text-center text-sm text-red-400 py-10">{t('failed')}</p>
         )}
 
         {!isLoading && listings.length === 0 && !isError && (
           <p className="text-center text-sm text-gray-500 py-16">
-            No listings found.{' '}
+            {t('empty')}{' '}
             <Link href="/marketplace/new" className="text-brand-500 hover:underline">
-              Be the first to post one.
+              {t('create_first')}
             </Link>
           </p>
         )}
@@ -304,10 +305,10 @@ export default function MarketplacePage() {
           >
             {isFetchingNextPage ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" /> Loading…
+                <Loader2 className="w-4 h-4 animate-spin" /> {t('loading')}
               </>
             ) : (
-              'Load more'
+              t('load_more')
             )}
           </button>
         )}
