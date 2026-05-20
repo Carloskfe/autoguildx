@@ -24,7 +24,6 @@
       },
       "package": "com.autoguildx.app",
       "edgeToEdgeEnabled": true,
-      "googleServicesFile": "./google-services.json",
       "permissions": [
         "android.permission.RECORD_AUDIO",
         "android.permission.CAMERA"
@@ -53,6 +52,12 @@
       "expo-font",
       "expo-web-browser"
     ],
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/af67a957-0220-43a8-bef1-4922163ef207"
+    },
     "experiments": {
       "typedRoutes": true
     },
