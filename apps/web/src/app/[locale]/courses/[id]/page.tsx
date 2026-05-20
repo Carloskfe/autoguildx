@@ -24,7 +24,7 @@ import VerifiedBadge from '@/components/VerifiedBadge';
 import ReviewSection from '@/components/ReviewSection';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
-import type { Course, Lesson, Enrollment } from '@autoguildx/shared';
+import type { Course, Lesson, Enrollment, Certificate } from '@autoguildx/shared';
 
 interface CourseDetail extends Course {
   lessons: Lesson[];
