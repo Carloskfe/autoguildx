@@ -136,6 +136,14 @@ All features below are fully implemented and deployed unless noted.
 - `POST /upload/presign` → browser PUTs directly to S3 → stores public URL
 - Used by: profile image, profile video, post images, listing images
 
+### 12. Multilingual Support (EN / ES)
+- Full English/Spanish internationalization via `next-intl` v3 + `[locale]` URL segments
+- URLs: `/en/feed`, `/es/feed` — SEO-friendly, shareable
+- `middleware.ts` detects browser language (`Accept-Language`), reads `NEXT_LOCALE` cookie for returning users
+- `messages/en.json` + `messages/es.json` — ~500 keys across 20 namespaces, fully in sync
+- `LocaleSwitcher` component in AppShell header and Settings page
+- Every page and component uses `useTranslations()` — zero hardcoded UI strings remain
+
 ---
 
 ## Success Metrics (MVP)
@@ -169,7 +177,8 @@ All features below are fully implemented and deployed unless noted.
 | SEO metadata, sitemap, robots.txt, error boundaries | ✅ Sprint 20 |
 | Mobile responsiveness — all pages phone-ready | ✅ Sprint 21 |
 | Production Docker stack (nginx + SSL + deploy script) | ✅ Sprint 22 |
-| Traefik-based Contabo deployment + GitHub Actions CD | Sprint 23 |
+| Traefik-based Contabo deployment + GitHub Actions CD | ✅ Sprint 23 |
+| Multilingual EN/ES support (next-intl v3, all pages) | ✅ Sprint 25 |
 | Stripe production env vars + webhook registration | Ops (no code changes) |
 | Real S3 credentials for media uploads | Ops (no code changes) |
 

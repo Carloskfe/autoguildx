@@ -6,49 +6,7 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ## Backlog (unscheduled)
 
-- [ ] **Multilingual support — English / Spanish (Sprint 25 candidate)**
-
-  **Current state:** No i18n infrastructure exists. All UI copy is hardcoded English across ~40+ pages.
-
-  **Architecture decision: `next-intl` + `[locale]` URL segments**
-  - Industry standard for Next.js 14 App Router
-  - Native Server Component support, TypeScript-first, tiny runtime
-  - URLs become `/en/feed`, `/es/feed` — SEO-friendly, shareable
-  - Middleware handles locale detection and redirect
-
-  **Backend changes:**
-  - Add `locale` field (`varchar`, default `'en'`) to `UserEntity` + migration
-  - `PATCH /auth/me/locale` endpoint to persist preference
-  - API error messages stay English-only for now (Phase 2)
-
-  **Frontend architecture:**
-  - `messages/en.json` + `messages/es.json` — all UI strings extracted here
-  - Wrap `app/` under `app/[locale]/` route group
-  - `middleware.ts` — reads `Accept-Language` header, redirects to `/en` or `/es`; reads `NEXT_LOCALE` cookie for returning users
-  - `LocaleSwitcher` component — compact toggle (EN | ES) in AppShell header and Settings page
-  - Locale persisted to `localStorage` (unauthenticated) + `UserEntity.locale` (authenticated)
-
-  **Language selection UX (first user decision):**
-  - New visitor → middleware detects browser language → auto-routes to `/en` or `/es`
-  - Onboarding: language picker as step 0 (before role selection), shown only if locale not already set
-  - AppShell header: small EN/ES toggle always visible
-  - Settings page: "Language / Idioma" selector
-
-  **Translation scope (~40 pages):**
-  - All static UI copy: buttons, labels, placeholders, empty states, error messages
-  - All page titles and descriptions
-  - Toast notifications and confirmation dialogs
-  - Onboarding copy, landing page, team page
-
-  **Implementation order:**
-  1. Install `next-intl`, restructure routes under `[locale]`
-  2. Middleware + locale detection
-  3. `messages/en.json` — extract all English strings
-  4. `messages/es.json` — Spanish translation
-  5. `LocaleSwitcher` component
-  6. Backend `locale` field + endpoint
-  7. Onboarding language step
-  8. QA pass on both locales
+- [x] **Multilingual support — English / Spanish** ✅ Sprint 25 COMPLETE
 
 - [ ] **UI/UX overhaul — Rich profile + automotive brand identity** — The current dark theme (#0f0f0f / #f97316) is functional but generic. This sprint should elevate the platform to feel like it belongs alongside major US automotive brands.
 
@@ -208,6 +166,43 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
   - CTA button → `/courses` ("Browse Courses")
   - Layout: icon + text left, button right on desktop; stacked on mobile
   - Visual: `border border-brand-500/30 bg-brand-500/5` to distinguish from the plain cards above
+
+---
+
+## Sprint 25 — Multilingual EN/ES Support ✅ COMPLETE
+
+**Goal:** Full English/Spanish internationalization across all pages and components using `next-intl` v3.
+
+### Phase 1 — Infrastructure
+- [x] Install `next-intl` v3, restructure all routes under `app/[locale]/`
+- [x] `middleware.ts` — `Accept-Language` detection, `NEXT_LOCALE` cookie, redirect to `/en` or `/es`
+- [x] `messages/en.json` — all UI strings extracted (~500 keys across 20 namespaces)
+- [x] `messages/es.json` — full Spanish translation (ES LATAM, neutral vocabulary)
+- [x] `LocaleSwitcher` component — EN | ES toggle in AppShell header and Settings page
+- [x] `next.config.mjs` updated with `next-intl` plugin
+
+### Phase 2 — Page wiring (major pages)
+- [x] `AppShell` — nav labels, plan badges, post button, notifications
+- [x] Landing page (`/`) — hero copy, card titles/bodies, courses banner
+- [x] `/login`, `/signup`, `/onboarding`, `/verify-email`, `/forgot-password`
+- [x] `/agxtopics` and all sub-routes — forum labels, sort tabs, vote actions
+- [x] `/courses` and all sub-routes — browse, create, manage, learn, certificate
+- [x] `/marketplace/new`, `/marketplace/manage`, `/marketplace/[id]/edit`
+- [x] `/messages`, `/notifications`, `/events/new`, `/events/[id]`
+- [x] `/marketplace/[id]`, `/profile/[id]`, `/admin`, `/team`
+
+### Phase 3 — Remaining pages and components
+- [x] `feed/page.tsx` — visibility options, unknown user, comment/compose placeholders, link limit, no-posts state
+- [x] `discover/page.tsx` — filter labels, empty states
+- [x] `events/page.tsx` — list labels, empty states, load more
+- [x] `marketplace/page.tsx` — category filter, sort, search, empty states
+- [x] `profile/page.tsx` — edit labels, role names, badge labels, email notification text
+- [x] `reset-password/PageClient.tsx` — error messages, form labels, success states
+- [x] `settings/page.tsx` — section headers, plan labels, form placeholders
+- [x] `NotificationPanel.tsx` — notification text with i18n interpolation
+- [x] `ReviewSection.tsx` — title, write/cancel, dimension labels, placeholder
+- [x] `UpgradeModal.tsx` — error messages
+- [x] `messages/en.json` + `messages/es.json` — extended with all Phase 3 keys (EN/ES perfectly in sync, 0 missing keys)
 
 ---
 

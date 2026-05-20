@@ -526,6 +526,8 @@ All authenticated pages wrap their content with `AppShell` (`src/components/layo
 
 **Page pattern for authenticated routes:** check `useAuth().isAuthenticated` in `useEffect`, redirect to `/login` if false, disable React Query fetches with `enabled: isAuthenticated`.
 
+**Internationalization (Sprint 25):** All routes live under `app/[locale]/` (e.g. `/en/feed`, `/es/feed`). `middleware.ts` detects language from `Accept-Language` header and `NEXT_LOCALE` cookie, then redirects. Translation strings live in `apps/web/messages/en.json` and `apps/web/messages/es.json` (~500 keys across 20 namespaces). Use `useTranslations('namespace')` in every client component — never hardcode UI strings. `LocaleSwitcher` in AppShell header and Settings page lets users switch locales.
+
 **API client:** `src/lib/api.ts` — Axios instance that auto-attaches JWT from `localStorage` and redirects to `/login` on 401.
 
 **Auth state:** Zustand store in `src/hooks/useAuth.ts`, persisted to `localStorage`. Shape: `{ token, userId, isAuthenticated }`.
