@@ -1,18 +1,22 @@
 import Link from 'next/link';
 import { Car, Wrench, CalendarDays, GraduationCap } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function LandingPage() {
+  const t = useTranslations('landing');
+  const tn = useTranslations('nav');
+
   return (
     <main className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="border-b border-surface-border px-6 py-4 flex items-center justify-between">
         <span className="text-brand-500 font-bold text-xl tracking-tight">AutoGuildX</span>
-        <nav className="flex gap-4">
+        <nav className="flex items-center gap-4">
           <Link href="/login" className="btn-secondary text-sm">
-            Log In
+            {t('log_in')}
           </Link>
           <Link href="/signup" className="btn-primary text-sm">
-            Join Free
+            {t('join_free')}
           </Link>
         </nav>
       </header>
@@ -20,20 +24,17 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="flex-1 flex flex-col items-center justify-center text-center px-6 py-24 gap-8">
         <h1 className="text-5xl md:text-7xl font-black tracking-tight max-w-4xl leading-none">
-          Where Car & Moto
+          {t('hero_line1')}
           <br />
-          <span className="text-brand-500">People Belong.</span>
+          <span className="text-brand-500">{t('hero_line2')}</span>
         </h1>
-        <p className="text-gray-400 text-lg md:text-xl max-w-xl">
-          The community and marketplace for everyone passionate about cars, motorcycles, and all
-          things automotive — from weekend DIYers to seasoned pros.
-        </p>
+        <p className="text-gray-400 text-lg md:text-xl max-w-xl">{t('hero_subtitle')}</p>
         <div className="flex flex-wrap gap-4 justify-center">
           <Link href="/signup" className="btn-primary text-base px-8 py-3">
-            Get Started Free
+            {t('cta_start')}
           </Link>
           <Link href="/discover" className="btn-secondary text-base px-8 py-3">
-            Explore Platform
+            {t('cta_explore')}
           </Link>
         </div>
       </section>
@@ -41,37 +42,27 @@ export default function LandingPage() {
       {/* Value props */}
       <section className="border-t border-surface-border px-6 py-16">
         <div className="max-w-5xl mx-auto space-y-8">
-          {/* 3-column cards */}
           <div className="grid md:grid-cols-3 gap-8">
             <div className="card">
               <div className="w-10 h-10 rounded-lg bg-brand-500/10 flex items-center justify-center mb-4">
                 <Car className="w-5 h-5 text-brand-500" />
               </div>
-              <h3 className="font-bold text-lg mb-2">Build Your Presence</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Showcase your builds, skills, and story in a profile built for people who are
-                serious about their machines — whatever role you play.
-              </p>
+              <h3 className="font-bold text-lg mb-2">{t('card_presence_title')}</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">{t('card_presence_body')}</p>
             </div>
             <div className="card">
               <div className="w-10 h-10 rounded-lg bg-brand-500/10 flex items-center justify-center mb-4">
                 <Wrench className="w-5 h-5 text-brand-500" />
               </div>
-              <h3 className="font-bold text-lg mb-2">Find Trusted Parts</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Browse a marketplace of rare parts, tools, and services from people who actually
-                know what they&apos;re selling.
-              </p>
+              <h3 className="font-bold text-lg mb-2">{t('card_parts_title')}</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">{t('card_parts_body')}</p>
             </div>
             <div className="card">
               <div className="w-10 h-10 rounded-lg bg-brand-500/10 flex items-center justify-center mb-4">
                 <CalendarDays className="w-5 h-5 text-brand-500" />
               </div>
-              <h3 className="font-bold text-lg mb-2">Events &amp; Opportunities</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Find local meets, shows, and workshops — or post a job opening and connect with
-                talent from inside the community.
-              </p>
+              <h3 className="font-bold text-lg mb-2">{t('card_events_title')}</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">{t('card_events_body')}</p>
             </div>
           </div>
 
@@ -82,15 +73,12 @@ export default function LandingPage() {
                 <GraduationCap className="w-6 h-6 text-brand-500" />
               </div>
               <div>
-                <h3 className="font-bold text-lg mb-1">Develop or Reshape Your Skills</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">
-                  Learn from people who have actually done it, or teach what you know. Earn
-                  certificates that live on your profile.
-                </p>
+                <h3 className="font-bold text-lg mb-1">{t('courses_title')}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">{t('courses_body')}</p>
               </div>
             </div>
             <Link href="/courses" className="btn-primary text-sm px-6 py-2.5 shrink-0 text-center">
-              Browse Courses
+              {t('courses_cta')}
             </Link>
           </div>
         </div>
@@ -99,22 +87,22 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-surface-border px-6 py-6 text-center text-sm text-gray-500 space-x-4">
         <Link href="/terms" className="hover:text-gray-300 transition-colors">
-          Terms of Service
+          {tn('terms')}
         </Link>
         <span>·</span>
         <Link href="/privacy" className="hover:text-gray-300 transition-colors">
-          Privacy Policy
+          {tn('privacy')}
         </Link>
         <span>·</span>
         <Link href="/cookies" className="hover:text-gray-300 transition-colors">
-          Cookie Policy
+          {tn('cookies')}
         </Link>
         <span>·</span>
         <Link href="/disclaimer" className="hover:text-gray-300 transition-colors">
-          Disclaimer
+          {tn('disclaimer')}
         </Link>
         <span>·</span>
-        <span>© 2026 AutoGuildX. All rights reserved.</span>
+        <span>{tn('copyright')}</span>
       </footer>
     </main>
   );

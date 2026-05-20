@@ -1,41 +1,6 @@
-import type { Metadata } from 'next';
-import { Barlow } from 'next/font/google';
 import './globals.css';
-import Providers from './providers';
 
-const barlow = Barlow({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800', '900'],
-  variable: '--font-inter',
-});
-
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://autoguildx.com'),
-  title: {
-    default: 'AutoGuildX – Where Car & Moto People Belong',
-    template: '%s | AutoGuildX',
-  },
-  description:
-    'The community and marketplace for everyone passionate about cars, motorcycles, and all things automotive.',
-  openGraph: {
-    title: 'AutoGuildX',
-    description: 'Where car & moto people belong.',
-    type: 'website',
-    siteName: 'AutoGuildX',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'AutoGuildX',
-    description: 'Where car & moto people belong.',
-  },
-};
-
+// Minimal root layout — locale-aware layout lives in [locale]/layout.tsx
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en" className="dark">
-      <body className={`${barlow.variable} bg-surface text-white antialiased`}>
-        <Providers>{children}</Providers>
-      </body>
-    </html>
-  );
+  return children;
 }

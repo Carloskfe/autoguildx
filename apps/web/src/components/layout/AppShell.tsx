@@ -27,33 +27,35 @@ import { useUnreadCount } from '@/hooks/useUnreadCount';
 import UpgradeModal from '@/components/UpgradeModal';
 import NotificationPanel from '@/components/NotificationPanel';
 import TourGuide, { TOUR_KEY } from '@/components/TourGuide';
+import LocaleSwitcher from '@/components/LocaleSwitcher';
 import api from '@/lib/api';
 import type { SubscriptionTier } from '@autoguildx/shared';
+import { useTranslations } from 'next-intl';
 
-const NAV = [
-  { href: '/feed', label: 'Feed', icon: Home, tourId: 'tour-nav-feed' },
-  { href: '/discover', label: 'Discover', icon: Search },
-  { href: '/agxtopics', label: 'AGXTopics', icon: Hash },
-  { href: '/courses', label: 'Courses', icon: GraduationCap, tourId: 'tour-nav-courses' },
-  { href: '/marketplace', label: 'Market', icon: Package, tourId: 'tour-nav-market' },
-  { href: '/events', label: 'Events', icon: Calendar },
-  { href: '/messages', label: 'Messages', icon: MessageSquare },
-  { href: '/profile', label: 'Profile', icon: User, tourId: 'tour-nav-profile' },
+const NAV_ITEMS: { href: string; labelKey: string; icon: React.ElementType; tourId?: string }[] = [
+  { href: '/feed', labelKey: 'feed', icon: Home, tourId: 'tour-nav-feed' },
+  { href: '/discover', labelKey: 'discover', icon: Search },
+  { href: '/agxtopics', labelKey: 'agxtopics', icon: Hash },
+  { href: '/courses', labelKey: 'courses', icon: GraduationCap, tourId: 'tour-nav-courses' },
+  { href: '/marketplace', labelKey: 'market', icon: Package, tourId: 'tour-nav-market' },
+  { href: '/events', labelKey: 'events', icon: Calendar },
+  { href: '/messages', labelKey: 'messages', icon: MessageSquare },
+  { href: '/profile', labelKey: 'profile', icon: User, tourId: 'tour-nav-profile' },
 ];
 
-const MOBILE_NAV = [
-  { href: '/feed', label: 'Feed', icon: Home },
-  { href: '/discover', label: 'Discover', icon: Search },
-  { href: '/marketplace', label: 'Market', icon: Package },
-  { href: '/messages', label: 'Messages', icon: MessageSquare },
-  { href: '/profile', label: 'Profile', icon: User },
+const MOBILE_NAV_ITEMS: { href: string; labelKey: string; icon: React.ElementType }[] = [
+  { href: '/feed', labelKey: 'feed', icon: Home },
+  { href: '/discover', labelKey: 'discover', icon: Search },
+  { href: '/marketplace', labelKey: 'market', icon: Package },
+  { href: '/messages', labelKey: 'messages', icon: MessageSquare },
+  { href: '/profile', labelKey: 'profile', icon: User },
 ];
 
-const TIER_BADGE: Record<string, { label: string; className: string }> = {
-  free: { label: 'Free', className: 'bg-surface-card text-gray-400 border border-surface-border' },
-  owner: { label: 'Owner', className: 'bg-brand-500/20 text-brand-500 border border-brand-500/40' },
+const TIER_BADGE: Record<string, { labelKey: string; className: string }> = {
+  free: { labelKey: 'plan_free', className: 'bg-surface-card text-gray-400 border border-surface-border' },
+  owner: { labelKey: 'plan_owner', className: 'bg-brand-500/20 text-brand-500 border border-brand-500/40' },
   company: {
-    label: 'Company',
+    labelKey: 'plan_company',
     className: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/40',
   },
 };
@@ -61,6 +63,8 @@ const TIER_BADGE: Record<string, { label: string; className: string }> = {
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { isAuthenticated, role } = useAuth();
+  const tn = useTranslations('nav');
+  const ta = useTranslations('appshell');
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [tourRun, setTourRun] = useState(false);
@@ -111,7 +115,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               )}
             >
               <Zap className="w-3 h-3" />
-              {badge.label}
+              {ta(badge.labelKey)}
             </button>
           )}
           {isAuthenticated && (
@@ -133,11 +137,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               )}
             </div>
           )}
+          <LocaleSwitcher />
           <Link
             href="/marketplace/new"
             className="btn-primary text-sm flex items-center gap-1.5 px-3 py-1.5"
           >
-            <PlusSquare className="w-4 h-4" /> Post
+            <PlusSquare className="w-4 h-4" /> {ta('post')}
           </Link>
         </div>
       </header>
@@ -146,7 +151,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex flex-1">
         {/* Desktop sidebar */}
         <nav className="hidden md:flex flex-col gap-1 w-56 shrink-0 p-4 border-r border-surface-border sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto">
-          {NAV.map(({ href, label, icon: Icon, tourId }) => (
+          {NAV_ITEMS.map(({ href, labelKey, icon: Icon, tourId }) => (
             <Link
               key={href}
               id={tourId}
@@ -166,7 +171,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   </span>
                 )}
               </span>
-              {label}
+              {tn(labelKey)}
             </Link>
           ))}
 
@@ -179,7 +184,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               )}
             >
               <Zap className="w-4 h-4" />
-              {badge.label} Plan
+              {tn('upgrade')}
             </button>
           )}
 
@@ -194,7 +199,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               )}
             >
               <Settings className="w-5 h-5" />
-              Settings
+              {tn('settings')}
             </Link>
           )}
 
@@ -209,7 +214,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               )}
             >
               <ShieldCheck className="w-5 h-5" />
-              Admin
+              {tn('admin')}
             </Link>
           )}
 
@@ -223,25 +228,25 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 className="flex items-center gap-1.5 hover:text-gray-400 transition-colors text-left"
               >
                 <MapIcon className="w-3 h-3" />
-                Take a tour
+                {tn('take_tour')}
               </button>
             )}
             <Link href="/team" className="hover:text-gray-400 transition-colors">
-              About / Team
+              {tn('about')}
             </Link>
             <Link href="/privacy" className="hover:text-gray-400 transition-colors">
-              Privacy Policy
+              {tn('privacy')}
             </Link>
             <Link href="/terms" className="hover:text-gray-400 transition-colors">
-              Terms of Service
+              {tn('terms')}
             </Link>
             <Link href="/cookies" className="hover:text-gray-400 transition-colors">
-              Cookie Policy
+              {tn('cookies')}
             </Link>
             <Link href="/disclaimer" className="hover:text-gray-400 transition-colors">
-              Disclaimer
+              {tn('disclaimer')}
             </Link>
-            <span className="mt-1">© 2026 AutoGuildX</span>
+            <span className="mt-1">{tn('copyright')}</span>
           </div>
         </nav>
 
@@ -251,7 +256,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Mobile bottom nav */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-surface/95 backdrop-blur border-t border-surface-border flex justify-around py-2">
-        {MOBILE_NAV.map(({ href, label, icon: Icon }) => (
+        {MOBILE_NAV_ITEMS.map(({ href, labelKey, icon: Icon }) => (
           <Link
             key={href}
             href={href}
@@ -268,7 +273,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 </span>
               )}
             </span>
-            <span className="truncate">{label}</span>
+            <span className="truncate">{tn(labelKey)}</span>
           </Link>
         ))}
       </nav>
