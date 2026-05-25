@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import AppShell from '@/components/layout/AppShell';
 import UpgradeModal from '@/components/UpgradeModal';
+import LocaleSwitcher from '@/components/LocaleSwitcher';
 import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 import type { SubscriptionTier } from '@autoguildx/shared';
@@ -126,6 +127,15 @@ export default function SettingsPage() {
               To cancel or downgrade, click &ldquo;Manage plan&rdquo; above.
             </p>
           )}
+        </section>
+
+        {/* Language */}
+        <section className="card space-y-4">
+          <h2 className="text-lg font-semibold">{t('language_section')}</h2>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-gray-400">{t('language_label')}</p>
+            <LocaleSwitcher />
+          </div>
         </section>
 
         {/* Change Password */}

@@ -1,10 +1,16 @@
+import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 
-export const metadata = {
-  title: 'Privacy Policy – AutoGuildX',
-};
+export async function generateMetadata() {
+  const t = await getTranslations('privacy');
+  return { title: `${t('title')} – AutoGuildX` };
+}
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const t = await getTranslations('privacy');
+  const tl = await getTranslations('legal');
+  const tn = await getTranslations('nav');
+
   return (
     <main className="min-h-screen">
       <header className="border-b border-surface-border px-6 py-4 flex items-center justify-between">
@@ -12,197 +18,135 @@ export default function PrivacyPage() {
           AutoGuildX
         </Link>
         <Link href="/" className="text-sm text-gray-400 hover:text-white transition-colors">
-          ← Back to Home
+          {tl('back_home')}
         </Link>
       </header>
 
       <div className="max-w-3xl mx-auto px-6 py-12 space-y-10">
         <div>
-          <h1 className="text-3xl font-black mb-2">Privacy Policy</h1>
-          <p className="text-gray-400 text-sm">Last updated: April 24, 2026</p>
+          <h1 className="text-3xl font-black mb-2">{t('title')}</h1>
+          <p className="text-gray-400 text-sm">{t('last_updated')}</p>
         </div>
 
-        <p className="text-gray-300 leading-relaxed">
-          AutoGuildX (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) operates the AutoGuildX
-          platform (the &quot;Service&quot;). This Privacy Policy explains what information we
-          collect, how we use it, and the rights you have over it. By using the Service you agree to
-          the practices described here.
-        </p>
+        <p className="text-gray-300 leading-relaxed">{t('intro')}</p>
 
-        <Section title="1. Information We Collect">
+        <Section title={t('s1_title')}>
           <ul className="list-disc list-inside space-y-2 text-gray-300 text-sm leading-relaxed">
             <li>
-              <strong className="text-white">Account information:</strong> email address, hashed
-              password, and role type you provide during registration.
+              <strong className="text-white">{t('s1_account_label')}</strong> {t('s1_account')}
             </li>
             <li>
-              <strong className="text-white">Profile information:</strong> name, business name, bio,
-              location, tags, and profile photo URL you add voluntarily.
+              <strong className="text-white">{t('s1_profile_label')}</strong> {t('s1_profile')}
             </li>
             <li>
-              <strong className="text-white">User-generated content:</strong> posts, comments,
-              marketplace listings, and event listings you create.
+              <strong className="text-white">{t('s1_ugc_label')}</strong> {t('s1_ugc')}
             </li>
             <li>
-              <strong className="text-white">Authentication data:</strong> when you sign in with
-              Google, Firebase Authentication (operated by Google) processes your Google account
-              information. We receive only an authentication token.
+              <strong className="text-white">{t('s1_auth_label')}</strong> {t('s1_auth')}
             </li>
             <li>
-              <strong className="text-white">Usage data:</strong> IP addresses, browser type, and
-              interaction logs collected automatically by Firebase and our hosting infrastructure
-              for security and service reliability purposes.
+              <strong className="text-white">{t('s1_usage_label')}</strong> {t('s1_usage')}
             </li>
             <li>
-              <strong className="text-white">Media files:</strong> images you upload are stored on
-              cloud storage infrastructure. File URLs are saved to your account.
+              <strong className="text-white">{t('s1_media_label')}</strong> {t('s1_media')}
             </li>
           </ul>
         </Section>
 
-        <Section title="2. How We Use Your Information">
+        <Section title={t('s2_title')}>
           <ul className="list-disc list-inside space-y-2 text-gray-300 text-sm leading-relaxed">
-            <li>To create and manage your account and authenticate you securely.</li>
-            <li>To provide, operate, and maintain the Service.</li>
-            <li>To enable you to post content and interact with other users.</li>
-            <li>To process subscription tier upgrades.</li>
-            <li>
-              To send transactional emails (e.g., password reset) — we do not send marketing email
-              without your explicit consent.
-            </li>
-            <li>To detect and prevent fraud, abuse, and security incidents.</li>
-            <li>To comply with applicable laws and legal obligations.</li>
+            <li>{t('s2_i1')}</li>
+            <li>{t('s2_i2')}</li>
+            <li>{t('s2_i3')}</li>
+            <li>{t('s2_i4')}</li>
+            <li>{t('s2_i5')}</li>
+            <li>{t('s2_i6')}</li>
+            <li>{t('s2_i7')}</li>
           </ul>
         </Section>
 
-        <Section title="3. Local Storage and Session Data">
-          <p className="text-gray-300 text-sm leading-relaxed">
-            AutoGuildX stores a JSON Web Token (JWT) in your browser&apos;s{' '}
-            <code className="text-brand-500">localStorage</code> to keep you signed in between
-            sessions. This storage is strictly necessary for the Service to function; no tracking or
-            advertising data is stored in your browser. You may clear this data at any time through
-            your browser settings, which will sign you out.
-          </p>
+        <Section title={t('s3_title')}>
+          <p className="text-gray-300 text-sm leading-relaxed">{t('s3_p1')}</p>
           <p className="text-gray-300 text-sm leading-relaxed mt-3">
-            We do not use third-party tracking cookies or advertising networks. Firebase
-            Authentication may use its own local storage entries to manage your Google sign-in
-            session; these are governed by{' '}
+            {t('s3_p2_pre')}{' '}
             <a
               href="https://policies.google.com/privacy"
               target="_blank"
               rel="noopener noreferrer"
               className="text-brand-500 hover:underline"
             >
-              Google&apos;s Privacy Policy
+              {t('s3_google_link')}
             </a>
-            .
+            {t('s3_p2_post')}
           </p>
         </Section>
 
-        <Section title="4. Data Sharing and Third Parties">
-          <p className="text-gray-300 text-sm leading-relaxed mb-3">
-            We do not sell your personal information. We share data only as described below:
-          </p>
+        <Section title={t('s4_title')}>
+          <p className="text-gray-300 text-sm leading-relaxed mb-3">{t('s4_intro')}</p>
           <ul className="list-disc list-inside space-y-2 text-gray-300 text-sm leading-relaxed">
             <li>
-              <strong className="text-white">Firebase / Google:</strong> identity and authentication
-              services.
+              <strong className="text-white">{t('s4_firebase_label')}</strong> {t('s4_firebase')}
             </li>
             <li>
-              <strong className="text-white">Cloud storage provider (AWS S3 or equivalent):</strong>{' '}
-              stores media files you upload.
+              <strong className="text-white">{t('s4_storage_label')}</strong> {t('s4_storage')}
             </li>
             <li>
-              <strong className="text-white">Hosting infrastructure:</strong> servers that run the
-              Service may process request logs.
+              <strong className="text-white">{t('s4_hosting_label')}</strong> {t('s4_hosting')}
             </li>
             <li>
-              <strong className="text-white">Legal requirements:</strong> we may disclose
-              information if required by law, subpoena, or to protect the rights of AutoGuildX or
-              others.
+              <strong className="text-white">{t('s4_legal_label')}</strong> {t('s4_legal')}
             </li>
             <li>
-              <strong className="text-white">Business transfers:</strong> in the event of a merger
-              or acquisition, user data may be transferred as a business asset.
+              <strong className="text-white">{t('s4_transfer_label')}</strong> {t('s4_transfer')}
             </li>
           </ul>
         </Section>
 
-        <Section title="5. Data Retention">
-          <p className="text-gray-300 text-sm leading-relaxed">
-            We retain your account data for as long as your account is active. If you delete your
-            account, we will delete your personal data within 30 days, except where we are required
-            to retain it by law. Server logs are retained for up to 90 days for security purposes.
-            Content you have shared publicly (posts, listings, comments) may remain visible to other
-            users until explicitly deleted by you.
-          </p>
+        <Section title={t('s5_title')}>
+          <p className="text-gray-300 text-sm leading-relaxed">{t('s5_body')}</p>
         </Section>
 
-        <Section title="6. Your Rights">
-          <p className="text-gray-300 text-sm leading-relaxed mb-3">
-            Depending on your jurisdiction, you may have the following rights:
-          </p>
+        <Section title={t('s6_title')}>
+          <p className="text-gray-300 text-sm leading-relaxed mb-3">{t('s6_intro')}</p>
           <ul className="list-disc list-inside space-y-2 text-gray-300 text-sm leading-relaxed">
             <li>
-              <strong className="text-white">Access:</strong> request a copy of the personal data we
-              hold about you.
+              <strong className="text-white">{t('s6_access_label')}</strong> {t('s6_access')}
             </li>
             <li>
-              <strong className="text-white">Correction:</strong> update inaccurate or incomplete
-              data through your profile settings.
+              <strong className="text-white">{t('s6_correction_label')}</strong>{' '}
+              {t('s6_correction')}
             </li>
             <li>
-              <strong className="text-white">Deletion:</strong> request deletion of your account and
-              associated personal data.
+              <strong className="text-white">{t('s6_deletion_label')}</strong> {t('s6_deletion')}
             </li>
             <li>
-              <strong className="text-white">Portability:</strong> receive your data in a
-              structured, machine-readable format (GDPR Article 20).
+              <strong className="text-white">{t('s6_portability_label')}</strong>{' '}
+              {t('s6_portability')}
             </li>
             <li>
-              <strong className="text-white">Opt-out of sale (CCPA):</strong> we do not sell
-              personal data, so no opt-out action is required.
+              <strong className="text-white">{t('s6_optout_label')}</strong> {t('s6_optout')}
             </li>
             <li>
-              <strong className="text-white">Withdraw consent:</strong> where processing is based on
-              consent, you may withdraw it at any time without affecting prior processing.
+              <strong className="text-white">{t('s6_withdraw_label')}</strong> {t('s6_withdraw')}
             </li>
           </ul>
-          <p className="text-gray-300 text-sm leading-relaxed mt-3">
-            To exercise these rights, contact us at{' '}
-            <a href="mailto:privacy@autoguildx.com" className="text-brand-500 hover:underline">
-              privacy@autoguildx.com
-            </a>
-            . We will respond within 30 days.
-          </p>
+          <p className="text-gray-300 text-sm leading-relaxed mt-3">{t('s6_contact')}</p>
         </Section>
 
-        <Section title="7. Children's Privacy">
-          <p className="text-gray-300 text-sm leading-relaxed">
-            The Service is not directed at children under the age of 18. We do not knowingly collect
-            personal information from anyone under 18. If you become aware that a minor has provided
-            us with personal data, please contact us and we will take steps to delete it.
-          </p>
+        <Section title={t('s7_title')}>
+          <p className="text-gray-300 text-sm leading-relaxed">{t('s7_body')}</p>
         </Section>
 
-        <Section title="8. Changes to This Policy">
-          <p className="text-gray-300 text-sm leading-relaxed">
-            We may update this Privacy Policy from time to time. When we do, we will update the
-            &quot;Last updated&quot; date at the top of this page. Material changes will be
-            communicated via a notice on the Service or by email. Continued use of the Service after
-            changes constitutes your acceptance of the updated policy.
-          </p>
+        <Section title={t('s8_title')}>
+          <p className="text-gray-300 text-sm leading-relaxed">{t('s8_body')}</p>
         </Section>
 
-        <Section title="9. Contact Us">
-          <p className="text-gray-300 text-sm leading-relaxed">
-            If you have questions about this Privacy Policy or wish to exercise your privacy rights,
-            please contact:
-          </p>
+        <Section title={t('s9_title')}>
+          <p className="text-gray-300 text-sm leading-relaxed">{t('s9_intro')}</p>
           <address className="not-italic text-gray-300 text-sm mt-3 space-y-1">
-            <p className="font-semibold text-white">AutoGuildX</p>
+            <p className="font-semibold text-white">{t('s9_company')}</p>
             <p>
-              Email:{' '}
+              {t('s9_email_label')}{' '}
               <a href="mailto:privacy@autoguildx.com" className="text-brand-500 hover:underline">
                 privacy@autoguildx.com
               </a>
@@ -213,22 +157,22 @@ export default function PrivacyPage() {
 
       <footer className="border-t border-surface-border px-6 py-6 text-center text-sm text-gray-500 space-x-4">
         <Link href="/terms" className="hover:text-gray-300 transition-colors">
-          Terms of Service
+          {tn('terms')}
         </Link>
         <span>·</span>
         <Link href="/privacy" className="hover:text-gray-300 transition-colors">
-          Privacy Policy
+          {tn('privacy')}
         </Link>
         <span>·</span>
         <Link href="/cookies" className="hover:text-gray-300 transition-colors">
-          Cookie Policy
+          {tn('cookies')}
         </Link>
         <span>·</span>
         <Link href="/disclaimer" className="hover:text-gray-300 transition-colors">
-          Disclaimer
+          {tn('disclaimer')}
         </Link>
         <span>·</span>
-        <span>© 2026 AutoGuildX</span>
+        <span>{tn('copyright')}</span>
       </footer>
     </main>
   );

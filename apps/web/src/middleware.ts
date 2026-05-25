@@ -4,8 +4,9 @@ import { locales, defaultLocale } from './i18n';
 export default createMiddleware({
   locales,
   defaultLocale,
+  // localeDetection: true reads the NEXT_LOCALE cookie set by LocaleSwitcher,
+  // then falls back to the Accept-Language header if no cookie is present.
   localeDetection: true,
-  // Store locale in cookie so it persists across page loads
   localePrefix: 'always',
 });
 

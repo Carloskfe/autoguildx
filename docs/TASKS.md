@@ -167,6 +167,35 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ---
 
+## Sprint 29 — i18n Completeness ✅ COMPLETE
+
+**Goal:** Make the entire app fully multilingual — once a user picks a language, every string they see (menus, legal pages, error screens, admin UI, instructions) is in that language. Also persist the language preference across sessions.
+
+### Translation keys
+- [x] Add `legal`, `privacy`, `terms`, `cookies_policy`, `disclaimer`, `admin`, `error_page`, `not_found` namespaces to `en.json` and `es.json` (~300 new keys in each file, fully translated)
+
+### Legal pages (privacy, terms, cookies, disclaimer)
+- [x] `[locale]/privacy/page.tsx` — async server component, all content via `useTranslations('privacy')`
+- [x] `[locale]/terms/page.tsx` — async server component, all content via `useTranslations('terms')`
+- [x] `[locale]/cookies/page.tsx` — async server component, all content via `useTranslations('cookies_policy')`
+- [x] `[locale]/disclaimer/page.tsx` — async server component, all content via `useTranslations('disclaimer')`
+- [x] Footer link labels in all 4 legal pages now use `nav` namespace translations
+- [x] `generateMetadata` in each legal page returns translated title
+
+### Error and 404 pages
+- [x] `[locale]/error.tsx` — `useTranslations('error_page')`: heading, title, body, buttons
+- [x] `[locale]/not-found.tsx` — `getTranslations('not_found')`: code, title, body, buttons
+
+### Admin dashboard
+- [x] `[locale]/admin/page.tsx` — `useTranslations('admin')`: title, subtitle, all stat labels, tab names, button labels, role dropdown options, delete modal, pagination, users total count
+
+### Locale persistence
+- [x] `LocaleSwitcher.tsx` — writes `NEXT_LOCALE` cookie (1-year expiry, `SameSite=Lax`) on every language switch
+- [x] `middleware.ts` — comment corrected; `localeDetection: true` already reads the `NEXT_LOCALE` cookie automatically
+- [x] Settings page now shows language switcher in a dedicated "Language" section using the existing `language_section` / `language_label` keys
+
+---
+
 ## Sprint 28 — Unified Visual Polish ✅ COMPLETE
 
 **Goal:** Consistent look and feel across every page — typography, card interactivity, and profile layouts.

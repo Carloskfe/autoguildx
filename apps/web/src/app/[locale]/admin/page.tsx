@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { formatDistanceToNow } from 'date-fns';
 import {
   Loader2,
@@ -73,6 +74,7 @@ function StatCard({
 // ─── Verification tab ─────────────────────────────────────────────────────────
 
 function VerificationTab() {
+  const t = useTranslations('admin');
   const qc = useQueryClient();
 
   const { data: requests = [], isLoading } = useQuery<VerificationRequest[]>({
@@ -98,7 +100,7 @@ function VerificationTab() {
     return (
       <div className="text-center py-12">
         <ShieldCheck className="w-10 h-10 text-gray-600 mx-auto mb-3" />
-        <p className="text-gray-400 text-sm">No pending verification requests.</p>
+        <p className="text-gray-400 text-sm">{t('no_pending')}</p>
       </div>
     );
   }
@@ -113,7 +115,9 @@ function VerificationTab() {
             </p>
             <p className="text-xs text-gray-400 truncate">{req.user?.email}</p>
             <p className="text-xs text-gray-500 mt-0.5">
-              Requested {formatDistanceToNow(new Date(req.createdAt), { addSuffix: true })}
+              {t('requested_ago', {
+                time: formatDistanceToNow(new Date(req.createdAt), { addSuffix: true }),
+              })}
             </p>
           </div>
           <div className="flex gap-2 shrink-0">
@@ -127,7 +131,7 @@ function VerificationTab() {
               ) : (
                 <ShieldCheck className="w-3.5 h-3.5" />
               )}
-              Approve
+              {t('btn_approve')}
             </button>
             <button
               onClick={() => review.mutate({ id: req.id, action: 'deny' })}
@@ -135,7 +139,7 @@ function VerificationTab() {
               className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5 text-red-400 border-red-900 hover:border-red-700 disabled:opacity-50"
             >
               <ShieldOff className="w-3.5 h-3.5" />
-              Deny
+              {t('btn_deny')}
             </button>
           </div>
         </div>
@@ -157,6 +161,7 @@ function DeleteUserModal({
   onConfirm: () => void;
   isPending: boolean;
 }) {
+  const t = useTranslations('admin');
   const [input, setInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -168,18 +173,14 @@ function DeleteUserModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
       <div className="bg-surface-card border border-red-900 rounded-2xl w-full max-w-sm p-6 space-y-4">
         <div>
-          <h2 className="text-base font-bold text-white">Delete user permanently?</h2>
+          <h2 className="text-base font-bold text-white">{t('delete_title')}</h2>
           <p className="text-sm text-gray-400 mt-1">
-            This will hard-delete{' '}
-            <span className="text-white font-medium">{user.profile?.name ?? user.email}</span> and
-            all their data. This cannot be undone.
+            {t('delete_body', { name: user.profile?.name ?? user.email })}
           </p>
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs text-gray-400">
-            Type <span className="font-mono text-red-400 font-bold">DELETE</span> to confirm
-          </label>
+          <label className="text-xs text-gray-400">{t('delete_type')}</label>
           <input
             ref={inputRef}
             value={input}
@@ -192,7 +193,7 @@ function DeleteUserModal({
 
         <div className="flex gap-3 pt-1">
           <button onClick={onClose} className="btn-secondary flex-1 text-sm" disabled={isPending}>
-            Cancel
+            {t('btn_cancel')}
           </button>
           <button
             onClick={onConfirm}
@@ -204,7 +205,7 @@ function DeleteUserModal({
             ) : (
               <Trash2 className="w-4 h-4" />
             )}
-            Delete user
+            {t('btn_delete_user')}
           </button>
         </div>
       </div>
@@ -223,6 +224,7 @@ const ROLE_COLORS: Record<string, string> = {
 };
 
 function UsersTab() {
+  const t = useTranslations('admin');
   const qc = useQueryClient();
   const { userId: currentUserId } = useAuth();
   const [page, setPage] = useState(1);
@@ -276,7 +278,7 @@ function UsersTab() {
         />
       )}
       <div className="space-y-3">
-        <p className="text-xs text-gray-500 px-1">{total} users total</p>
+        <p className="text-xs text-gray-500 px-1">{t('users_total', { count: total })}</p>
 
         {users.map((user) => (
           <div key={user.id} className="card flex items-center justify-between gap-4">
@@ -305,15 +307,15 @@ function UsersTab() {
                   disabled={setRole.isPending}
                   className="input text-xs py-1 px-2 w-32 disabled:opacity-50"
                 >
-                  <option value="enthusiast">Enthusiast</option>
-                  <option value="mechanic">Mechanic</option>
-                  <option value="manufacturer">Manufacturer</option>
-                  <option value="collector">Collector</option>
-                  <option value="admin">Admin</option>
+                  <option value="enthusiast">{t('role_enthusiast')}</option>
+                  <option value="mechanic">{t('role_mechanic')}</option>
+                  <option value="manufacturer">{t('role_manufacturer')}</option>
+                  <option value="collector">{t('role_collector')}</option>
+                  <option value="admin">{t('role_admin')}</option>
                 </select>
                 <button
                   onClick={() => setPendingDelete(user)}
-                  title="Delete user"
+                  title={t('btn_delete_user')}
                   className="p-1.5 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -330,7 +332,7 @@ function UsersTab() {
               disabled={page === 1}
               className="btn-secondary text-xs px-3 py-1.5 disabled:opacity-40"
             >
-              Previous
+              {t('btn_prev')}
             </button>
             <span className="text-xs text-gray-400">
               {page} / {totalPages}
@@ -340,7 +342,7 @@ function UsersTab() {
               disabled={page === totalPages}
               className="btn-secondary text-xs px-3 py-1.5 disabled:opacity-40"
             >
-              Next
+              {t('btn_next')}
             </button>
           </div>
         )}
@@ -354,6 +356,7 @@ function UsersTab() {
 type Tab = 'verification' | 'users';
 
 export default function AdminPage() {
+  const t = useTranslations('admin');
   const { isAuthenticated, role } = useAuth();
   const router = useRouter();
   const [tab, setTab] = useState<Tab>('verification');
@@ -375,8 +378,8 @@ export default function AdminPage() {
     <AppShell>
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
         <div>
-          <h1 className="text-xl font-bold text-white">Admin Dashboard</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Manage users and verification requests</p>
+          <h1 className="text-xl font-bold text-white">{t('title')}</h1>
+          <p className="text-sm text-gray-400 mt-0.5">{t('subtitle')}</p>
         </div>
 
         {/* Stats */}
@@ -388,27 +391,27 @@ export default function AdminPage() {
           </div>
         ) : stats ? (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <StatCard label="Users" value={stats.users} icon={Users} />
-            <StatCard label="Listings" value={stats.listings} icon={Package} />
-            <StatCard label="Events" value={stats.events} icon={Calendar} />
-            <StatCard label="Posts" value={stats.posts} icon={FileText} />
+            <StatCard label={t('stat_users')} value={stats.users} icon={Users} />
+            <StatCard label={t('stat_listings')} value={stats.listings} icon={Package} />
+            <StatCard label={t('stat_events')} value={stats.events} icon={Calendar} />
+            <StatCard label={t('stat_posts')} value={stats.posts} icon={FileText} />
           </div>
         ) : null}
 
         {/* Tabs */}
         <div>
           <div className="flex border-b border-surface-border mb-4">
-            {(['verification', 'users'] as Tab[]).map((t) => (
+            {(['verification', 'users'] as Tab[]).map((tabKey) => (
               <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={`px-4 py-2 text-sm font-medium capitalize transition-colors border-b-2 -mb-px ${
-                  tab === t
+                key={tabKey}
+                onClick={() => setTab(tabKey)}
+                className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
+                  tab === tabKey
                     ? 'border-brand-500 text-white'
                     : 'border-transparent text-gray-400 hover:text-white'
                 }`}
               >
-                {t === 'verification' ? 'Verification Requests' : 'Users'}
+                {tabKey === 'verification' ? t('tab_verification') : t('tab_users')}
               </button>
             ))}
           </div>

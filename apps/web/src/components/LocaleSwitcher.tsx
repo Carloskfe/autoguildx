@@ -16,7 +16,9 @@ export default function LocaleSwitcher() {
 
   function switchLocale(next: Locale) {
     if (next === locale) return;
-    // pathname is /en/feed or /es/feed — replace the locale segment
+    // Persist chosen locale in cookie so middleware uses it on future visits
+    document.cookie = `NEXT_LOCALE=${next};path=/;max-age=31536000;SameSite=Lax`;
+    // Replace the locale segment in the current path
     const segments = pathname.split('/');
     segments[1] = next;
     router.push(segments.join('/'));
