@@ -167,6 +167,37 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ---
 
+## Sprint 30 — Paid Courses + Courses Polish 🔜 NEXT
+
+**Goal:** Close the revenue leak on paid courses (anyone can currently enroll for free) and deliver a complete Udemy-parity courses experience — ratings, sort, preview video, progress bars, and a completion email.
+
+### Backend
+- [ ] `CoursesService.enroll()` payment guard — `ForbiddenException('Payment required')` unless `price === 0`, caller is instructor, or call comes from webhook path
+- [ ] `POST /courses/:id/checkout` — create Stripe Checkout Session (one-time payment); metadata: `{ courseId, userId }`
+- [ ] Stripe webhook handler for `checkout.session.completed` — verify metadata, call `CoursesService.enroll()`; reuse or extend existing Stripe instance in `SubscriptionsModule`
+- [ ] Wire `ReviewsModule` to accept `targetType: 'course'` — add nullable `courseId` FK to review entity + migration; update `ReviewsService.getSummary()` to handle course targets
+- [ ] Add `previewVideoUrl` field to `CourseEntity` + migration
+- [ ] Add `sort` query param to `GET /courses` — `popular` (enrollmentCount DESC) · `rating` (avg rating DESC) · `newest` (default, createdAt DESC)
+- [ ] Completion email — send congrats + certificate via `EmailModule` when `checkAndIssueCertificate` issues a certificate
+- [ ] Unit tests for all modified/new service methods
+
+### Frontend
+- [ ] `/courses/[id]` — replace direct `enroll.mutate()` for paid courses (`price > 0`) with redirect to Stripe Checkout session URL; free courses unchanged
+- [ ] `/courses/[id]/success` and `/courses/[id]/cancel` pages — post-checkout redirect handling (or reuse `/subscription/success|cancel` pattern)
+- [ ] Star rating display on course cards (`/courses` page)
+- [ ] Star rating + review count in course detail hero (below title, above meta row)
+- [ ] `ReviewSection` component on course detail page — same component used on listing/profile pages, `targetType='course'`
+- [ ] Course preview video player in sticky sidebar — play button over thumbnail; clicking opens inline `<video>` or YouTube embed
+- [ ] `previewVideoUrl` field in course create/edit forms
+- [ ] Sort dropdown on `/courses` catalog — Newest · Most Popular · Top Rated
+- [ ] Progress bar on course cards for enrolled users — `X% complete` below card footer
+
+### Ops
+- [ ] Set `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` in `.env.production` (if not already set)
+- [ ] Register `POST /courses/webhook` in Stripe dashboard (or add type discrimination to existing `/subscriptions/webhook`)
+
+---
+
 ## Sprint 29 — i18n Completeness ✅ COMPLETE
 
 **Goal:** Make the entire app fully multilingual — once a user picks a language, every string they see (menus, legal pages, error screens, admin UI, instructions) is in that language. Also persist the language preference across sessions.
