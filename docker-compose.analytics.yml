@@ -54,6 +54,8 @@ services:
       CLICKHOUSE_HOST: posthog_clickhouse
       CLICKHOUSE_DATABASE: posthog
       CLICKHOUSE_SECURE: "false"
+      CLICKHOUSE_REPLICATION: "false"
+      CLICKHOUSE_CLUSTER: ""
       REDIS_URL: redis://posthog_redis:6379
       DISABLE_SECURE_SSL_REDIRECT: "1"
       IS_BEHIND_PROXY: "1"
