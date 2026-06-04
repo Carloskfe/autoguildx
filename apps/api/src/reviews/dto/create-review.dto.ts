@@ -6,8 +6,8 @@ export class CreateReviewDto {
   @IsString()
   targetId: string;
 
-  @ApiProperty({ enum: ['profile', 'listing', 'event'] })
-  @IsIn(['profile', 'listing', 'event'])
+  @ApiProperty({ enum: ['profile', 'listing', 'event', 'course'] })
+  @IsIn(['profile', 'listing', 'event', 'course'])
   targetType: string;
 
   @ApiProperty({ minimum: 1, maximum: 5 })

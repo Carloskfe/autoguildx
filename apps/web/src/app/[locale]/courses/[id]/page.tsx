@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   GraduationCap,
@@ -105,7 +105,22 @@ export default function CourseDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { isAuthenticated, userId } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const qc = useQueryClient();
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('payment') === 'success') {
+      setPaymentSuccess(true);
+      // Refetch enrollment state after Stripe redirect
+      qc.invalidateQueries({ queryKey: ['course', id] });
+      qc.invalidateQueries({ queryKey: ['courseProgress', id] });
+      // Clean the URL without a page reload
+      const url = new URL(window.location.href);
+      url.searchParams.delete('payment');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, [searchParams, id, qc]);
 
   const { data: course, isLoading } = useQuery<CourseDetail>({
     queryKey: ['course', id],
@@ -178,6 +193,14 @@ export default function CourseDetailPage() {
 
   return (
     <AppShell>
+      {paymentSuccess && (
+        <div className="bg-green-500/10 border-b border-green-500/30 px-4 py-3 text-center text-sm text-green-400">
+          🎉 Payment successful — you&apos;re now enrolled!{' '}
+          <Link href={`/courses/${id}/learn`} className="font-semibold underline hover:text-green-300">
+            Start learning →
+          </Link>
+        </div>
+      )}
       {/* ── Hero header ──────────────────────────────────────────────────── */}
       <div className="bg-gray-950 border-b border-surface-border">
         <div className="max-w-6xl mx-auto px-4 py-10">

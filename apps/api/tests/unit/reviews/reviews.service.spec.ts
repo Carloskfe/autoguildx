@@ -101,6 +101,13 @@ describe('ReviewsService', () => {
       const result = await service.getSummary('u-target', 'profile');
       expect(result.avgRating).toBeNull();
     });
+
+    it('works for targetType course', async () => {
+      repo.find.mockResolvedValue([{ rating: 5 }, { rating: 5 }, { rating: 4 }]);
+      const result = await service.getSummary('course-1', 'course');
+      expect(result.avgRating).toBeCloseTo(4.7, 1);
+      expect(result.total).toBe(3);
+    });
   });
 
   describe('deleteReview', () => {
