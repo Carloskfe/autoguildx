@@ -39,6 +39,7 @@ export default function CookieBanner() {
   function accept() {
     setAnalyticsConsent('accepted');
     setVisible(false);
+    window.dispatchEvent(new Event('agx:analytics-accepted'));
   }
 
   function decline() {

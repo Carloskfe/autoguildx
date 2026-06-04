@@ -2,6 +2,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import api from '@/lib/api';
+import { identifyUser, resetUser } from '@/lib/analytics';
 
 interface AuthState {
   token: string | null;
@@ -30,11 +31,14 @@ export const useAuth = create<AuthState>()(
       isAuthenticated: false,
       login: (token, userId) => {
         localStorage.setItem('agx_token', token);
-        set({ token, userId, role: parseJwtRole(token), isAuthenticated: true });
+        const role = parseJwtRole(token);
+        set({ token, userId, role, isAuthenticated: true });
+        identifyUser(userId, { role });
       },
       logout: () => {
         localStorage.removeItem('agx_token');
         set({ token: null, userId: null, role: null, isAuthenticated: false });
+        resetUser();
       },
     }),
     {

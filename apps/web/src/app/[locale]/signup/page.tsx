@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth, signupWithEmail, loginWithFirebaseToken } from '@/hooks/useAuth';
 import { signInWithGoogle, signInWithFacebook, signInWithApple } from '@/lib/firebase';
+import { capture } from '@/lib/analytics';
 
 export default function SignupPage() {
   const t = useTranslations('auth');
@@ -22,6 +23,7 @@ export default function SignupPage() {
     try {
       const data = await signupWithEmail(email, password);
       login(data.accessToken, data.userId);
+      capture('user_signed_up', { provider: 'email' });
       router.push('/verify-email');
     } catch {
       setError(t('error_registration'));
@@ -42,6 +44,7 @@ export default function SignupPage() {
       const idToken = await signIn();
       const data = await loginWithFirebaseToken(idToken);
       login(data.accessToken, data.userId);
+      capture('user_signed_up', { provider });
       router.push('/onboarding');
     } catch {
       setError(

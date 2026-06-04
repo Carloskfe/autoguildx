@@ -12,6 +12,7 @@ import * as bcrypt from 'bcrypt';
 import { AuthService } from '../../../src/auth/auth.service';
 import { UserEntity } from '../../../src/auth/entities/user.entity';
 import { EmailService } from '../../../src/email/email.service';
+import { AnalyticsService } from '../../../src/analytics/analytics.service';
 
 const mockUserRepo = () => ({
   findOne: jest.fn(),
@@ -34,6 +35,12 @@ const mockConfigService = () => ({
   get: jest.fn().mockImplementation((key: string, fallback?: string) => fallback ?? 'http://localhost:3000'),
 });
 
+const mockAnalyticsService = () => ({
+  capture: jest.fn(),
+  identify: jest.fn(),
+  deletePerson: jest.fn().mockResolvedValue(undefined),
+});
+
 const mockDataSource = () => ({
   manager: { query: jest.fn().mockResolvedValue(undefined) },
 });
@@ -52,6 +59,7 @@ describe('AuthService', () => {
         { provide: JwtService, useFactory: mockJwtService },
         { provide: EmailService, useFactory: mockEmailService },
         { provide: ConfigService, useFactory: mockConfigService },
+        { provide: AnalyticsService, useFactory: mockAnalyticsService },
         { provide: getDataSourceToken(), useFactory: mockDataSource },
       ],
     }).compile();

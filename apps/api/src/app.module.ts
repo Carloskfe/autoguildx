@@ -21,6 +21,7 @@ import { AdminModule } from './admin/admin.module';
 import { CoursesModule } from './courses/courses.module';
 import { EmailModule } from './email/email.module';
 import { FirebaseModule } from './firebase/firebase.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 import { validate } from './config/env.validation';
 
 @Module({
@@ -67,6 +68,7 @@ import { validate } from './config/env.validation';
     VerificationModule,
     AdminModule,
     CoursesModule,
+    AnalyticsModule,
   ],
 })
 export class AppModule {}

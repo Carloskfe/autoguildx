@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useAuth, loginWithEmail, loginWithFirebaseToken } from '@/hooks/useAuth';
 import { signInWithGoogle, signInWithFacebook, signInWithApple } from '@/lib/firebase';
 import api from '@/lib/api';
+import { capture } from '@/lib/analytics';
 
 export default function LoginPage() {
   const t = useTranslations('auth');
@@ -36,6 +37,7 @@ export default function LoginPage() {
     try {
       const data = await loginWithEmail(email, password);
       login(data.accessToken, data.userId);
+      capture('user_logged_in', { provider: 'email' });
       await redirectToUserLocale(data.accessToken);
     } catch {
       setError(t('error_invalid'));
@@ -56,6 +58,7 @@ export default function LoginPage() {
       const idToken = await signIn();
       const data = await loginWithFirebaseToken(idToken);
       login(data.accessToken, data.userId);
+      capture('user_logged_in', { provider });
       await redirectToUserLocale(data.accessToken);
     } catch {
       setError(

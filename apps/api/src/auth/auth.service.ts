@@ -16,6 +16,7 @@ import { LoginDto } from './dto/login.dto';
 import { EmailService } from '../email/email.service';
 import { templates } from '../email/email.templates';
 import { ConfigService } from '@nestjs/config';
+import { AnalyticsService } from '../analytics/analytics.service';
 
 @Injectable()
 export class AuthService {
@@ -24,6 +25,7 @@ export class AuthService {
     private jwtService: JwtService,
     private emailService: EmailService,
     private configService: ConfigService,
+    private analytics: AnalyticsService,
     @InjectDataSource() private dataSource: DataSource,
   ) {}
 
@@ -41,6 +43,8 @@ export class AuthService {
     });
     await this.userRepo.save(user);
     await this.sendVerificationEmail(user.email, emailVerificationToken);
+    this.analytics.identify(user.id, { role: user.role });
+    this.analytics.capture(user.id, 'user_signed_up', { provider: 'email', role: user.role });
 
     return { ...this.issueToken(user), emailVerified: false };
   }
@@ -60,10 +64,14 @@ export class AuthService {
 
   async loginWithFirebase(firebaseUid: string, email: string, provider: string) {
     let user = await this.userRepo.findOne({ where: { email } });
+    const isNew = !user;
     if (!user) {
       user = this.userRepo.create({ email, provider, emailVerified: true });
       await this.userRepo.save(user);
     }
+    this.analytics.identify(user.id, { role: user.role });
+    if (isNew) this.analytics.capture(user.id, 'user_signed_up', { provider });
+    else this.analytics.capture(user.id, 'user_logged_in', { provider });
     return { ...this.issueToken(user), emailVerified: user.emailVerified };
   }
 
@@ -186,6 +194,7 @@ export class AuthService {
     await q(`DELETE FROM "verification_requests" WHERE "userId" = $1`, [userId]);
 
     await this.userRepo.delete(userId);
+    await this.analytics.deletePerson(userId);
     return { message: 'Account deleted' };
   }
 

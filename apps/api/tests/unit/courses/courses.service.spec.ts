@@ -9,6 +9,7 @@ import { LessonProgressEntity } from '../../../src/courses/entities/lesson-progr
 import { CertificateEntity } from '../../../src/courses/entities/certificate.entity';
 import { UserEntity } from '../../../src/auth/entities/user.entity';
 import { EmailService } from '../../../src/email/email.service';
+import { AnalyticsService } from '../../../src/analytics/analytics.service';
 
 const mockRepo = () => ({
   findOne: jest.fn(),
@@ -75,6 +76,7 @@ describe('CoursesService', () => {
         { provide: getRepositoryToken(CertificateEntity), useFactory: mockRepo },
         { provide: getRepositoryToken(UserEntity), useFactory: mockRepo },
         { provide: EmailService, useValue: emailService },
+        { provide: AnalyticsService, useValue: { capture: jest.fn(), identify: jest.fn() } },
       ],
     }).compile();
 

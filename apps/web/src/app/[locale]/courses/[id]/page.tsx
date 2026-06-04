@@ -24,6 +24,7 @@ import VerifiedBadge from '@/components/VerifiedBadge';
 import ReviewSection from '@/components/ReviewSection';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
+import { capture } from '@/lib/analytics';
 import type { Course, Lesson, Enrollment, Certificate } from '@autoguildx/shared';
 
 interface CourseDetail extends Course {
@@ -152,6 +153,7 @@ export default function CourseDetailPage() {
   const enroll = useMutation({
     mutationFn: () => api.post(`/courses/${id}/enroll`),
     onSuccess: () => {
+      capture('course_enrolled', { course_id: id, price: 0, method: 'free' });
       qc.invalidateQueries({ queryKey: ['course', id] });
       router.push(`/courses/${id}/learn`);
     },
@@ -160,6 +162,10 @@ export default function CourseDetailPage() {
   const checkout = useMutation({
     mutationFn: () => api.post(`/courses/${id}/checkout`).then((r) => r.data),
     onSuccess: ({ url }: { url: string }) => {
+      capture('course_checkout_started', {
+        course_id: id,
+        price: course ? Number(course.price) : undefined,
+      });
       window.location.href = url;
     },
   });

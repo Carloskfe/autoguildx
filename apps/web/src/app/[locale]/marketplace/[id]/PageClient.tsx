@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
@@ -27,6 +27,7 @@ import UpgradeModal from '@/components/UpgradeModal';
 import ReviewSection from '@/components/ReviewSection';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
+import { capture } from '@/lib/analytics';
 import type { Listing, SubscriptionTier } from '@autoguildx/shared';
 
 interface ListingWithUser extends Listing {
@@ -100,6 +101,18 @@ export default function ListingDetailPage() {
     queryFn: () => api.get(`/listings/${id}`).then((r) => r.data),
     enabled: !!id,
   });
+
+  useEffect(() => {
+    if (listing) {
+      capture('listing_viewed', {
+        listing_id: listing.id,
+        listing_type: listing.type,
+        listing_category: listing.category,
+        has_price: listing.price != null,
+        is_own: listing.userId === userId,
+      });
+    }
+  }, [listing?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { data: subscription } = useQuery<{ tier: SubscriptionTier }>({
     queryKey: ['subscription'],

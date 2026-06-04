@@ -20,6 +20,7 @@ import { CreateLessonDto } from './dto/create-lesson.dto';
 import { EmailService } from '../email/email.service';
 import { UserEntity } from '../auth/entities/user.entity';
 import { templates } from '../email/email.templates';
+import { AnalyticsService } from '../analytics/analytics.service';
 
 export type CourseSort = 'newest' | 'popular' | 'rating';
 
@@ -36,6 +37,7 @@ export class CoursesService {
     @InjectRepository(CertificateEntity) private certRepo: Repository<CertificateEntity>,
     @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>,
     private readonly emailService: EmailService,
+    private readonly analytics: AnalyticsService,
   ) {
     this.stripe = process.env.STRIPE_SECRET_KEY
       ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2026-04-22.dahlia' as any })
@@ -222,6 +224,7 @@ export class CoursesService {
       await this.enrollRepo.save(this.enrollRepo.create({ userId, courseId }));
       await this.courseRepo.increment({ id: courseId }, 'enrollmentCount', 1);
       this.logger.log(`Enrolled user ${userId} in course ${courseId} via Stripe payment`);
+      this.analytics.capture(userId, 'course_enrolled', { course_id: courseId, method: 'paid' });
     }
   }
 
@@ -410,6 +413,7 @@ export class CoursesService {
         const tpl = templates.courseCompleted(course.title, certUrl);
         this.emailService.send({ to: user.email, ...tpl }).catch(() => {});
       }
+      this.analytics.capture(userId, 'course_completed', { course_id: courseId });
     }
 
     return { progress, certificateIssued: !existing };
