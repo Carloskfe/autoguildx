@@ -3,6 +3,8 @@
 import { useLocale } from 'next-intl';
 import { useRouter, usePathname } from 'next/navigation';
 import { locales, type Locale } from '@/i18n';
+import { useAuth } from '@/hooks/useAuth';
+import api from '@/lib/api';
 
 const LOCALE_LABELS: Record<Locale, string> = {
   en: 'EN',
@@ -13,15 +15,17 @@ export default function LocaleSwitcher() {
   const locale = useLocale() as Locale;
   const router = useRouter();
   const pathname = usePathname();
+  const { isAuthenticated } = useAuth();
 
   function switchLocale(next: Locale) {
     if (next === locale) return;
-    // Persist chosen locale in cookie so middleware uses it on future visits
     document.cookie = `NEXT_LOCALE=${next};path=/;max-age=31536000;SameSite=Lax`;
-    // Replace the locale segment in the current path
     const segments = pathname.split('/');
     segments[1] = next;
     router.push(segments.join('/'));
+    if (isAuthenticated) {
+      api.patch('/auth/me/language', { uiLanguage: next }).catch(() => {});
+    }
   }
 
   return (

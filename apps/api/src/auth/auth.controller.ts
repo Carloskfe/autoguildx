@@ -1,5 +1,6 @@
 import {
   Controller,
+  Get,
   Post,
   Delete,
   Patch,
@@ -17,6 +18,7 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { UpdateLanguageDto } from './dto/update-language.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import * as admin from 'firebase-admin';
@@ -77,6 +79,23 @@ export class AuthController {
   @ApiOperation({ summary: 'Reset password using token from email link' })
   resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto.token, dto.newPassword);
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current authenticated user (id, email, role, uiLanguage)' })
+  getMe(@CurrentUser() user: { id: string }) {
+    return this.authService.getMe(user.id);
+  }
+
+  @Patch('me/language')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update UI language preference (en | es)' })
+  updateLanguage(@CurrentUser() user: { id: string }, @Body() dto: UpdateLanguageDto) {
+    return this.authService.updateLanguage(user.id, dto.uiLanguage);
   }
 
   @Patch('change-password')

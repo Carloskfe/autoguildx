@@ -149,6 +149,17 @@ export class AuthService {
     return { message: 'Password changed successfully' };
   }
 
+  async getMe(userId: string) {
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+    return { id: user.id, email: user.email, role: user.role, uiLanguage: user.uiLanguage };
+  }
+
+  async updateLanguage(userId: string, uiLanguage: 'en' | 'es') {
+    await this.userRepo.update(userId, { uiLanguage });
+    return { uiLanguage };
+  }
+
   async deleteAccount(userId: string) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');

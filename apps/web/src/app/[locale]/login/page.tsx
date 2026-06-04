@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth, loginWithEmail, loginWithFirebaseToken } from '@/hooks/useAuth';
 import { signInWithGoogle, signInWithFacebook, signInWithApple } from '@/lib/firebase';
+import api from '@/lib/api';
 
 export default function LoginPage() {
   const t = useTranslations('auth');
@@ -15,6 +16,19 @@ export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
 
+  async function redirectToUserLocale(accessToken: string) {
+    try {
+      const { data } = await api.get('/auth/me', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const lang: string = data.uiLanguage ?? 'en';
+      document.cookie = `NEXT_LOCALE=${lang};path=/;max-age=31536000;SameSite=Lax`;
+      router.push(`/${lang}/feed`);
+    } catch {
+      router.push('/feed');
+    }
+  }
+
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -22,7 +36,7 @@ export default function LoginPage() {
     try {
       const data = await loginWithEmail(email, password);
       login(data.accessToken, data.userId);
-      router.push('/feed');
+      await redirectToUserLocale(data.accessToken);
     } catch {
       setError(t('error_invalid'));
     } finally {
@@ -42,7 +56,7 @@ export default function LoginPage() {
       const idToken = await signIn();
       const data = await loginWithFirebaseToken(idToken);
       login(data.accessToken, data.userId);
-      router.push('/feed');
+      await redirectToUserLocale(data.accessToken);
     } catch {
       setError(
         t('error_social', { provider: provider.charAt(0).toUpperCase() + provider.slice(1) }),

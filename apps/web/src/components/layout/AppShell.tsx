@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   Home,
   Search,
@@ -30,7 +30,7 @@ import TourGuide, { TOUR_KEY } from '@/components/TourGuide';
 import LocaleSwitcher from '@/components/LocaleSwitcher';
 import api from '@/lib/api';
 import type { SubscriptionTier } from '@autoguildx/shared';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 const NAV_ITEMS: { href: string; labelKey: string; icon: React.ElementType; tourId?: string }[] = [
   { href: '/feed', labelKey: 'feed', icon: Home, tourId: 'tour-nav-feed' },
@@ -68,6 +68,8 @@ const TIER_BADGE: Record<string, { labelKey: string; className: string }> = {
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const locale = useLocale();
   const { isAuthenticated, role } = useAuth();
   const tn = useTranslations('nav');
   const ta = useTranslations('appshell');
@@ -77,10 +79,26 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isAuthenticated) return;
-    // Tour targets the desktop sidebar — only run on md+ screens
     if (window.innerWidth < 768) return;
     if (!localStorage.getItem(TOUR_KEY)) setTourRun(true);
   }, [isAuthenticated]);
+
+  // Sync locale from DB on mount — handles cross-device language preference
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    api
+      .get('/auth/me')
+      .then(({ data }) => {
+        const preferred: string = data.uiLanguage ?? 'en';
+        if (preferred !== locale) {
+          document.cookie = `NEXT_LOCALE=${preferred};path=/;max-age=31536000;SameSite=Lax`;
+          const segments = pathname.split('/');
+          segments[1] = preferred;
+          router.replace(segments.join('/'));
+        }
+      })
+      .catch(() => {});
+  }, [isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { data: subscription } = useQuery<{ tier: SubscriptionTier; active: boolean }>({
     queryKey: ['subscription'],

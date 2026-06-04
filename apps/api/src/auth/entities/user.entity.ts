@@ -42,6 +42,9 @@ export class UserEntity {
   @Column({ default: false })
   isTeamAccount: boolean;
 
+  @Column({ default: 'en', length: 5 })
+  uiLanguage: string;
+
   @OneToOne(() => ProfileEntity, (profile) => profile.user)
   profile: ProfileEntity;
 }

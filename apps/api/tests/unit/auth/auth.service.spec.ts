@@ -342,6 +342,46 @@ describe('AuthService', () => {
     });
   });
 
+  describe('getMe', () => {
+    it('returns id, email, role, uiLanguage for existing user', async () => {
+      userRepo.findOne.mockResolvedValue({
+        id: 'uid-1',
+        email: 'a@a.com',
+        role: 'mechanic',
+        uiLanguage: 'en',
+      });
+
+      const result = await service.getMe('uid-1');
+
+      expect(result).toEqual({ id: 'uid-1', email: 'a@a.com', role: 'mechanic', uiLanguage: 'en' });
+    });
+
+    it('throws NotFoundException when user not found', async () => {
+      userRepo.findOne.mockResolvedValue(null);
+      await expect(service.getMe('uid-x')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('updateLanguage', () => {
+    it('persists the new language and returns it', async () => {
+      userRepo.update.mockResolvedValue({});
+
+      const result = await service.updateLanguage('uid-1', 'es');
+
+      expect(userRepo.update).toHaveBeenCalledWith('uid-1', { uiLanguage: 'es' });
+      expect(result).toEqual({ uiLanguage: 'es' });
+    });
+
+    it('works for en as well', async () => {
+      userRepo.update.mockResolvedValue({});
+
+      const result = await service.updateLanguage('uid-1', 'en');
+
+      expect(userRepo.update).toHaveBeenCalledWith('uid-1', { uiLanguage: 'en' });
+      expect(result).toEqual({ uiLanguage: 'en' });
+    });
+  });
+
   describe('deleteAccount', () => {
     it('throws NotFoundException when user not found', async () => {
       userRepo.findOne.mockResolvedValue(null);
