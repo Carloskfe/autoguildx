@@ -61,6 +61,8 @@ services:
       ALLOWED_IP_BLOCKS: ""
       OBJECT_STORAGE_ENABLED: "false"
       WEB_CONCURRENCY: "2"
+      SKIP_SERVICE_VERSION_REQUIREMENTS: "1"
+      TRUSTED_PROXIES: "default"
     networks:
       - analytics_net
       - proxy
