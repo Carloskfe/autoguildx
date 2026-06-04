@@ -61,7 +61,6 @@ services:
       ALLOWED_IP_BLOCKS: ""
       OBJECT_STORAGE_ENABLED: "false"
       WEB_CONCURRENCY: "2"
-      STATSD_HOST: ""
     networks:
       - analytics_net
       - proxy
