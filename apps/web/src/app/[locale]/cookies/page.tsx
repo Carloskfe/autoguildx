@@ -56,15 +56,29 @@ export default async function CookiesPage() {
                   <td className="px-4 py-3">{t('s2_row_duration')}</td>
                   <td className="px-4 py-3 font-medium text-green-400">{t('s2_row_category')}</td>
                 </tr>
+                <tr>
+                  <td className="px-4 py-3">
+                    <code className="text-brand-500">{t('s2_row2_key')}</code>
+                  </td>
+                  <td className="px-4 py-3">{t('s2_row2_purpose')}</td>
+                  <td className="px-4 py-3">{t('s2_row2_duration')}</td>
+                  <td className="px-4 py-3 font-medium text-blue-400">{t('s2_row2_category')}</td>
+                </tr>
               </tbody>
             </table>
           </div>
 
-          <ul className="list-disc list-inside space-y-2 text-gray-300 text-sm leading-relaxed mt-4">
+          <p className="text-gray-400 text-xs leading-relaxed mt-3 italic">
+            {t('s2_analytics_note')}
+          </p>
+
+          <p className="text-xs font-bold tracking-[0.1em] uppercase text-gray-500 mt-5 mb-2">
+            {t('s2_no_list_title')}
+          </p>
+          <ul className="list-disc list-inside space-y-2 text-gray-300 text-sm leading-relaxed">
             <li>{t('s2_no_ads')}</li>
-            <li>{t('s2_no_analytics')}</li>
             <li>{t('s2_no_pixels')}</li>
-            <li>{t('s2_no_session')}</li>
+            <li>{t('s2_no_crosssite')}</li>
           </ul>
         </Section>
 
@@ -94,6 +108,11 @@ export default async function CookiesPage() {
 
         <Section title={t('s4_title')}>
           <p className="text-gray-300 text-sm leading-relaxed">{t('s4_body')}</p>
+        </Section>
+
+        <Section title={t('s4b_title')}>
+          <p className="text-gray-300 text-sm leading-relaxed">{t('s4b_p1')}</p>
+          <p className="text-gray-300 text-sm leading-relaxed mt-3">{t('s4b_p2')}</p>
         </Section>
 
         <Section title={t('s5_title')}>

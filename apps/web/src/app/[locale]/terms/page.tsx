@@ -125,6 +125,12 @@ export default async function TermsPage() {
             .
           </p>
         </Section>
+
+        <Section title={t('s15_title')}>
+          <p className="text-gray-300 text-sm leading-relaxed">{t('s15_p1')}</p>
+          <p className="text-gray-300 text-sm leading-relaxed mt-3">{t('s15_p2')}</p>
+          <p className="text-gray-300 text-sm leading-relaxed mt-3">{t('s15_p3')}</p>
+        </Section>
       </div>
 
       <footer className="border-t border-surface-border px-6 py-6 text-center text-sm text-gray-500 space-x-4">

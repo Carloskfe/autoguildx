@@ -48,6 +48,10 @@ export default async function PrivacyPage() {
               <strong className="text-white">{t('s1_usage_label')}</strong> {t('s1_usage')}
             </li>
             <li>
+              <strong className="text-white">{t('s1_analytics_label')}</strong>{' '}
+              {t('s1_analytics')}
+            </li>
+            <li>
               <strong className="text-white">{t('s1_media_label')}</strong> {t('s1_media')}
             </li>
           </ul>
@@ -62,6 +66,8 @@ export default async function PrivacyPage() {
             <li>{t('s2_i5')}</li>
             <li>{t('s2_i6')}</li>
             <li>{t('s2_i7')}</li>
+            <li>{t('s2_i8')}</li>
+            <li>{t('s2_i9')}</li>
           </ul>
         </Section>
 
@@ -84,6 +90,14 @@ export default async function PrivacyPage() {
         <Section title={t('s4_title')}>
           <p className="text-gray-300 text-sm leading-relaxed mb-3">{t('s4_intro')}</p>
           <ul className="list-disc list-inside space-y-2 text-gray-300 text-sm leading-relaxed">
+            <li>
+              <strong className="text-white">{t('s4_analytics_label')}</strong>{' '}
+              {t('s4_analytics')}
+            </li>
+            <li>
+              <strong className="text-white">{t('s4_partners_label')}</strong>{' '}
+              {t('s4_partners')}
+            </li>
             <li>
               <strong className="text-white">{t('s4_firebase_label')}</strong> {t('s4_firebase')}
             </li>
@@ -124,6 +138,10 @@ export default async function PrivacyPage() {
               {t('s6_portability')}
             </li>
             <li>
+              <strong className="text-white">{t('s6_analytics_label')}</strong>{' '}
+              {t('s6_analytics')}
+            </li>
+            <li>
               <strong className="text-white">{t('s6_optout_label')}</strong> {t('s6_optout')}
             </li>
             <li>
@@ -152,6 +170,37 @@ export default async function PrivacyPage() {
               </a>
             </p>
           </address>
+        </Section>
+
+        <Section title={t('s10_title')}>
+          <p className="text-gray-300 text-sm leading-relaxed mb-3">{t('s10_intro')}</p>
+          <p className="text-xs font-bold tracking-[0.1em] uppercase text-gray-500 mb-2">
+            {t('s10_collected_title')}
+          </p>
+          <ul className="list-disc list-inside space-y-1 text-gray-300 text-sm leading-relaxed mb-4">
+            <li>{t('s10_c1')}</li>
+            <li>{t('s10_c2')}</li>
+            <li>{t('s10_c3')}</li>
+            <li>{t('s10_c4')}</li>
+          </ul>
+          <p className="text-xs font-bold tracking-[0.1em] uppercase text-gray-500 mb-2">
+            {t('s10_not_title')}
+          </p>
+          <ul className="list-disc list-inside space-y-1 text-gray-300 text-sm leading-relaxed mb-4">
+            <li>{t('s10_n1')}</li>
+            <li>{t('s10_n2')}</li>
+            <li>{t('s10_n3')}</li>
+            <li>{t('s10_n4')}</li>
+          </ul>
+          <p className="text-gray-300 text-sm leading-relaxed">{t('s10_consent')}</p>
+          <p className="text-gray-300 text-sm leading-relaxed mt-2">{t('s10_dnt')}</p>
+        </Section>
+
+        <Section title={t('s11_title')}>
+          <p className="text-gray-300 text-sm leading-relaxed">{t('s11_p1')}</p>
+          <p className="text-gray-300 text-sm leading-relaxed mt-3">{t('s11_p2')}</p>
+          <p className="text-gray-300 text-sm leading-relaxed mt-3">{t('s11_p3')}</p>
+          <p className="text-gray-300 text-sm leading-relaxed mt-3">{t('s11_optout')}</p>
         </Section>
       </div>
 

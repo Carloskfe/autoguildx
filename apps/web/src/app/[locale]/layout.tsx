@@ -5,6 +5,7 @@ import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { locales } from '@/i18n';
 import Providers from '../providers';
+import CookieBanner from '@/components/CookieBanner';
 
 const barlow = Barlow({
   subsets: ['latin'],
@@ -60,6 +61,7 @@ export default async function LocaleLayout({
       >
         <NextIntlClientProvider messages={messages}>
           <Providers>{children}</Providers>
+          <CookieBanner />
         </NextIntlClientProvider>
       </body>
     </html>
