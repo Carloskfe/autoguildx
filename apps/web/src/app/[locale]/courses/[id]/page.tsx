@@ -202,7 +202,10 @@ export default function CourseDetailPage() {
       {paymentSuccess && (
         <div className="bg-green-500/10 border-b border-green-500/30 px-4 py-3 text-center text-sm text-green-400">
           🎉 Payment successful — you&apos;re now enrolled!{' '}
-          <Link href={`/courses/${id}/learn`} className="font-semibold underline hover:text-green-300">
+          <Link
+            href={`/courses/${id}/learn`}
+            className="font-semibold underline hover:text-green-300"
+          >
             Start learning →
           </Link>
         </div>

@@ -67,16 +67,10 @@ export default function CookieBanner() {
           </Link>
         </p>
         <div className="flex gap-2 shrink-0">
-          <button
-            onClick={decline}
-            className="btn-secondary text-sm px-4 py-2"
-          >
+          <button onClick={decline} className="btn-secondary text-sm px-4 py-2">
             {t('decline')}
           </button>
-          <button
-            onClick={accept}
-            className="btn-primary text-sm px-4 py-2"
-          >
+          <button onClick={accept} className="btn-primary text-sm px-4 py-2">
             {t('accept')}
           </button>
         </div>

@@ -48,8 +48,7 @@ export default async function PrivacyPage() {
               <strong className="text-white">{t('s1_usage_label')}</strong> {t('s1_usage')}
             </li>
             <li>
-              <strong className="text-white">{t('s1_analytics_label')}</strong>{' '}
-              {t('s1_analytics')}
+              <strong className="text-white">{t('s1_analytics_label')}</strong> {t('s1_analytics')}
             </li>
             <li>
               <strong className="text-white">{t('s1_media_label')}</strong> {t('s1_media')}
@@ -91,12 +90,10 @@ export default async function PrivacyPage() {
           <p className="text-gray-300 text-sm leading-relaxed mb-3">{t('s4_intro')}</p>
           <ul className="list-disc list-inside space-y-2 text-gray-300 text-sm leading-relaxed">
             <li>
-              <strong className="text-white">{t('s4_analytics_label')}</strong>{' '}
-              {t('s4_analytics')}
+              <strong className="text-white">{t('s4_analytics_label')}</strong> {t('s4_analytics')}
             </li>
             <li>
-              <strong className="text-white">{t('s4_partners_label')}</strong>{' '}
-              {t('s4_partners')}
+              <strong className="text-white">{t('s4_partners_label')}</strong> {t('s4_partners')}
             </li>
             <li>
               <strong className="text-white">{t('s4_firebase_label')}</strong> {t('s4_firebase')}
@@ -138,8 +135,7 @@ export default async function PrivacyPage() {
               {t('s6_portability')}
             </li>
             <li>
-              <strong className="text-white">{t('s6_analytics_label')}</strong>{' '}
-              {t('s6_analytics')}
+              <strong className="text-white">{t('s6_analytics_label')}</strong> {t('s6_analytics')}
             </li>
             <li>
               <strong className="text-white">{t('s6_optout_label')}</strong> {t('s6_optout')}
