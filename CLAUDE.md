@@ -117,7 +117,9 @@ AutoGuildX/
 │       │   │   │   └── AppShell.tsx      # Header + sidebar + mobile nav, unread badges
 │       │   │   ├── NotificationPanel.tsx  # Slide-down notification dropdown
 │       │   │   ├── ReviewSection.tsx      # Star picker, histogram, dimension ratings
-│       │   │   └── UpgradeModal.tsx       # Tier cards + Stripe Checkout redirect
+│       │   │   ├── UpgradeModal.tsx       # Tier cards + Stripe Checkout redirect
+│       │   │   ├── CookieBanner.tsx       # GDPR opt-in banner; stores agx-analytics-consent in localStorage
+│       │   │   └── AnalyticsProvider.tsx  # PostHog context + SPA pageview tracker + consent listener
 │       │   ├── hooks/
 │       │   │   └── useAuth.ts            # Zustand auth store, persisted to localStorage
 │       │   └── lib/
@@ -466,6 +468,15 @@ Every domain feature follows the same NestJS pattern: `module → controller →
 | Upload | `src/upload/` | S3 presign stub (`POST /upload/presign`) |
 | Verification | `src/verification/` | Verified badge requests, admin review, isVerified flag on profiles |
 | Admin | `src/admin/` | Platform stats, user list + role management — all routes require `role: admin` |
+| Analytics | `src/analytics/` | `@Global` PostHog wrapper (`posthog-node`); `capture`, `identify`, `deletePerson`; no-op when `POSTHOG_KEY` absent |
+
+**Auth endpoints added (Sprint 31 i18n + analytics):**
+- `GET /auth/me` — returns `{ id, email, role, uiLanguage }` for the authenticated user
+- `PATCH /auth/me/language` — accepts `{ uiLanguage: 'en' | 'es' }`, persists to DB
+
+**Reviews `targetType`:** accepts `'profile' | 'listing' | 'event' | 'course'` — all four are valid in `CreateReviewDto`.
+
+**`uiLanguage` on UserEntity:** `VARCHAR(5) DEFAULT 'en'` — stores the user's preferred UI language. Synced from DB on login and app mount; updated via `LocaleSwitcher`. Migration: `1700000000017-AddUiLanguage`.
 
 **Auth flow:** `JwtStrategy` (`src/auth/jwt.strategy.ts`) validates Bearer tokens and injects `{ id, email, role }` into `req.user`. Protected routes use `JwtAuthGuard` (`src/common/guards/`). Use `@CurrentUser()` (`src/common/decorators/`) to extract the user in controllers.
 
@@ -536,7 +547,9 @@ All authenticated pages wrap their content with `AppShell` (`src/components/layo
 - Profile names — `font-heading font-black text-2xl tracking-tight text-white`.
 - Role badges — `bg-brand-500/10 border border-brand-500/25 text-brand-400` pill pattern.
 
-**Internationalization (Sprint 25):** All routes live under `app/[locale]/` (e.g. `/en/feed`, `/es/feed`). `middleware.ts` detects language from `Accept-Language` header and `NEXT_LOCALE` cookie, then redirects. Translation strings live in `apps/web/messages/en.json` and `apps/web/messages/es.json` (~500 keys across 20 namespaces). Use `useTranslations('namespace')` in every client component — never hardcode UI strings. `LocaleSwitcher` in AppShell header and Settings page lets users switch locales.
+**Internationalization (Sprint 25 + DB persistence):** All routes live under `app/[locale]/` (e.g. `/en/feed`, `/es/feed`). `middleware.ts` detects language from `Accept-Language` header and `NEXT_LOCALE` cookie, then redirects. Translation strings live in `apps/web/messages/en.json` and `apps/web/messages/es.json` (~500 keys across 20 namespaces). Use `useTranslations('namespace')` in every client component — never hardcode UI strings. `LocaleSwitcher` in AppShell header and Settings page lets users switch locales. Language is also persisted to DB (`uiLanguage` on UserEntity) so it syncs across devices — after login, `GET /auth/me` is called, `NEXT_LOCALE` cookie is set from the DB value, and navigation lands on the correct locale URL. AppShell re-syncs on mount.
+
+**Analytics (Sprint 31):** `src/lib/analytics.ts` wraps PostHog. Init is gated on `agx-analytics-consent === 'accepted'` in `localStorage` AND `navigator.doNotTrack !== '1'`. `AnalyticsProvider` wraps the root layout and handles SPA page view tracking. `CookieBanner` shows on first visit; on accept it fires `agx:analytics-accepted` event to init PostHog in-tab without reload. Key events captured: `user_signed_up`, `user_logged_in`, `listing_viewed`, `course_enrolled`, `course_checkout_started`, `course_completed` (server-side). Never pass email or full name as PostHog properties. PostHog Cloud EU is the active deployment (`https://eu.i.posthog.com`). Required env vars: `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST`, `POSTHOG_KEY`, `POSTHOG_HOST`.
 
 **API client:** `src/lib/api.ts` — Axios instance that auto-attaches JWT from `localStorage` and redirects to `/login` on 401.
 

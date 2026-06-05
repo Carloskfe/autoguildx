@@ -142,6 +142,23 @@ All features below are fully implemented and deployed unless noted.
 - Owner can add/edit/delete entries inline; public profiles render sections read-only
 - Fully translated (EN + ES) via `useTranslations('sections')`
 
+### 14. Behavioral Analytics (Sprint 31)
+- PostHog Cloud EU — consent-gated, GDPR-compliant behavioral analytics
+- `CookieBanner` shown on first visit; user must explicitly accept before any events are captured
+- Honors browser DNT signal (auto-declines)
+- Key events: `user_signed_up`, `user_logged_in`, `listing_viewed`, `course_enrolled`, `course_checkout_started`, `course_completed`
+- User identity linked at login (`posthog.identify`); reset on logout
+- Server-side capture via `AnalyticsService` (NestJS) for guaranteed post-payment events
+- GDPR right to erasure: account deletion propagates `deletePerson` to PostHog
+- Aggregate insights infrastructure: k-anonymity (≥5 users) enforced before any partner data exports
+- Legal: Privacy Policy, Cookie Policy, and Terms of Service updated to fully disclose analytics program
+
+### 13. Legal Compliance (Sprint 31)
+- Privacy Policy — discloses PostHog analytics, aggregate partner insights, retention (12 months for analytics), GDPR rights including analytics opt-out
+- Cookie Policy — accurate storage table (auth + analytics consent key), consent mechanism, DNT handling
+- Terms of Service — Section 15: analytics opt-in, aggregate insights are not a sale of personal data, deletion triggers analytics erasure
+- All documents in English and Spanish
+
 ### 12. Multilingual Support (EN / ES)
 - Full English/Spanish internationalization via `next-intl` v3 + `[locale]` URL segments
 - URLs: `/en/feed`, `/es/feed` — SEO-friendly, shareable
@@ -197,10 +214,13 @@ All features below are fully implemented and deployed unless noted.
 - ~~Verified badges (identity trust layer)~~ — shipped Sprint 11
 - ~~Transactional email notifications~~ — shipped Sprint 13
 - ~~Courses and certifications~~ — shipped Sprint 14
+- ~~Behavioral analytics + GDPR consent infrastructure~~ — shipped Sprint 31
+- ~~Legal compliance (privacy/cookies/terms)~~ — shipped Sprint 31
 - Payment transaction fees (up to 9% on marketplace sales)
 - Logistics / shipping support
 - Advanced discovery and matching (AI-based recommendations)
-- Mobile app (React Native) — scaffold + core tabs wired; detail screens shipped Sprint 27; EAS Build + store distribution pending
+- Aggregate partner insights portal (automotive brands, dealerships) — analytics foundation in place; partner-facing export API and self-serve dashboard pending
+- Mobile app (React Native) — scaffold + core tabs wired; detail screens shipped Sprint 27; EAS Build + store distribution pending (Sprint 32)
 - Admin-initiated user account deletion (admins can hard-delete any user account from the admin dashboard; self-deletion already exists in `/settings`)
 
 ---
@@ -211,3 +231,5 @@ All features below are fully implemented and deployed unless noted.
 - Users remain in existing generic platforms (Instagram, eBay, Facebook Marketplace)
 - Stripe and S3 not yet activated in production (code complete, needs env vars)
 - Email (Resend) not activated — signup verification emails won't send without `EMAIL_API_KEY`
+- Password reset flow never smoke-tested on production end-to-end
+- Analytics active (PostHog Cloud EU live) but event volume too low to build meaningful cohorts until user base grows

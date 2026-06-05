@@ -167,6 +167,59 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 
 ---
 
+## Sprint 32 — Mobile App Play Store submission 🔜 NEXT
+
+**Goal:** Submit the AutoGuildX Android app to the Play Store internal testing track. All code is complete from Sprint 27. This is a pure ops sprint — no new code required.
+
+### Ops checklist
+- [ ] Run `eas login` from `apps/mobile/`
+- [ ] Run `npm run build:android:preview` — generate preview APK for smoke test
+- [ ] Smoke-test the APK on a physical device (auth, feed, marketplace, messages)
+- [ ] Run `npm run build:android:production` — generate production AAB
+- [ ] Create app in Google Play Console (`com.autoguildx.app`)
+- [ ] Upload screenshots, description, privacy policy URL (`https://autoguildx.com/privacy`)
+- [ ] Submit to internal testing track via `npm run submit:android`
+- [ ] Add Android app in Firebase Console for Google Sign-In on Android
+- [ ] Smoke-test password reset flow on production (has never been verified end-to-end)
+
+---
+
+## Sprint 31 — Analytics Infrastructure (PostHog) ✅ COMPLETE
+
+**Goal:** Deploy PostHog behavioral analytics with GDPR-compliant consent, instrument key user events across web and API, and lay the foundation for user persona analysis and aggregate partner insights.
+
+### Infrastructure
+- [x] `docker-compose.analytics.yml` — PostHog self-hosted stack authored (ClickHouse, Redis, Postgres); kept as reference. **Deployment decision:** PostHog Cloud EU used instead (free tier covers current scale, zero ops, GDPR-compliant EU data center)
+- [x] PostHog Cloud EU account live at `https://eu.posthog.com` — project: AutoGuildX
+- [x] Authorized domains: `https://autoguildx.com`, `https://www.autoguildx.com`
+- [x] `POSTHOG_KEY` + `POSTHOG_HOST` + `NEXT_PUBLIC_POSTHOG_KEY` + `NEXT_PUBLIC_POSTHOG_HOST` added to `.env.production` and `docker-compose.server.yml` build args
+- [x] Web Dockerfile — `NEXT_PUBLIC_POSTHOG_KEY` / `NEXT_PUBLIC_POSTHOG_HOST` baked as build args
+
+### Web integration
+- [x] `apps/web/src/lib/analytics.ts` — PostHog wrapper; consent-gated (`agx-analytics-consent`), DNT-aware, PII-sanitizing autocapture config; exports `capture`, `identify`, `reset`, `capturePageview`
+- [x] `apps/web/src/components/AnalyticsProvider.tsx` — React context provider + SPA page view tracker (Suspense-wrapped) + `ConsentListener` (inits PostHog in-tab when banner accepted)
+- [x] `CookieBanner.tsx` — dispatches `agx:analytics-accepted` event on accept so PostHog initialises without a page reload
+- [x] `useAuth.ts` — calls `identifyUser(userId, { role })` on login, `resetUser()` on logout
+- [x] Login page — captures `user_logged_in` with provider (email / google / facebook / apple)
+- [x] Signup page — captures `user_signed_up` with provider
+- [x] Marketplace detail — captures `listing_viewed` with category, type, price metadata
+- [x] Course detail — captures `course_enrolled` (free) and `course_checkout_started` (paid)
+
+### API integration
+- [x] `apps/api/src/analytics/analytics.service.ts` — `@Global` NestJS service wrapping `posthog-node`; `capture` / `identify` / `deletePerson`; no-op when `POSTHOG_KEY` absent; flushes on module destroy
+- [x] `apps/api/src/analytics/analytics.module.ts` — global module, exported to all modules
+- [x] `AuthService` — server-side `user_signed_up` + `identify` on signup/Firebase login; `deletePerson` propagation in `deleteAccount` (GDPR right to erasure)
+- [x] `CoursesService` — `course_enrolled` after Stripe webhook, `course_completed` on certificate issuance
+- [x] Unit tests — `analytics.service.spec.ts` added; auth + courses specs updated with `AnalyticsService` mock (332 passing)
+
+### Legal
+- [x] Privacy Policy — corrected false "no tracking" claim; added Section 10 (Analytics and Behavioral Data) and Section 11 (Aggregate Market Insights); updated Sections 1, 2, 4, 5, 6
+- [x] Cookie Policy — replaced inaccurate "we don't use analytics" language; added analytics storage row to table; added Section 5 (Analytics Storage and Consent); updated DNT section
+- [x] Terms of Service — added Section 15 (Analytics and Data Use)
+- [x] All legal docs updated in both EN and ES
+
+---
+
 ## Sprint 30 — Paid Courses + Courses Polish ✅ COMPLETE
 
 **Goal:** Close the revenue leak on paid courses (anyone can currently enroll for free) and deliver a complete Udemy-parity courses experience — ratings, sort, preview video, progress bars, and a completion email.
@@ -224,6 +277,7 @@ Status legend: `[x]` done · `[ ]` pending · `[-]` in progress
 - [x] `LocaleSwitcher.tsx` — writes `NEXT_LOCALE` cookie (1-year expiry, `SameSite=Lax`) on every language switch
 - [x] `middleware.ts` — comment corrected; `localeDetection: true` already reads the `NEXT_LOCALE` cookie automatically
 - [x] Settings page now shows language switcher in a dedicated "Language" section using the existing `language_section` / `language_label` keys
+- [x] **DB-persisted `uiLanguage` (added session between Sprint 29 and 30)** — language preference stored per user so it syncs across devices. `uiLanguage VARCHAR(5) DEFAULT 'en'` column added to users table (migration `1700000000017-AddUiLanguage`). `GET /auth/me` returns `{ id, email, role, uiLanguage }`. `PATCH /auth/me/language` accepts `{ uiLanguage: 'en' | 'es' }`. Login page fetches preference after auth and sets `NEXT_LOCALE` cookie before redirect. AppShell syncs locale from DB on mount (cross-device). LocaleSwitcher fires `PATCH /auth/me/language` in background on switch.
 
 ---
 
